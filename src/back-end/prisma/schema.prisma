@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,8 +7,130 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Quan {
+  quan_id           String  @id
+  ten_quan          String
+  thanh_pho         String
+  gioi_han_so_daily Int
+  daiLys            DaiLy[]
+}
+
+model LoaiDaiLy {
+  loai_daily_id  String  @id
+  ten_loai       String
+  tien_no_toi_da Decimal
+  daiLys         DaiLy[]
+}
+
+model DaiLy {
+  daily_id            String   @id
+  ten                 String
+  dien_thoai          String
+  dia_chi             String
+  email               String
+  quan_id             String
+  loai_daily_id       String
+  tien_no             Decimal
+  ngay_tiep_nhan      DateTime
+  nhan_vien_tiep_nhan String
+
+  nhanVien       NhanVien        @relation("NhanVienTiepNhan", fields: [nhan_vien_tiep_nhan], references: [nhan_vien_id])
+  quan           Quan            @relation(fields: [quan_id], references: [quan_id])
+  loaiDaiLy      LoaiDaiLy       @relation(fields: [loai_daily_id], references: [loai_daily_id])
+  phieuXuatHangs PhieuXuatHang[]
+  phieuThuTiens  PhieuThuTien[]
+}
+
+model MatHang {
+  mathang_id       String             @id
+  ten              String
+  don_vi_tinh      String
+  don_gia          Decimal
+  chiTietPhieuXuat ChiTietPhieuXuat[]
+}
+
+model LoaiNhanVien {
+  loai_nhan_vien_id String     @id
+  ten_loai          String
+  mo_ta             String
+  nhanViens         NhanVien[]
+}
+
+model NhanVien {
+  nhan_vien_id      String   @id
+  ten               String
+  dien_thoai        String
+  email             String
+  loai_nhan_vien_id String
+  dia_chi           String
+  mat_khau          String
+  ngay_them         DateTime
+
+  loaiNhanVien   LoaiNhanVien     @relation(fields: [loai_nhan_vien_id], references: [loai_nhan_vien_id])
+  daiLys         DaiLy[]          @relation("NhanVienTiepNhan")
+  phieuXuatHangs PhieuXuatHang[]  @relation("NhanVienLapPhieu")
+  phieuThuTiens  PhieuThuTien[]   @relation("NhanVienThuTien")
+  quyen          NhanVien_Quyen[]
+}
+
+model PhieuXuatHang {
+  phieu_id            String   @id
+  daily_id            String
+  ngay_lap_phieu      DateTime
+  nhan_vien_lap_phieu String
+
+  daiLy            DaiLy              @relation(fields: [daily_id], references: [daily_id])
+  nhanVien         NhanVien           @relation("NhanVienLapPhieu", fields: [nhan_vien_lap_phieu], references: [nhan_vien_id])
+  chiTietPhieuXuat ChiTietPhieuXuat[]
+}
+
+model ChiTietPhieuXuat {
+  phieu_id   String
+  mathang_id String
+  so_luong   Int
+  don_gia    Decimal
+  thanh_tien Decimal
+
+  phieuXuat PhieuXuatHang @relation(fields: [phieu_id], references: [phieu_id])
+  matHang   MatHang       @relation(fields: [mathang_id], references: [mathang_id])
+
+  @@id([phieu_id, mathang_id])
+}
+
+model PhieuThuTien {
+  phieu_thu_id       String   @id
+  daily_id           String
+  ngay_thu           DateTime
+  so_tien_thu        Decimal
+  nhan_vien_thu_tien String
+
+  daiLy    DaiLy    @relation(fields: [daily_id], references: [daily_id])
+  nhanVien NhanVien @relation("NhanVienThuTien", fields: [nhan_vien_thu_tien], references: [nhan_vien_id])
+}
+
+model Quyen {
+  quyen_id      String           @id
+  ten_quyen     String
+  mo_ta         String
+  nhanVienQuyen NhanVien_Quyen[]
+}
+
+model NhanVien_Quyen {
+  nhan_vien_id String
+  quyen_id     String
+
+  nhanVien NhanVien @relation(fields: [nhan_vien_id], references: [nhan_vien_id])
+  quyen    Quyen    @relation(fields: [quyen_id], references: [quyen_id])
+
+  @@id([nhan_vien_id, quyen_id])
+}
+
+model Quy_Dinh_1 {
+  id                          Int     @id @default(1)
+  so_luong_cac_loai_daily     Int
+  so_dai_ly_toi_da_trong_quan Int
+  so_luong_mat_hang_toi_da    Int
+  so_luong_don_vi_tinh        Int
+  loai_daily_id               String
+  tien_no_toi_da              Decimal
 }
