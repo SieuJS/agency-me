@@ -18,7 +18,7 @@ model Quan {
 model LoaiDaiLy {
   loai_daily_id  String  @id
   ten_loai       String
-  tien_no_toi_da Decimal
+  tien_no_toi_da Float
   daiLys         DaiLy[]
 }
 
@@ -30,7 +30,7 @@ model DaiLy {
   email               String
   quan_id             String
   loai_daily_id       String
-  tien_no             Decimal
+  tien_no             Float
   ngay_tiep_nhan      DateTime
   nhan_vien_tiep_nhan String
 
@@ -45,7 +45,7 @@ model MatHang {
   mathang_id       String             @id
   ten              String
   don_vi_tinh      String
-  don_gia          Decimal
+  don_gia          Float
   chiTietPhieuXuat ChiTietPhieuXuat[]
 }
 
@@ -88,8 +88,8 @@ model ChiTietPhieuXuat {
   phieu_id   String
   mathang_id String
   so_luong   Int
-  don_gia    Decimal
-  thanh_tien Decimal
+  don_gia    Float
+  thanh_tien Float
 
   phieuXuat PhieuXuatHang @relation(fields: [phieu_id], references: [phieu_id])
   matHang   MatHang       @relation(fields: [mathang_id], references: [mathang_id])
@@ -101,7 +101,7 @@ model PhieuThuTien {
   phieu_thu_id       String   @id
   daily_id           String
   ngay_thu           DateTime
-  so_tien_thu        Decimal
+  so_tien_thu        Float
   nhan_vien_thu_tien String
 
   daiLy    DaiLy    @relation(fields: [daily_id], references: [daily_id])
@@ -132,5 +132,5 @@ model Quy_Dinh_1 {
   so_luong_mat_hang_toi_da    Int
   so_luong_don_vi_tinh        Int
   loai_daily_id               String
-  tien_no_toi_da              Decimal
+  tien_no_toi_da              Float
 }
