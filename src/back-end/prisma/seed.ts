@@ -143,6 +143,24 @@ import { generateRandomNhanVien, generateRandomDaiLy } from './seedFactory';
 const prisma = new PrismaClient();
 
 async function main() {
+    //  Seed Loại nhân viên
+    await prisma.loaiNhanVien.createMany({
+        data: [
+            { loai_nhan_vien_id: 'admin', ten_loai: 'Admin' , 'mo_ta': 'Quản lý hệ thống' },
+            { loai_nhan_vien_id: 'staff', ten_loai: 'Staff' , 'mo_ta': 'Nhân viên' },
+        ],
+        skipDuplicates: true,
+    });
+
+    // 4. Seed Loại đại lý (BẮT BUỘC TRƯỚC khi seed Đại lý)
+    await prisma.loaiDaiLy.createMany({
+        data: [
+            { loai_daily_id: '1', ten_loai: 'Loại 1' , 'tien_no_toi_da': 20000},
+            { loai_daily_id: '2', ten_loai: 'Loại 2' , 'tien_no_toi_da': 50000},
+        ],
+        skipDuplicates: true,
+    });
+
     // Seed nhân viên cố định
     await prisma.nhanVien.createMany({
         data: [
