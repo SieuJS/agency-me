@@ -56,7 +56,7 @@ export function generateRandomNhanVien(count: number): NhanVien[] {
 
     for (let i = 1; i <= count; i++) {
         nhanViens.push({
-            nhan_vien_id: `nv_auto_${i.toString().padStart(3, '0')}`,
+            nhan_vien_id: `nv${i.toString().padStart(3, '0')}`,
             ten: faker.person.fullName(),
             dien_thoai: generateVietnamPhoneNumber(),
             email: faker.internet.email(),
@@ -77,7 +77,7 @@ export function generateRandomDaiLy(count: number): DaiLy[] {
 
     for (let i = 1; i <= count; i++) {
         daiLys.push({
-            daily_id: `daily_auto_${i.toString().padStart(3, '0')}`,
+            daily_id: `daily${i.toString().padStart(3, '0')}`,
             ten: `Đại Lý ${faker.company.name()}`,
             dien_thoai: generateVietnamPhoneNumber(),
             dia_chi: generateVietnamAddress(),
