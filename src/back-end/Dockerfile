@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
+COPY prisma ./prisma/ 
 
 # Install dependencies
 RUN npm install
@@ -19,4 +20,5 @@ COPY . .
 # Build the NestJS application
 
 # Command to run the application
-CMD ["sh", "-c", "npm run db:resolve && npm run start"]
+CMD ["sh", "-c", "npm run start"]
+# CMD ["sh", "-c", "npm run db:resolve && npm run start"]
