@@ -6,6 +6,8 @@ export default [
 
     // Định nghĩa route '/home'
     route("home", "routes/home.tsx"),
+    // Định nghĩa route '/agency-lookup'
+    route("agency-lookup", "routes/agency-lookup.tsx"),
 
   
 ] satisfies RouteConfig;

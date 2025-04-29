@@ -1,6 +1,6 @@
 // --- Import các thư viện cần thiết ---
 import React, { useState, useEffect, type FormEvent } from 'react';
-import { useNavigate } from 'react-router'; // Hoặc 'react-router-dom' tùy cách bạn cấu hình
+import { useNavigate } from 'react-router';
 
 // --- Import các UI Component ---
 import { Input } from '../components/ui/Input';
@@ -80,7 +80,7 @@ export default function LoginPage() {
        setApiErrorMessage('');
        try {
            await fakeLoginApi(username, password);
-           navigate('/home');
+           navigate('/agency-lookup'); // Chuyển hướng đến trang agency-lookup sau khi đăng nhập thành công
        } catch (error) {
            const message = error instanceof Error ? error.message : 'Đã có lỗi.';
            setApiErrorMessage(message);
