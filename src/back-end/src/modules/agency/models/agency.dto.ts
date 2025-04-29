@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail } from "class-validator";
 
 export class AgencyDto {
     @ApiProperty({
@@ -19,6 +20,7 @@ export class AgencyDto {
     @ApiProperty({
         example : "daily@gmail.com"
     })
+    @IsEmail()
     email : string;
 
     @ApiProperty({

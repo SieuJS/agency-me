@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
-
-import { PrismaModule } from 'prisma/prisma.module';
 import { AgencyModule } from './modules/agency/agency.module';
 import { UsersModule } from './modules/users/users.module';
 import { CommonModule } from './modules/common';
