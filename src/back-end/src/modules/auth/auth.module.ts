@@ -5,9 +5,11 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { CommonModule } from '../common';
 
 @Module({
   imports: [
+    CommonModule,
     UsersModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super-secret',
