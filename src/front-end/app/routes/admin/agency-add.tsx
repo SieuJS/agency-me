@@ -1,5 +1,5 @@
 // --- Import các thư viện cần thiết ---
-import React, { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router';
 
 import DatePicker from 'react-datepicker'; // Cần cài đặt: npm install react-datepicker @types/react-datepicker
