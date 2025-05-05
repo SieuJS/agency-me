@@ -80,7 +80,7 @@ export default function LoginPage() {
        setApiErrorMessage('');
        try {
            await fakeLoginApi(username, password);
-           navigate('/agency-lookup'); // Chuyển hướng đến trang agency-lookup sau khi đăng nhập thành công
+           navigate('/admin/agency-add'); // Chuyển hướng đến trang agency-lookup sau khi đăng nhập thành công
        } catch (error) {
            const message = error instanceof Error ? error.message : 'Đã có lỗi.';
            setApiErrorMessage(message);

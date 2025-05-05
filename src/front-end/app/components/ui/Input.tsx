@@ -2,7 +2,7 @@ import React, { type InputHTMLAttributes } from 'react';
 
 // Định nghĩa kiểu cho props, kế thừa các thuộc tính của input HTML
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string; // Label là bắt buộc
+  label?: string; // Label là bắt buộc
   id: string;    // id là bắt buộc để liên kết label và input
   error?: string; // Thông báo lỗi là tùy chọn
 }

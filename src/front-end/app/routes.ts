@@ -9,5 +9,7 @@ export default [
     // Định nghĩa route '/agency-lookup'
     route("agency-lookup", "routes/agency-lookup.tsx"),
 
+    route("admin/agency-add", "routes/admin/agency-add.tsx"),
+
   
 ] satisfies RouteConfig;
