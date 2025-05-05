@@ -108,7 +108,7 @@ export default function AgencyLookupPageWithCompleteLayout() {
           {/* Mục Quản lý đại lý */}
           <div className="space-y-1">
             <h3 className="px-3 text-base font-semibold text-gray-800 mb-1">Quản lý đại lý</h3> {/* Text to hơn, đậm hơn */}
-            <NavLink to="/agencies-add" className={getSidebarNavLinkClass}> {/* Sửa thành path thực tế */}
+            <NavLink to="/admin/agency-add" className={getSidebarNavLinkClass}> {/* Sửa thành path thực tế */}
               <PlusSquare className="w-5 h-5 mr-3 flex-shrink-0" />
               <span className="truncate">Tiếp nhận đại lý</span>
             </NavLink>
