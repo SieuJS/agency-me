@@ -4,6 +4,7 @@ import { AgencyTypeParams } from '../models/agencyType.params';
 import { AgencyTypeDto } from '../models/agencyType.dto';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { AgencyTypeListResponse } from '../models/agency-type-list.response';
+import { AgencyTypeInput } from '../models/agency-type.input';
 
 @Injectable()
 export class AgencyTypeService {
@@ -38,5 +39,35 @@ export class AgencyTypeService {
       params.perPage
     )
     return reponse as AgencyTypeListResponse; // Ép kiểu nếu cần
+  }
+
+
+  async createAgencyType(input: AgencyTypeInput): Promise<AgencyTypeDto> {
+    const { ten_loai, tien_no_toi_da } = input;
+
+    // Kiểm tra trùng tên loại đại lý
+    const existingAgencyType = await this.prisma.loaiDaiLy.findFirst({
+      where: {
+        ten_loai: { equals: ten_loai, mode: 'insensitive' },
+      },
+    });
+    if (existingAgencyType) {
+      throw new Error('Agency type with this name already exists');
+    }
+
+    // Sinh loai_daily_id tự động
+    const count = await this.prisma.loaiDaiLy.count();
+    const loai_daily_id = `loai${(count + 1).toString().padStart(3, '0')}`;
+
+    // Tạo bản ghi mới
+    const newAgencyType = await this.prisma.loaiDaiLy.create({
+      data: {
+        loai_daily_id,
+        ten_loai,
+        tien_no_toi_da,
+      },
+    });
+    // Trả về DTO
+    return new AgencyTypeDto(newAgencyType);
   }
 }

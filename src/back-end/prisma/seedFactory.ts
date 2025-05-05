@@ -25,7 +25,7 @@ interface DaiLy {
     dia_chi: string;
     email: string;
     quan_id: string;
-    loai_daily_id: '1' | '2';
+    loai_daily_id: 'loai001' | 'loai002';
     tien_no: number;
     ngay_tiep_nhan: Date;
     nhan_vien_tiep_nhan: string;
@@ -83,7 +83,7 @@ export function generateRandomDaiLy(count: number): DaiLy[] {
             dia_chi: generateVietnamAddress(),
             email: faker.internet.email(),
             quan_id: faker.helpers.arrayElement(quanIds),
-            loai_daily_id: faker.helpers.arrayElement(['1', '2']),
+            loai_daily_id: faker.helpers.arrayElement(['loai001', 'loai002']),
             tien_no: faker.number.int({ min: 0, max: 500000 }),
             ngay_tiep_nhan: new Date(),
             nhan_vien_tiep_nhan: faker.helpers.arrayElement(nhanVienTiepNhanIds),
