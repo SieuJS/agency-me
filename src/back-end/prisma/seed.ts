@@ -139,6 +139,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { generateRandomNhanVien, generateRandomDaiLy } from './seedFactory';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -162,6 +163,7 @@ async function main() {
     });
 
     // Seed nhân viên cố định
+    const hashedPassword = await bcrypt.hash('123', 10);
     await prisma.nhanVien.createMany({
         data: [
             {
@@ -171,7 +173,7 @@ async function main() {
                 email: 'hungphat@gmail.com',
                 loai_nhan_vien_id: 'admin',
                 dia_chi: '123 ABC',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
             {
@@ -181,7 +183,7 @@ async function main() {
                 email: 'minhhung@gmail.com',
                 loai_nhan_vien_id: 'staff',
                 dia_chi: '456 DEF',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
             {
@@ -191,7 +193,7 @@ async function main() {
                 email: 'quochung@gmail.com',
                 loai_nhan_vien_id: 'staff',
                 dia_chi: '789 GHI',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
         ],
@@ -265,7 +267,7 @@ async function main() {
     });
 
     // Seed 50 nhân viên random
-    const randomNhanViens = generateRandomNhanVien(50);
+    const randomNhanViens = await generateRandomNhanVien(50);
     await prisma.nhanVien.createMany({
         data: randomNhanViens,
         skipDuplicates: true,

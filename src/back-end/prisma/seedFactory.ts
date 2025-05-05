@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 // import { faker } from '@faker-js/faker/locale/en';
+import * as bcrypt from 'bcrypt';
 
 /**
  * Định nghĩa type cho Nhân viên
@@ -51,10 +52,12 @@ function generateVietnamAddress() {
     return `${houseNumber} ${street}, ${district}, ${city}`;
 }
 
-export function generateRandomNhanVien(count: number): NhanVien[] {
+export async function generateRandomNhanVien(count: number): Promise<NhanVien[]> {
     const nhanViens: NhanVien[] = [];
 
     for (let i = 1; i <= count; i++) {
+        const password = 'nhanvien' + i.toString();
+        const hashedPassword = await bcrypt.hash(password, 10);
         nhanViens.push({
             nhan_vien_id: `nv${i.toString().padStart(3, '0')}`,
             ten: faker.person.fullName(),
@@ -62,7 +65,7 @@ export function generateRandomNhanVien(count: number): NhanVien[] {
             email: faker.internet.email(),
             loai_nhan_vien_id: i <= Math.floor(count * 0.2) ? 'admin' : 'staff', // 20% admin
             dia_chi: generateVietnamAddress(),
-            mat_khau: '123',
+            mat_khau: hashedPassword,
             ngay_them: new Date(),
         });
     }
