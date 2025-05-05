@@ -3,42 +3,93 @@ import { PrismaService } from 'src/modules/common';
 import { AgencyParams } from '../models/agency.params';
 import { AgencyDto } from '../models/agency.dto';
 import { AgencyInput } from '../models/agency.input';
+import { PaginationService } from 'src/modules/common/services/pagination.service';
+import { AgencyListResponse } from '../models/agency-list.response';
 
 @Injectable()
 export class AgencyService {
     constructor (
-        private readonly prisma: PrismaService
+        private readonly prisma: PrismaService,
+        private readonly paginationService : PaginationService<AgencyDto>,
     ){}
 
-    async getListAngencies(params : AgencyParams) : Promise<AgencyDto[] | null> {
+    async getListAngencies(params : AgencyParams) : Promise<AgencyListResponse| null> {
         const {dien_thoai, email,tien_no, ten , ngay_tiep_nhan} = params;
         const rawResult = await  this.prisma.daiLy.findMany({
             where: {
-                dien_thoai,
-                email,
-                tien_no,
-                ten,
-                ngay_tiep_nhan
-            }
+                dien_thoai : (dien_thoai ? {
+                    contains: dien_thoai,
+                    mode: 'insensitive'
+                } : {}),
+                email : (email ? {
+                    contains: email,
+                    mode: 'insensitive'
+                } : {}),
+                tien_no : (tien_no ? {
+                    gte: tien_no
+                } : {}),
+                ten : (ten ? {
+                    contains: ten,
+                    mode: 'insensitive'
+                } : {}),
+                ngay_tiep_nhan : (ngay_tiep_nhan ? {
+                    gte: new Date(ngay_tiep_nhan)
+                } : {})
+            },
         });
-        return rawResult.map((item) : AgencyDto => {
-            return {
-                daily_id: item.daily_id,
-                ten: item.ten,
-                dien_thoai: item.dien_thoai,
-                email: item.email,
-                dia_chi: item.dia_chi,
-                tien_no: item.tien_no,
-                ngay_tiep_nhan: item.ngay_tiep_nhan
-            }
-        })
+
+        const reponse = await this.paginationService.paginate(
+            rawResult,
+            params.page,
+            params.perPage
+        )
+        return reponse
     }
 
     async createAgency(input : AgencyInput) : Promise<AgencyDto> {
         const {ten, dien_thoai, email, dia_chi, loai_daily_id, quan_id, tien_no, nhan_vien_tiep_nhan} = input;
+        const existingAgency = await this.prisma.daiLy.findFirst({
+            where: {
+                OR: [
+                    { dien_thoai: { equals: dien_thoai } },
+                    { email: { equals: email } }
+                ]
+            }
+        });
+        if (existingAgency) {
+            throw new Error('Agency with this phone number or email already exists');
+        }
+
+        const existingNhanVien = await this.prisma.nhanVien.findUnique({
+            where: {
+                nhan_vien_id: nhan_vien_tiep_nhan
+            }
+        });
+
+        if (!existingNhanVien) {
+            throw new Error('Employee not found');
+        }
+
+        const existingLoaiDaiLy = await this.prisma.loaiDaiLy.findUnique({
+            where: {
+                loai_daily_id
+            }
+        });
+        if (!existingLoaiDaiLy) {
+            throw new Error('Agency type not found');
+        }
+        const existingQuan = await this.prisma.quan.findUnique({
+            where: {
+                quan_id
+            }
+        });
+        if (!existingQuan) {
+            throw new Error('District not found');  
+        }
+
         const count = await this.prisma.daiLy.count();
         const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
-        const rawResult = await this.prisma.daiLy.create({
+        return await this.prisma.daiLy.create({
             data: {
                 daily_id,
                 ten,
@@ -52,14 +103,5 @@ export class AgencyService {
                 nhan_vien_tiep_nhan
             }
         });
-        return {
-            daily_id: rawResult.daily_id,
-            ten: rawResult.ten,
-            dien_thoai: rawResult.dien_thoai,
-            email: rawResult.email,
-            dia_chi: rawResult.dia_chi,
-            tien_no: rawResult.tien_no,
-            ngay_tiep_nhan: rawResult.ngay_tiep_nhan
-        }
     }
 }
