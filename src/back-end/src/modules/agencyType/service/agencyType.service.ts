@@ -70,4 +70,36 @@ export class AgencyTypeService {
     // Trả về DTO
     return new AgencyTypeDto(newAgencyType);
   }
+
+  async deleteAgencyType(loai_daily_id: string): Promise<{ message: string }> {
+    // Kiểm tra loại đại lý tồn tại
+    const existingAgencyType = await this.prisma.loaiDaiLy.findUnique({
+      where: {
+        loai_daily_id,
+      },
+    });
+
+    if (!existingAgencyType) {
+      throw new Error('Agency type not found');
+    }
+
+    // Kiểm tra xem có đại lý nào đang sử dụng loại đại lý này không
+    const relatedAgencies = await this.prisma.daiLy.findFirst({
+      where: {
+        loai_daily_id,
+      },
+    });
+
+    if (relatedAgencies) {
+      throw new Error('Cannot delete agency type because it is being used by agencies');
+    }
+
+    // Xóa loại đại lý
+    await this.prisma.loaiDaiLy.delete({
+      where: {
+        loai_daily_id,
+      },
+    });
+    return { message: 'Agency type deleted successfully' };
+  }
 }

@@ -3,7 +3,7 @@ import { LoaiDaiLy, Prisma } from "@prisma/client";
 
 export class AgencyTypeDto {
     @ApiProperty({
-        example: "1",
+        example: "loai001",
     })
     loai_daily_id: string;
 
