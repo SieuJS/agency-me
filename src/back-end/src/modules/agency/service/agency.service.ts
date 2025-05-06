@@ -36,10 +36,17 @@ export class AgencyService {
                     gte: new Date(ngay_tiep_nhan)
                 } : {})
             },
+            include: {
+                nhanVien: true,
+                quan: true,
+                loaiDaiLy: true,
+                phieuXuatHangs: true,
+                phieuThuTiens: true,
+            },
         });
 
         const reponse = await this.paginationService.paginate(
-            rawResult,
+            rawResult.map((item) => new AgencyDto(item)),
             params.page,
             params.perPage
         )
@@ -89,7 +96,7 @@ export class AgencyService {
 
         const count = await this.prisma.daiLy.count();
         const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
-        return await this.prisma.daiLy.create({
+        const createdDaily =  await this.prisma.daiLy.create({
             data: {
                 daily_id,
                 ten,
@@ -101,7 +108,15 @@ export class AgencyService {
                 tien_no,
                 ngay_tiep_nhan: new Date(),
                 nhan_vien_tiep_nhan
+            },
+            include: {
+                nhanVien: true,
+                quan: true,
+                loaiDaiLy: true,
+                phieuXuatHangs: true,
+                phieuThuTiens: true,
             }
         });
+        return new AgencyDto(createdDaily);
     }
 }
