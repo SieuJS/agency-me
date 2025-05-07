@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail } from 'class-validator';
 
-export class RegisterDto {
+export class RegisterInput {
   @ApiProperty({ example: 'user@gmail.com' })
   @IsEmail()
   email: string;
@@ -16,18 +16,18 @@ export class RegisterDto {
 
   @ApiProperty({ example: '0912345678' })
   @IsString()
-  dienThoai: string;
+  dien_thoai: string;
 
   @ApiProperty({ example: 'admin' })
   @IsString()
-  loaiNhanVienId: string;
+  loai_nhan_vien_id: string;
 
   @ApiProperty({ example: '123 Đường ABC, Quận 1, TP.HCM' })
   @IsString()
-  diaChi: string;
+  dia_chi: string;
 }
 
-export class LoginDto {
+export class LoginInput {
   @ApiProperty({ example: 'user@gmail.com' })
   @IsEmail()
   email: string;
