@@ -1,5 +1,5 @@
 // src/front-end/app/routes/agency-lookup.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 // Quan trọng: Import từ 'react-router' cho thiết lập của bạn
 import { Link, NavLink, type MetaFunction } from 'react-router';
 // Import icons
@@ -20,7 +20,9 @@ const mockAgencies: Agency[] = [
   { id: 1, stt: 1, name: 'Đại lý A', type: 'Loại 1', district: 'Quận 1', debt: 1500000 },
   { id: 2, stt: 2, name: 'Đại lý B', type: 'Loại 2', district: 'Quận 3', debt: 0 },
   { id: 3, stt: 3, name: 'Đại lý C', type: 'Loại 1', district: 'Quận 1', debt: 3200000 },
-  // Thêm các dòng khác nếu cần để test scroll
+  { id: 4, stt: 4, name: 'Đại lý D', type: 'Loại 1', district: 'Quận 2', debt: 500000 },
+  { id: 5, stt: 5, name: 'Đại lý E', type: 'Loại 3', district: 'Quận 3', debt: 2000000 },
+  { id: 6, stt: 6, name: 'Đại lý F', type: 'Loại 2', district: 'Quận 1', debt: 0 },
 ];
 
 // --- Meta Function ---
@@ -34,9 +36,32 @@ export const meta: MetaFunction = () => {
 // --- Component Chính ---
 export default function AgencyLookupPageWithCompleteLayout() {
   // State cho nội dung chính
-  const [searchTerm, setSearchTerm] = useState('');
   const [agencies, setAgencies] = useState<Agency[]>(mockAgencies);
   const [activeTab, setActiveTab] = useState('agency'); // Tab "Đại lý" active mặc định
+
+  // --- Helper Data for Filters ---
+  const allDistricts = useMemo(() => [...new Set(mockAgencies.map(agency => agency.district))].sort(), []);
+  const allTypes = useMemo(() => [...new Set(mockAgencies.map(agency => agency.type))].sort(), []);
+
+  const { minDebt, maxDebt: initialMaxSliderDebt } = useMemo(() => {
+    if (mockAgencies.length === 0) {
+      return { minDebt: 0, maxDebt: 5000000 }; // Default range if no agencies
+    }
+    const debts = mockAgencies.map(a => a.debt);
+    return { minDebt: Math.min(0, ...debts), maxDebt: Math.max(0, ...debts) };
+  }, []);
+
+  // --- State cho các trường tìm kiếm ---
+  const [searchName, setSearchName] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState(''); // '' nghĩa là "Tất cả"
+  const [selectedType, setSelectedType] = useState(''); // '' nghĩa là "Tất cả"
+  const [currentDebtFilterValue, setCurrentDebtFilterValue] = useState<number>(initialMaxSliderDebt);
+
+  // Reset currentDebtFilterValue if initialMaxSliderDebt changes (e.g. mockAgencies changes)
+  useEffect(() => {
+    setCurrentDebtFilterValue(initialMaxSliderDebt);
+  }, [initialMaxSliderDebt]);
+
 
   // --- Helper Functions ---
 
@@ -50,23 +75,35 @@ export default function AgencyLookupPageWithCompleteLayout() {
 
   // Hàm xử lý tìm kiếm
   const handleSearch = () => {
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    if (!lowerSearchTerm) {
-        setAgencies(mockAgencies); return; // Reset nếu trống
+    let filtered = mockAgencies;
+
+    if (searchName.trim()) {
+      const lowerSearchName = searchName.toLowerCase();
+      filtered = filtered.filter(agency =>
+        agency.name.toLowerCase().includes(lowerSearchName)
+      );
     }
-    const filtered = mockAgencies.filter(agency =>
-        agency.name.toLowerCase().includes(lowerSearchTerm) ||
-        agency.district.toLowerCase().includes(lowerSearchTerm) ||
-        agency.type.toLowerCase().includes(lowerSearchTerm)
-    );
+
+    if (selectedDistrict) {
+      filtered = filtered.filter(agency => agency.district === selectedDistrict);
+    }
+
+    if (selectedType) {
+      filtered = filtered.filter(agency => agency.type === selectedType);
+    }
+
+    filtered = filtered.filter(agency => agency.debt <= currentDebtFilterValue);
+
     setAgencies(filtered);
   };
 
-   // Hàm xử lý Enter trong ô tìm kiếm
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
+  // Hàm xử lý reset bộ lọc
+  const handleResetSearch = () => {
+    setSearchName('');
+    setSelectedDistrict('');
+    setSelectedType('');
+    setCurrentDebtFilterValue(initialMaxSliderDebt);
+    setAgencies(mockAgencies);
   };
 
   // Hàm tạo class cho các Tab nội dung chính
@@ -80,7 +117,7 @@ export default function AgencyLookupPageWithCompleteLayout() {
 
   // --- JSX Render ---
   return (
-    // Container bao toàn bộ trang, nền trắng tổng thể như figma
+    // Container bao toàn bộ trang
     <div className="flex flex-col h-screen bg-white">
       {/* --- Header --- */}
       <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 border-b border-gray-200"> {/* Header nền trắng */}
@@ -144,28 +181,104 @@ export default function AgencyLookupPageWithCompleteLayout() {
 
             {/* Nội dung tương ứng với Tab Đại lý */}
             {activeTab === 'agency' && (
-              // Container cho nội dung tab, không cần card riêng nếu không muốn
               <div className="space-y-5">
                 <h2 className="text-xl font-semibold text-gray-900">Danh sách các đại lý</h2>
-                {/* Thanh tìm kiếm */}
-                <div className="flex items-center space-x-3">
-                  <div className="relative flex-grow">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                      <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
+
+                {/* --- Khu vực bộ lọc mới --- */}
+                <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50/50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 items-end">
+                    {/* Tên đại lý */}
+                    <div>
+                      <label htmlFor="searchName" className="block text-sm font-medium text-gray-700 mb-1">
+                        Tên đại lý
+                      </label>
+                      <input
+                        type="text"
+                        id="searchName"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="Nhập tên đại lý..."
+                      />
                     </div>
-                    <input type="text" name="search" id="search"
-                      // Style input giống figma: border nhẹ, focus xanh
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      placeholder="Tìm kiếm theo tên, loại, quận..."
-                      value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown}
-                    />
+
+                    {/* Quận */}
+                    <div>
+                      <label htmlFor="searchDistrict" className="block text-sm font-medium text-gray-700 mb-1">
+                        Quận
+                      </label>
+                      <select
+                        id="searchDistrict"
+                        value={selectedDistrict}
+                        onChange={(e) => setSelectedDistrict(e.target.value)}
+                        className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      >
+                        <option value="">Tất cả quận</option>
+                        {allDistricts.map(district => (
+                          <option key={district} value={district}>{district}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Loại đại lý */}
+                    <div>
+                      <label htmlFor="searchType" className="block text-sm font-medium text-gray-700 mb-1">
+                        Loại đại lý
+                      </label>
+                      <select
+                        id="searchType"
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      >
+                        <option value="">Tất cả loại</option>
+                        {allTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Số tiền nợ (Slider) */}
+                    <div className="lg:col-span-1">
+                      <label htmlFor="searchMaxDebt" className="block text-sm font-medium text-gray-700 mb-1">
+                        Nợ tối đa: {new Intl.NumberFormat('vi-VN').format(currentDebtFilterValue)}
+                      </label>
+                      <input
+                        type="range"
+                        id="searchMaxDebt"
+                        min={minDebt}
+                        max={initialMaxSliderDebt}
+                        value={currentDebtFilterValue}
+                        onChange={(e) => setCurrentDebtFilterValue(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1 px-0.5">
+                        <span>{new Intl.NumberFormat('vi-VN').format(minDebt)}</span>
+                        <span>{new Intl.NumberFormat('vi-VN').format(initialMaxSliderDebt)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <button type="button" onClick={handleSearch}
-                    // Nút tìm màu đen/xám đậm
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">
-                    Tìm
-                  </button>
+
+                  {/* Search and Reset Buttons */}
+                  <div className="flex justify-start space-x-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleSearch}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
+                    >
+                      <Search className="h-4 w-4 mr-2 -ml-1" /> Tìm kiếm
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetSearch}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Đặt lại
+                    </button>
+                  </div>
                 </div>
+                {/* --- Kết thúc khu vực bộ lọc mới --- */}
+
                 {/* Bảng dữ liệu */}
                 <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm"> {/* Thêm bo góc, shadow nhẹ cho table */}
                   <table className="min-w-full divide-y divide-gray-200">
