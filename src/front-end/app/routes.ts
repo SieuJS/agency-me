@@ -7,9 +7,9 @@ export default [
     // Định nghĩa route '/home'
     route("home", "routes/home.tsx"),
     // Định nghĩa route '/agency-lookup'
-    route("agency-lookup", "routes/agency-lookup.tsx"),
+    route("agency/lookup", "routes/agency/agency-lookup.tsx"),
 
-    route("admin/agency-add", "routes/admin/agency-add.tsx"),
+    route("agency/add", "routes/agency/agency-add.tsx"),
 
   
 ] satisfies RouteConfig;

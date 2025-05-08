@@ -1,4 +1,12 @@
-import { Controller, Get, Query, UsePipes, Body, Post, HttpException, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Body,
+  Post,
+  HttpException,
+  Delete,
+} from '@nestjs/common';
 import { AgencyTypeService } from '../service/agencyType.service';
 import { AgencyTypeParams } from '../models/agencyType.params';
 import { ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
@@ -30,7 +38,8 @@ export class AgencyTypeController {
   })
   async createAgencyType(@Body() input: AgencyTypeInput) {
     try {
-      const newAgencyType = await this.agencyTypeService.createAgencyType(input);
+      const newAgencyType =
+        await this.agencyTypeService.createAgencyType(input);
       return {
         message: 'Agency type created successfully',
         agencyType: newAgencyType,
@@ -53,7 +62,8 @@ export class AgencyTypeController {
   })
   async deleteAgencyType(@Query('loai_daily_id') loai_daily_id: string) {
     try {
-      const result = await this.agencyTypeService.deleteAgencyType(loai_daily_id);
+      const result =
+        await this.agencyTypeService.deleteAgencyType(loai_daily_id);
       return result;
     } catch (error) {
       throw new HttpException(error.message, 400);
