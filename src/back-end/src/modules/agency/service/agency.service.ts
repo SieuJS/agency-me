@@ -8,100 +8,121 @@ import { AgencyListResponse } from '../models/agency-list.response';
 
 @Injectable()
 export class AgencyService {
-    constructor (
-        private readonly prisma: PrismaService,
-        private readonly paginationService : PaginationService<AgencyDto>,
-    ){}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly paginationService: PaginationService<AgencyDto>,
+  ) {}
 
-    async getListAngencies(params : AgencyParams) : Promise<AgencyListResponse| null> {
-        const {dien_thoai, email,tien_no, ten , ngay_tiep_nhan} = params;
-        const rawResult = await  this.prisma.daiLy.findMany({
-            where: {
-                dien_thoai : (dien_thoai ? {
-                    contains: dien_thoai,
-                    mode: 'insensitive'
-                } : {}),
-                email : (email ? {
-                    contains: email,
-                    mode: 'insensitive'
-                } : {}),
-                tien_no : (tien_no ? {
-                    gte: tien_no
-                } : {}),
-                ten : (ten ? {
-                    contains: ten,
-                    mode: 'insensitive'
-                } : {}),
-                ngay_tiep_nhan : (ngay_tiep_nhan ? {
-                    gte: new Date(ngay_tiep_nhan)
-                } : {})
-            },
-        });
+  async getListAngencies(
+    params: AgencyParams,
+  ): Promise<AgencyListResponse | null> {
+    const { dien_thoai, email, tien_no, ten, ngay_tiep_nhan } = params;
+    const rawResult = await this.prisma.daiLy.findMany({
+      where: {
+        dien_thoai: dien_thoai
+          ? {
+              contains: dien_thoai,
+              mode: 'insensitive',
+            }
+          : {},
+        email: email
+          ? {
+              contains: email,
+              mode: 'insensitive',
+            }
+          : {},
+        tien_no: tien_no
+          ? {
+              gte: tien_no,
+            }
+          : {},
+        ten: ten
+          ? {
+              contains: ten,
+              mode: 'insensitive',
+            }
+          : {},
+        ngay_tiep_nhan: ngay_tiep_nhan
+          ? {
+              gte: new Date(ngay_tiep_nhan),
+            }
+          : {},
+      },
+    });
 
-        const reponse = await this.paginationService.paginate(
-            rawResult,
-            params.page,
-            params.perPage
-        )
-        return reponse
+    const reponse = this.paginationService.paginate(
+      rawResult,
+      params.page,
+      params.perPage,
+    );
+    return reponse;
+  }
+
+  async createAgency(input: AgencyInput): Promise<AgencyDto> {
+    const {
+      ten,
+      dien_thoai,
+      email,
+      dia_chi,
+      loai_daily_id,
+      quan_id,
+      tien_no,
+      nhan_vien_tiep_nhan,
+    } = input;
+    const existingAgency = await this.prisma.daiLy.findFirst({
+      where: {
+        OR: [
+          { dien_thoai: { equals: dien_thoai } },
+          { email: { equals: email } },
+        ],
+      },
+    });
+    if (existingAgency) {
+      throw new Error('Agency with this phone number or email already exists');
     }
 
-    async createAgency(input : AgencyInput) : Promise<AgencyDto> {
-        const {ten, dien_thoai, email, dia_chi, loai_daily_id, quan_id, tien_no, nhan_vien_tiep_nhan} = input;
-        const existingAgency = await this.prisma.daiLy.findFirst({
-            where: {
-                OR: [
-                    { dien_thoai: { equals: dien_thoai } },
-                    { email: { equals: email } }
-                ]
-            }
-        });
-        if (existingAgency) {
-            throw new Error('Agency with this phone number or email already exists');
-        }
+    const existingNhanVien = await this.prisma.nhanVien.findUnique({
+      where: {
+        nhan_vien_id: nhan_vien_tiep_nhan,
+      },
+    });
 
-        const existingNhanVien = await this.prisma.nhanVien.findUnique({
-            where: {
-                nhan_vien_id: nhan_vien_tiep_nhan
-            }
-        });
-
-        if (!existingNhanVien) {
-            throw new Error('Employee not found');
-        }
-
-        const existingLoaiDaiLy = await this.prisma.loaiDaiLy.findUnique({
-            where: {
-                loai_daily_id
-            }
-        });
-        if (!existingLoaiDaiLy) {
-            throw new Error('Agency type not found');
-        }
-        const existingQuan = await this.prisma.quan.findUnique({
-            where: {
-                quan_id
-            }
-        });
-        if (!existingQuan) {
-            throw new Error('District not found');  
-        }
-
-        const count = await this.prisma.daiLy.count();
-        const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
-        return await this.prisma.daiLy.create({
-            data: {
-                daily_id,
-                ten,
-                dien_thoai,
-                email,
-                dia_chi,
-                loai_daily_id,
-                quan_id,
-                tien_no,
-                ngay_tiep_nhan: new Date(),
-                nhan_vien_tiep_nhan
-            }
-        });
+    if (!existingNhanVien) {
+      throw new Error('Employee not found');
     }
+
+    const existingLoaiDaiLy = await this.prisma.loaiDaiLy.findUnique({
+      where: {
+        loai_daily_id,
+      },
+    });
+    if (!existingLoaiDaiLy) {
+      throw new Error('Agency type not found');
+    }
+    const existingQuan = await this.prisma.quan.findUnique({
+      where: {
+        quan_id,
+      },
+    });
+    if (!existingQuan) {
+      throw new Error('District not found');
+    }
+
+    const count = await this.prisma.daiLy.count();
+    const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
+    return await this.prisma.daiLy.create({
+      data: {
+        daily_id,
+        ten,
+        dien_thoai,
+        email,
+        dia_chi,
+        loai_daily_id,
+        quan_id,
+        tien_no,
+        ngay_tiep_nhan: new Date(),
+        nhan_vien_tiep_nhan,
+      },
+    });
+  }
 }

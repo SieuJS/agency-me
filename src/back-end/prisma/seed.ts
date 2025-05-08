@@ -71,8 +71,8 @@
 //     // 4. Seed Loại đại lý (BẮT BUỘC TRƯỚC khi seed Đại lý)
 //     await prisma.loaiDaiLy.createMany({
 //         data: [
-//             { loai_daily_id: '1', ten_loai: 'Loại 1' , 'tien_no_toi_da': 20000},
-//             { loai_daily_id: '2', ten_loai: 'Loại 2' , 'tien_no_toi_da': 50000},
+//             { loai_daily_id: 'loai001', ten_loai: 'Loại 1' , 'tien_no_toi_da': 20000},
+//             { loai_daily_id: 'loai002', ten_loai: 'Loại 2' , 'tien_no_toi_da': 50000},
 //         ],
 //         skipDuplicates: true,
 //     });
@@ -87,7 +87,7 @@
 //                 dia_chi: '789 XYZ',
 //                 email: 'daily1@gmail.com',
 //                 quan_id: '01',
-//                 loai_daily_id: '1', 
+//                 loai_daily_id: 'loai001', 
 //                 tien_no: 0,
 //                 ngay_tiep_nhan: new Date(),
 //                 nhan_vien_tiep_nhan: 'nv003',
@@ -99,7 +99,7 @@
 //                 dia_chi: '101 ABC',
 //                 email: 'daily2@gmail.com',
 //                 quan_id: 'hoankiem', 
-//                 loai_daily_id: '2',
+//                 loai_daily_id: 'loai002',
 //                 tien_no: 0,
 //                 ngay_tiep_nhan: new Date(),
 //                 nhan_vien_tiep_nhan: 'nv002',
@@ -118,7 +118,7 @@
 //             so_dai_ly_toi_da_trong_quan: 4,
 //             so_luong_mat_hang_toi_da: 5,
 //             so_luong_don_vi_tinh: 3,
-//             loai_daily_id: '1', 
+//             loai_daily_id: 'loai001', 
 //             tien_no_toi_da: 5000000,
 //         },
 //     });
@@ -139,6 +139,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { generateRandomNhanVien, generateRandomDaiLy } from './seedFactory';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -155,13 +156,14 @@ async function main() {
     // 4. Seed Loại đại lý (BẮT BUỘC TRƯỚC khi seed Đại lý)
     await prisma.loaiDaiLy.createMany({
         data: [
-            { loai_daily_id: '1', ten_loai: 'Loại 1' , 'tien_no_toi_da': 20000},
-            { loai_daily_id: '2', ten_loai: 'Loại 2' , 'tien_no_toi_da': 50000},
+            { loai_daily_id: 'loai001', ten_loai: 'Loại 1' , 'tien_no_toi_da': 20000},
+            { loai_daily_id: 'loai002', ten_loai: 'Loại 2' , 'tien_no_toi_da': 50000},
         ],
         skipDuplicates: true,
     });
 
     // Seed nhân viên cố định
+    const hashedPassword = await bcrypt.hash('123', 10);
     await prisma.nhanVien.createMany({
         data: [
             {
@@ -171,7 +173,7 @@ async function main() {
                 email: 'hungphat@gmail.com',
                 loai_nhan_vien_id: 'admin',
                 dia_chi: '123 ABC',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
             {
@@ -181,7 +183,7 @@ async function main() {
                 email: 'minhhung@gmail.com',
                 loai_nhan_vien_id: 'staff',
                 dia_chi: '456 DEF',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
             {
@@ -191,7 +193,7 @@ async function main() {
                 email: 'quochung@gmail.com',
                 loai_nhan_vien_id: 'staff',
                 dia_chi: '789 GHI',
-                mat_khau: '123',
+                mat_khau: hashedPassword,
                 ngay_them: new Date(),
             },
         ],
@@ -228,7 +230,7 @@ async function main() {
                 dia_chi: '789 XYZ',
                 email: 'daily1@gmail.com',
                 quan_id: '01',
-                loai_daily_id: '1',
+                loai_daily_id: 'loai001',
                 tien_no: 0,
                 ngay_tiep_nhan: new Date(),
                 nhan_vien_tiep_nhan: 'nv003',
@@ -240,7 +242,7 @@ async function main() {
                 dia_chi: '101 ABC',
                 email: 'daily2@gmail.com',
                 quan_id: 'hoaniem',
-                loai_daily_id: '2',
+                loai_daily_id: 'loai002',
                 tien_no: 0,
                 ngay_tiep_nhan: new Date(),
                 nhan_vien_tiep_nhan: 'nv002',
@@ -259,13 +261,13 @@ async function main() {
             so_dai_ly_toi_da_trong_quan: 4,
             so_luong_mat_hang_toi_da: 5,
             so_luong_don_vi_tinh: 3,
-            loai_daily_id: '1',
+            loai_daily_id: 'loai001',
             tien_no_toi_da: 5000000,
         },
     });
 
     // Seed 50 nhân viên random
-    const randomNhanViens = generateRandomNhanVien(50);
+    const randomNhanViens = await generateRandomNhanVien(50);
     await prisma.nhanVien.createMany({
         data: randomNhanViens,
         skipDuplicates: true,
