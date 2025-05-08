@@ -5,10 +5,18 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AgencyModule } from './modules/agency/agency.module';
 import { UsersModule } from './modules/users/users.module';
 import { CommonModule } from './modules/common';
+import { AgencyTypeModule } from './modules/agencyType/agencyType.module';
 import { DistrictModule } from './modules/district/district.module';
 
 @Module({
-  imports: [ CommonModule, AuthModule, UsersModule, AgencyModule, DistrictModule],
+  imports: [
+    CommonModule,
+    AuthModule,
+    UsersModule,
+    AgencyModule,
+    AgencyTypeModule,
+    DistrictModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
