@@ -2,30 +2,39 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { NhanVien } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-    constructor(
-      private usersService: UsersService,
-      private jwtService: JwtService
-    ) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-    async validateUser(email: string, password: string): Promise<any> {
-        const user = await this.usersService.findByEmail(email);
-        if (!user) throw new UnauthorizedException('User not found');
-        const isMatch = user.mat_khau && await bcrypt.compare(password, user.mat_khau);
-        if (isMatch) {
-            const { mat_khau, ...result } = user;
-            return result;
-        }
-        return null;
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<NhanVien | null> {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new UnauthorizedException('User not found');
+    const isMatch =
+      user.mat_khau && (await bcrypt.compare(password, user.mat_khau));
+    if (isMatch) {
+      const { ...result } = user;
+      return result;
     }
+    return null;
+  }
 
-    async login(user: any) {
-      const payload = { email: user.email, sub: user.nhan_vien_id, role: user.loai_nhan_vien_id };
-      return {
-        access_token: this.jwtService.sign(payload),
-        user,
-      };
-    }
+  login(user: NhanVien) {
+    const payload = {
+      email: user.email,
+      sub: user.nhan_vien_id,
+      role: user.loai_nhan_vien_id,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user,
+    };
+  }
 }

@@ -1,9 +1,19 @@
-import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 import { RegisterDto } from '../models/auth.dto';
 
 @Injectable()
 export class AuthPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata): RegisterDto {
+  transform(value: Partial<RegisterDto>): RegisterDto {
+    if (
+      !value.email ||
+      !value.password ||
+      !value.ten ||
+      !value.dienThoai ||
+      !value.loaiNhanVienId ||
+      !value.diaChi
+    ) {
+      throw new Error('Missing required fields');
+    }
 
     return {
       email: value.email,
