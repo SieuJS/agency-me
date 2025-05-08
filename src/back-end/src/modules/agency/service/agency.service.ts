@@ -16,21 +16,9 @@ export class AgencyService {
   async getListAngencies(
     params: AgencyParams,
   ): Promise<AgencyListResponse | null> {
-    const { dien_thoai, email, tien_no, ten, ngay_tiep_nhan } = params;
+    const { tien_no, ten, ngay_tiep_nhan } = params;
     const rawResult = await this.prisma.daiLy.findMany({
       where: {
-        dien_thoai: dien_thoai
-          ? {
-              contains: dien_thoai,
-              mode: 'insensitive',
-            }
-          : {},
-        email: email
-          ? {
-              contains: email,
-              mode: 'insensitive',
-            }
-          : {},
         tien_no: tien_no
           ? {
               gte: tien_no,
@@ -48,10 +36,15 @@ export class AgencyService {
             }
           : {},
       },
+      include: {
+        quan: true,
+        loaiDaiLy: true,
+        nhanVien: true,
+      },
     });
 
     const reponse = this.paginationService.paginate(
-      rawResult,
+      rawResult.map((item) => new AgencyDto(item)),
       params.page,
       params.perPage,
     );
@@ -110,7 +103,7 @@ export class AgencyService {
 
     const count = await this.prisma.daiLy.count();
     const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
-    return await this.prisma.daiLy.create({
+    const agency = await this.prisma.daiLy.create({
       data: {
         daily_id,
         ten,
@@ -123,6 +116,12 @@ export class AgencyService {
         ngay_tiep_nhan: new Date(),
         nhan_vien_tiep_nhan,
       },
+      include: {
+        quan: true,
+        loaiDaiLy: true,
+        nhanVien: true,
+      },
     });
+    return new AgencyDto(agency);
   }
 }

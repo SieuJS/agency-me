@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AgencyService } from '../service/agency.service';
 import { AgencyParams } from '../models/agency.params';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AgencyDto } from '../models/agency.dto';
 import { AgencyPipe } from '../pipe/agency.pipe';
 import { AgencyInput } from '../models/agency.input';
@@ -21,6 +21,9 @@ export class AgencyController {
   @Get('list')
   @ApiResponse({
     type: AgencyListResponse,
+  })
+  @ApiParam({
+    type: AgencyParams,
   })
   getAgencyList(@Query(new AgencyPipe()) params: AgencyParams) {
     return this.agencyService.getListAngencies(params);

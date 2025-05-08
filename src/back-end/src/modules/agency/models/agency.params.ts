@@ -3,9 +3,11 @@ import { AgencyDto } from './agency.dto';
 
 export class AgencyParams extends PartialType(
   PickType(AgencyDto, [
-    '',
+    'quan',
+    'loai_daily',
     'tien_no',
     'ten',
+    'ngay_tiep_nhan',
   ]),
 ) {
   @ApiProperty({
