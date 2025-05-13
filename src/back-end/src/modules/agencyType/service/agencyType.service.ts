@@ -3,7 +3,9 @@ import { PrismaService } from 'src/modules/common';
 import { AgencyTypeParams } from '../models/agencyType.params';
 import { AgencyTypeDto } from '../models/agencyType.dto';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
-import { AgencyTypeInput } from '../models/agency-type.input';
+import { AgencyTypeListResponse } from '../models/list-agencyType.response';
+import { AgencyTypeInput } from '../models/agencyType.input';
+
 
 @Injectable()
 export class AgencyTypeService {

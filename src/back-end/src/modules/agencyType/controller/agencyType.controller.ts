@@ -12,7 +12,10 @@ import { AgencyTypeParams } from '../models/agencyType.params';
 import { ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { AgencyTypeDto } from '../models/agencyType.dto';
 import { AgencyTypePipe } from '../pipe/agencyType.pipe';
-import { AgencyTypeInput } from '../models/agency-type.input';
+import { AgencyTypeInput } from '../models/agencyType.input';
+import { CreateAgencyTypeResponse } from '../models/create-agencyType.response';
+import { AgencyTypeListResponse } from '../models/list-agencyType.response';
+import { DeleteAgencyTypeResponse } from '../models/delete-agencyType.response';
 
 @Controller('agencyType')
 export class AgencyTypeController {
@@ -20,8 +23,9 @@ export class AgencyTypeController {
 
   @Get('list')
   @ApiResponse({
-    type: AgencyTypeDto,
-    isArray: true,
+    type: AgencyTypeListResponse,
+    description: 'List of agency types with pagination',
+    // isArray: true,
   })
   getAgencyTypeList(@Query(new AgencyTypePipe()) params: AgencyTypeParams) {
     return this.agencyTypeService.getListAgencyTypes(params);
@@ -29,8 +33,20 @@ export class AgencyTypeController {
 
   @Post('create')
   @ApiResponse({
-    type: AgencyTypeDto,
+    type: CreateAgencyTypeResponse,
     description: 'Create a new agency type',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Agency type with this name already exists',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message: 'Agency type with this name already exists',
+        },
+      },
+    },
   })
   @ApiBody({
     type: AgencyTypeInput,
@@ -51,8 +67,20 @@ export class AgencyTypeController {
 
   @Delete('delete')
   @ApiResponse({
-    type: Object,
+    type: DeleteAgencyTypeResponse,
     description: 'Delete an agency type by ID',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Agency type not found or in use',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message: 'Agency type not found',
+        },
+      },
+    },
   })
   @ApiQuery({
     name: 'loai_daily_id',
