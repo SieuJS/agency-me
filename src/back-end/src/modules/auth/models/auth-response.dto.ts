@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NhanVien } from '@prisma/client';
 import { LoginDto, RegisterDto } from './auth.dto';
+import { AuthPayloadDto } from './auth-payload.dto';
 
 export class ProtectedResponseDto {
   @ApiProperty()
   message: string;
 
-  @ApiProperty({ type: 'object', additionalProperties: true })
-  user: NhanVien;
+  @ApiProperty({ type: AuthPayloadDto })
+  user: AuthPayloadDto;
 }
-
 
 export class RegisterResponse {
   @ApiProperty({

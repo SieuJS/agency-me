@@ -14,7 +14,9 @@ import { LoginDto, RegisterDto } from '../models/auth.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { NhanVien } from '@prisma/client';
 import { Request as ExpressRequest } from 'express';
-import { LoginResponse, ProtectedResponseDto, RegisterResponse } from '../models/auth-response.dto';
+import { ProtectedResponseDto } from '../models/auth-response.dto';
+import { AuthPayloadDto } from '../models/auth-payload.dto';
+import { LoginResponse, RegisterResponse } from '../models/auth-response.dto';
 
 interface RequestWithUser extends ExpressRequest {
   user: NhanVien;
@@ -35,7 +37,9 @@ export class AuthController {
     type: ProtectedResponseDto,
   })
   @ApiBearerAuth('access-token')
-  getProtectedData(@Request() req: RequestWithUser): ProtectedResponseDto {
+  getProtectedData(
+    @Request() req: { user: AuthPayloadDto },
+  ): ProtectedResponseDto {
     return {
       message: 'Authenticated!!',
       user: req.user,
@@ -96,7 +100,7 @@ export class AuthController {
     },
   })
   @ApiBody({ type: LoginDto })
-  login(@Request() req: RequestWithUser) {
+  login(@Request() req: { user: AuthPayloadDto }) {
     return this.authService.login(req.user);
   }
 }

@@ -12,9 +12,6 @@ export class AgencyInput extends OmitType(AgencyDto, ['daily_id']) {
     description: 'ID of the employee who received the agency',
   })
   quan_id: string;
-  @ApiProperty({
-    example: '1',
-    description: 'ID of the employee who received the agency',
-  })
+
   nhan_vien_tiep_nhan: string;
 }
