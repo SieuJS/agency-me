@@ -13,8 +13,8 @@ import toast, { Toaster } from 'react-hot-toast'; // Cần cài đặt: npm inst
 
 // --- Import các UI Component ---
 // Điều chỉnh đường dẫn import cho phù hợp với cấu trúc dự án của bạn
-import { Input } from '../../components//ui/Input';
-import { Button } from '../../components//ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
 // import { Dialog } from '../components/ui/Dialog'; // Không cần Dialog nữa
 
 // --- Giả lập hàm gọi API để lưu hồ sơ đại lý (Giữ nguyên) ---
@@ -208,7 +208,7 @@ export default function AgencyReceptionPage() {
             {/* Menu Items với Link component */}
 
             {/* Tra cứu đại lý */}
-            <Link to="/admin/tra-cuu-dai-ly" className={`block w-full text-left py-2 px-4 rounded ${location.pathname.startsWith('/admin/tra-cuu-dai-ly') ? 'bg-gray-200' : 'hover:bg-gray-200'}`}>Tra cứu đại lý</Link>
+            <Link to="/agency-lookup" className={`block w-full text-left py-2 px-4 rounded ${location.pathname.startsWith('/admin/tra-cuu-dai-ly') ? 'bg-gray-200' : 'hover:bg-gray-200'}`}>Tra cứu đại lý</Link>
 
             {/* Nhóm menu Quản lý đại lý */}
             {/* Highlight mục cha nếu đang ở bất kỳ trang con nào */}
