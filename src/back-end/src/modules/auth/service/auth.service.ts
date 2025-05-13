@@ -3,6 +3,7 @@ import { UsersService } from '../../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { NhanVien } from '@prisma/client';
+import { AuthPayloadDto } from '../models/auth-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,12 +27,8 @@ export class AuthService {
     return null;
   }
 
-  login(user: NhanVien) {
-    const payload = {
-      email: user.email,
-      sub: user.nhan_vien_id,
-      role: user.loai_nhan_vien_id,
-    };
+  login(user: AuthPayloadDto) {
+    const payload = user;
     return {
       access_token: this.jwtService.sign(payload),
       user,
