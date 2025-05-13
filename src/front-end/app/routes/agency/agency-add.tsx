@@ -1,5 +1,5 @@
 // --- Import các thư viện cần thiết ---
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router';
 
 import DatePicker from 'react-datepicker'; // Cần cài đặt: npm install react-datepicker @types/react-datepicker
@@ -18,19 +18,42 @@ import { Button } from '../../components/ui/Button';
 // import { Dialog } from '../components/ui/Dialog'; // Không cần Dialog nữa
 
 // --- Giả lập hàm gọi API để lưu hồ sơ đại lý (Giữ nguyên) ---
-const fakeSaveAgencyApi = (agencyData: any) => {
-  console.log('Saving agency data:', agencyData);
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Giả lập thành công sau 1.5 giây
-      if (agencyData.name && agencyData.type && agencyData.address) {
-        resolve({ success: true, message: 'Lưu hồ sơ đại lý thành công!' });
-      } else {
-        // Giả lập thất bại nếu thiếu thông tin cơ bản
-        reject(new Error('Vui lòng điền đầy đủ thông tin bắt buộc.'));
-      }
-    }, 1500);
+const AgencyApi = async (agencyData: any) => {
+  const response = await fetch('http://localhost:3000/agency/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(agencyData),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Có lỗi xảy ra');
+  }
+
+  return await response.json();
+};
+
+
+// --- Hàm gọi API để lấy danh sách Loại Đại Lý ---
+const fetchAgencyTypesAPI = async () => {
+  // Thay thế URL này bằng API endpoint thực tế của bạn
+  const response = await fetch('http://localhost:3000/agencyType/list');
+  if (!response.ok) {
+    throw new Error('Không thể tải danh sách loại đại lý');
+  }
+  return await response.json(); // Giả sử API trả về mảng dạng [{id: string, name: string}, ...]
+};
+
+// --- Hàm gọi API để lấy danh sách Quận ---
+const fetchDistrictsAPI = async () => {
+  // Thay thế URL này bằng API endpoint thực tế của bạn
+  const response = await fetch('http://localhost:3000/districts');
+  if (!response.ok) {
+    throw new Error('Không thể tải danh sách quận');
+  }
+  return await response.json(); // Giả sử API trả về mảng dạng [{id: string, name: string}, ...]
 };
 // --- Kết thúc hàm giả lập ---
 
@@ -50,10 +73,47 @@ export default function AgencyReceptionPage() {
   // --- State cho validation và trạng thái xử lý ---
   const [errors, setErrors] = useState<{ [key: string]: string }>({}); // Để lưu lỗi cho từng trường
   const [isLoading, setIsLoading] = useState(false);
+  const [agencyTypesFromAPI, setAgencyTypesFromAPI] = useState<{ loai_daily_id: string; ten_loai: string }[]>([]);
+  const [districtsFromAPI, setDistrictsFromAPI] = useState<{ districtId: string; name: string }[]>([]);
+  const [isAgencyTypesLoading, setIsAgencyTypesLoading] = useState(true);
+  const [isDistrictsLoading, setIsDistrictsLoading] = useState(true);
   // Không cần state cho dialog nữa
   // const [isDialogOpen, setIsDialogOpen] = useState(false);
   // const [dialogMessage, setDialogMessage] = useState('');
   // const [dialogTitle, setDialogTitle] = useState('');
+
+  // --- useEffect để tải dữ liệu cho combobox khi component mount ---
+  useEffect(() => {
+    const loadInitialData = async () => {
+      // Tải loại đại lý
+      try {
+        setIsAgencyTypesLoading(true);
+        const types = await fetchAgencyTypesAPI();
+        setAgencyTypesFromAPI(types);
+      } catch (error) {
+        console.error("Lỗi tải loại đại lý:", error);
+        toast.error(error instanceof Error ? error.message : 'Lỗi tải loại đại lý.');
+        // setApiError('Không thể tải dữ liệu cần thiết.');
+      } finally {
+        setIsAgencyTypesLoading(false);
+      }
+
+      // Tải quận
+      try {
+        setIsDistrictsLoading(true);
+        const districtsData = await fetchDistrictsAPI();
+        setDistrictsFromAPI(districtsData);
+      } catch (error) {
+        console.error("Lỗi tải quận:", error);
+        toast.error(error instanceof Error ? error.message : 'Lỗi tải danh sách quận.');
+        // setApiError('Không thể tải dữ liệu cần thiết.');
+      } finally {
+        setIsDistrictsLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, []); // Mảng rỗng đảm bảo useEffect chỉ chạy 1 lần khi component mount
 
   // --- Hàm Validation ---
   const validateForm = () => {
@@ -74,41 +134,36 @@ export default function AgencyReceptionPage() {
   // --- Submit Handler ---
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const isValid = validateForm();
-    if (!isValid) {
-      // Hiển thị lỗi ngay trên form input
-      // Có thể thêm toast báo lỗi validation chung nếu muốn
+    if (!validateForm()) {
       toast.error('Vui lòng kiểm tra lại các trường bị lỗi.');
       return;
     }
-
     setIsLoading(true);
-    // Không cần ẩn dialog trước khi gọi API nữa
-    // setIsDialogOpen(false);
-    // setDialogMessage('');
-    // setDialogTitle('');
+
+    const defaultNhanVienTiepNhanId = "nv001"; // <<< THAY THẾ BẰNG ID NHÂN VIÊN MẶC ĐỊNH THỰC TẾ
+                                        // Đảm bảo ID này tồn tại trong bảng NhanVien
+                                        // và kiểu dữ liệu khớp (ví dụ: string hoặc number)
+
+    const defaultTienNo = 0; // Tiền nợ mặc định khi tạo mới
 
     const agencyData = {
-      name: agencyName,
-      type: agencyType,
-      district: district,
-      address: address,
-      phone: phone,
+      ten: agencyName,
+      loai_daily_id: agencyType, // Gửi ID loại đại lý
+      quan_id: district, // Gửi ID quận
+      dia_chi: address,
+      dien_thoai: phone,
       email: email,
-      filingDate: filingDate?.toISOString().split('T')[0], // Format ngày tháng
+      ngay_tiep_nhan: filingDate?.toISOString().split('T')[0],
+      tien_no: defaultTienNo,                         // THÊM TIỀN NỢ
+      nhan_vien_tiep_nhan: defaultNhanVienTiepNhanId, // THÊM NHÂN VIÊN TIẾP NHẬN
     };
 
     try {
-      const response: any = await fakeSaveAgencyApi(agencyData); // Giả định API trả về { success: boolean, message: string }
-      // Sử dụng toast thông báo thành công
+      const response: any = await AgencyApi(agencyData);
       toast.success(response.message || 'Lưu hồ sơ đại lý thành công.');
-
-      // Có thể reset form sau khi lưu thành công nếu cần
       resetForm();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Đã có lỗi xảy ra khi lưu hồ sơ.';
-      // Sử dụng toast thông báo lỗi
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -126,6 +181,13 @@ export default function AgencyReceptionPage() {
      setFilingDate(new Date());
      setErrors({}); // Xóa lỗi khi reset form
     };
+  
+   // --- Hàm xử lý khi nhấn nút "Thêm" cho Loại Đại Lý (ví dụ) ---
+  const handleAddAgencyType = () => {
+    toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
+    // Trong tương lai, bạn có thể navigate tới trang quản lý loại đại lý:
+    // navigate('/admin/loai-dai-ly/them-moi');
+  };
 
   // --- JSX ---
   return (
@@ -273,28 +335,37 @@ export default function AgencyReceptionPage() {
                   <label htmlFor="agencyType" className="block text-sm font-medium text-gray-700 mb-1">
                     Loại đại lý
                   </label>
-                  <div className="flex items-stretch gap-3">
-                    <Input
-                      // label prop được bỏ vì dùng thẻ label riêng bên ngoài
+                   <div className="flex items-end gap-2">
+                    <select
                       id="agencyType"
                       name="agencyType"
-                      type="text"
                       value={agencyType}
                       onChange={(e) => setAgencyType(e.target.value)}
-                      error={errors.agencyType} // Error handler cho Input có thể xử lý
-                      disabled={isLoading}
+                      disabled={isLoading || isAgencyTypesLoading} // Disable khi đang submit form hoặc tải loại đại lý
                       required
-                      className="flex-grow" // Cho phép input chiếm phần lớn không gian
-                    />
-                    <div>
-                        <Button type="button" disabled={isLoading} className="h-10 w-10 px-0">
-                        Thêm
-                        </Button>
-                    </div>
-                    
+                      className={`flex-grow mt-1 block w-full rounded-md border ${errors.agencyType ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-[42px]`}
+                    >
+                      <option value="" disabled>
+                        {isAgencyTypesLoading ? 'Đang tải...' : '-- Chọn loại đại lý --'}
+                      </option>
+                      {!isAgencyTypesLoading && agencyTypesFromAPI.map((type) => (
+                        <option key={type.loai_daily_id} value={type.loai_daily_id}>
+                          {type.ten_loai}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                        type="button"
+                        onClick={handleAddAgencyType}
+                        disabled={isLoading || isAgencyTypesLoading}
+                        className="p-2 h-[42px] w-auto"
+                    >Thêm
+                    </Button>
                   </div>
-
+                  {errors.agencyType && <p className="mt-1 text-sm text-red-600">{errors.agencyType}</p>}
                 </div>
+
+                
                 {/* Cột phải: Ngày tiếp nhận */}
                 <div> {/* Đây là cột thứ hai trong hàng thứ 2 */}
                   <label htmlFor="filingDate" className="block text-sm font-medium text-gray-700 mb-1">
@@ -314,17 +385,28 @@ export default function AgencyReceptionPage() {
 
                 {/* Row 3: Quận | Địa chỉ */}
                 <div>
-                  <Input
-                    label="Quận"
+                  <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
+                    Quận <span className="text-red-500">*</span>
+                  </label>
+                  <select
                     id="district"
                     name="district"
-                    type="text"
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    error={errors.district}
-                    disabled={isLoading}
+                    disabled={isLoading || isDistrictsLoading} // Disable khi đang submit form hoặc tải quận
                     required
-                  />
+                    className={`mt-1 block w-full rounded-md border ${errors.district ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-[42px]`}
+                  >
+                    <option value="" disabled>
+                        {isDistrictsLoading ? 'Đang tải...' : '-- Chọn quận --'}
+                    </option>
+                    {!isDistrictsLoading && districtsFromAPI.map((dist) => (
+                      <option key={dist.districtId} value={dist.districtId}>
+                        {dist.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.district && <p className="mt-1 text-sm text-red-600">{errors.district}</p>}
                 </div>
                 <div>
                   <Input
