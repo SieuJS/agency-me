@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { AgencyParams } from '../models/agency.params';
 import { AgencyDto } from '../models/agency.dto';
@@ -197,6 +197,19 @@ export class AgencyService {
   }
 
   async deleteAgency(id: string, userId: string): Promise<AgencyDto> {
+    const existingAgency = await this.prisma.daiLy.findUnique({
+      where: { daily_id: id },
+    });
+    if (!existingAgency) {
+      throw new NotFoundException('Agency not found');
+    }
+
+    if (existingAgency.nhan_vien_tiep_nhan !== userId) {
+      throw new ForbiddenException(
+        'You are not authorized to delete this agency',
+      );
+    }
+
     const agency = await this.prisma.daiLy.delete({
       where: { daily_id: id, nhan_vien_tiep_nhan: userId },
       include: {
@@ -206,7 +219,7 @@ export class AgencyService {
       },
     });
     if (!agency) {
-      throw new Error('Agency not found');
+      throw new NotFoundException('Agency not found');
     }
     return new AgencyDto(agency);
   }
