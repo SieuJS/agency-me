@@ -67,3 +67,15 @@ export type AgencyInclude = {
     nhanVien: true;
   };
 };
+
+export class AgencyCreatedResponse {
+  @ApiProperty({
+    example: 'Agency created successfully',
+  })
+  message: string;
+
+  @ApiProperty({
+    type: AgencyDto,
+  })
+  agency: AgencyDto;
+}
