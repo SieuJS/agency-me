@@ -124,4 +124,90 @@ export class AgencyService {
     });
     return new AgencyDto(agency);
   }
+
+  async getAgencyDetail(id: string): Promise<AgencyDto | null> {
+    const agency = await this.prisma.daiLy.findUnique({
+      where: {
+        daily_id: id,
+      },
+      include: {
+        quan: true,
+        loaiDaiLy: true,
+        nhanVien: true,
+      },
+    });
+
+    if (!agency) {
+      return null;
+    }
+    return new AgencyDto(agency);
+  }
+
+  async updateAgency(id: string, input: AgencyInput): Promise<AgencyDto> {
+    // Create data object with only defined fields
+    const updateData: Record<string, any> = {};
+
+    // Only add fields that are not null or undefined
+    if (input.quan_id !== undefined && input.quan_id !== null) {
+      updateData.quan_id = input.quan_id;
+    }
+
+    if (
+      input.nhan_vien_tiep_nhan !== undefined &&
+      input.nhan_vien_tiep_nhan !== null
+    ) {
+      updateData.nhan_vien_tiep_nhan = input.nhan_vien_tiep_nhan;
+    }
+
+    if (input.ten !== undefined && input.ten !== null) {
+      updateData.ten = input.ten;
+    }
+
+    if (input.dien_thoai !== undefined && input.dien_thoai !== null) {
+      updateData.dien_thoai = input.dien_thoai;
+    }
+
+    if (input.email !== undefined && input.email !== null) {
+      updateData.email = input.email;
+    }
+
+    if (input.dia_chi !== undefined && input.dia_chi !== null) {
+      updateData.dia_chi = input.dia_chi;
+    }
+
+    if (input.loai_daily_id !== undefined && input.loai_daily_id !== null) {
+      updateData.loai_daily_id = input.loai_daily_id;
+    }
+
+    if (input.tien_no !== undefined && input.tien_no !== null) {
+      updateData.tien_no = input.tien_no;
+    }
+
+    const agency = await this.prisma.daiLy.update({
+      where: { daily_id: id },
+      include: {
+        quan: true,
+        loaiDaiLy: true,
+        nhanVien: true,
+      },
+      data: updateData,
+    });
+
+    return new AgencyDto(agency);
+  }
+
+  async deleteAgency(id: string, userId: string): Promise<AgencyDto> {
+    const agency = await this.prisma.daiLy.delete({
+      where: { daily_id: id, nhan_vien_tiep_nhan: userId },
+      include: {
+        quan: true,
+        loaiDaiLy: true,
+        nhanVien: true,
+      },
+    });
+    if (!agency) {
+      throw new Error('Agency not found');
+    }
+    return new AgencyDto(agency);
+  }
 }
