@@ -1,128 +1,130 @@
-// --- Import các thư viện cần thiết ---
+// src/front-end/app/routes/login.tsx
 import React, { useState, useEffect, type FormEvent } from 'react';
+// Quan trọng: Đảm bảo import useNavigate từ 'react-router' cho thiết lập của bạn
 import { useNavigate } from 'react-router';
 
 // --- Import các UI Component ---
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { Dialog } from '../components/ui/Dialog';
+import { Dialog } from '../components/ui/Dialog'; // Hoặc chỉ dùng toast
 
-// --- Giả lập hàm gọi API (Giữ nguyên) ---
-const fakeLoginApi = (username: string, password: string) => {
-    // ... (code fakeLoginApi như cũ) ...
-     return new Promise((resolve, reject) => {
-       setTimeout(() => {
-         if (username === 'admin' && password === 'password123') {
-           resolve({ success: true, message: 'Đăng nhập thành công!' });
-         } else {
-           reject(new Error('Tài khoản hoặc mật khẩu không đúng.'));
-         }
-       }, 1500);
-     });
-};
-// --- Kết thúc hàm giả lập ---
+// --- Import service và Toaster ---
+import { loginUser, type LoginPayload } from '../services/authService';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Có thể bỏ Dialog nếu bạn chỉ muốn dùng toast cho tất cả thông báo
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // --- Hàm Validation độ dài mật khẩu ---
-  const validatePasswordLength = (pwd: string): string => {
-      // Chỉ kiểm tra độ dài nếu password không rỗng
-      if (pwd && pwd.length < 6) {
-          return 'Mật khẩu phải có ít nhất 6 ký tự.';
-      }
-      return ''; // Không có lỗi độ dài
+  // --- Validation (Giữ nguyên như phiên bản trước) ---
+  const validateEmail = (emailValue: string): string => {
+    if (!emailValue.trim()) return 'Email không được để trống.';
+    if (!/\S+@\S+\.\S+/.test(emailValue)) return 'Định dạng email không hợp lệ.';
+    return '';
   };
 
-  // --- useEffect để xử lý validation mật khẩu ---
+  const validatePasswordLength = (pwd: string): string => {
+      if (!pwd) return 'Mật khẩu không được để trống.';
+      if (pwd.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự.';
+      return '';
+  };
+
   useEffect(() => {
-    // Ưu tiên kiểm tra: Nếu chưa nhập username mà đã nhập password
-    if (!username && password.length > 0) {
-      setPasswordError('Vui lòng nhập tên đăng nhập trước.');
-    } else {
-      // Nếu đã nhập username (hoặc password rỗng), thì kiểm tra độ dài password
-      const lengthError = validatePasswordLength(password);
-      setPasswordError(lengthError); // Set lỗi độ dài (hoặc chuỗi rỗng nếu hợp lệ)
+    // Chỉ validate khi người dùng đã tương tác (gõ rồi xóa, hoặc blur)
+    // Hoặc validate khi submit. Tạm thời để validate ngay khi thay đổi.
+    if (email || emailError) { // Validate nếu email có giá trị hoặc đã có lỗi trước đó
+        setEmailError(validateEmail(email));
     }
-  }, [username, password]); // Chạy lại mỗi khi username hoặc password thay đổi
+  }, [email]);
 
-  // --- Xác định trạng thái Disable cho Button  ---
-  // Nút vẫn bị disable nếu có lỗi ở password (bất kể lỗi gì) hoặc thiếu input
-  const isButtonDisabled = isLoading || passwordError !== '' || !username || !password;
+  useEffect(() => {
+    if (password || passwordError) { // Validate nếu password có giá trị hoặc đã có lỗi trước đó
+        if (!email.trim() && password.length > 0) {
+            setPasswordError('Vui lòng nhập email trước.');
+        } else if (email.trim() && !validateEmail(email)) {
+            // Email không hợp lệ, không nên validate password vội
+            setPasswordError(''); // Xóa lỗi password
+        } else if (email.trim()) {
+            setPasswordError(validatePasswordLength(password));
+        } else {
+            setPasswordError(''); // Email rỗng, password cũng nên xóa lỗi (trừ khi password có giá trị)
+        }
+    } else if (!password && !emailError) { // Nếu xóa password và email hợp lệ
+        setPasswordError('');
+    }
+  }, [email, password, emailError]); // Thêm emailError vào dependencies
 
-  // --- Submit Handler ---
+
+  const isButtonDisabled = isLoading || !!emailError || !!passwordError || !email.trim() || !password;
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
        event.preventDefault();
 
-       // Kiểm tra validation lần cuối trước khi submit
-       let finalPasswordError = '';
-       if (!username && password.length > 0) {
-           finalPasswordError = 'Vui lòng nhập tên đăng nhập trước.';
-       } else if (username && password) { // Chỉ kiểm tra độ dài nếu cả hai đã nhập
-           finalPasswordError = validatePasswordLength(password);
-       }
-       setPasswordError(finalPasswordError); // Cập nhật state lỗi
+       const currentEmailError = validateEmail(email);
+       setEmailError(currentEmailError);
 
-       // Dừng nếu có lỗi validation hoặc thiếu input cơ bản
-       if (finalPasswordError || !username || !password) {
+       let currentPasswordError = '';
+       if (!email.trim() && password.length > 0) {
+           currentPasswordError = 'Vui lòng nhập email trước.';
+       } else if (email.trim() && !currentEmailError) {
+           currentPasswordError = validatePasswordLength(password);
+       }
+       setPasswordError(currentPasswordError);
+
+       if (currentEmailError || currentPasswordError || !email.trim() || !password) {
+           if (currentEmailError || !email.trim()) toast.error(currentEmailError || 'Email không được để trống.');
+           if (currentPasswordError || !password) toast.error(currentPasswordError || 'Mật khẩu không được để trống.');
            return;
        }
 
-  
        setIsLoading(true);
-       setIsErrorDialogOpen(false);
-       setApiErrorMessage('');
+       // setIsErrorDialogOpen(false); // Không cần nếu dùng toast
+       // setApiErrorMessage('');
+
+       const payload: LoginPayload = { email: email.trim(), password };
+
        try {
-           await fakeLoginApi(username, password);
-           navigate('/admin/agency-add'); // Chuyển hướng đến trang agency-lookup sau khi đăng nhập thành công
+           const authResponse = await loginUser(payload);
+           toast.success(authResponse.message || 'Đăng nhập thành công!');
+
+           // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
+           setTimeout(() => {
+               navigate('agency/lookup'); // Điều hướng đến trang admin
+           }, 1000);
+
        } catch (error) {
-           const message = error instanceof Error ? error.message : 'Đã có lỗi.';
-           setApiErrorMessage(message);
-           setIsErrorDialogOpen(true);
+           const message = error instanceof Error ? error.message : 'Lỗi không xác định.';
+           toast.error(message); // Hiển thị lỗi bằng Toast
+           // setApiErrorMessage(message); // Nếu vẫn muốn dùng Dialog song song
+           // setIsErrorDialogOpen(true);
        } finally {
            setIsLoading(false);
        }
   };
 
-  // --- JSX ---
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-600 p-4">
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} /> {/* Cấu hình Toaster */}
       <div className="bg-slate-300 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          ĐĂNG NHẬP
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">ĐĂNG NHẬP</h1>
         <form onSubmit={handleSubmit} noValidate>
           <Input
-            label="Tài khoản"
-            id="username"
-            name="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={isLoading} // Chỉ disable khi loading
-            required
-            autoComplete="username"
+            label="Email" id="email" name="email" type="email" value={email}
+            onChange={(e) => setEmail(e.target.value)} error={emailError}
+            disabled={isLoading} required autoComplete="email"
           />
-
           <Input
-            label="Mật khẩu"
-            id="password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={passwordError} // Hiển thị lỗi (bao gồm cả lỗi yêu cầu username)
-            disabled={isLoading} // *** Chỉ disable khi loading ***
-            required
-            autoComplete="current-password"
+            label="Mật khẩu" id="password" name="password" type="password" value={password}
+            onChange={(e) => setPassword(e.target.value)} error={passwordError}
+            disabled={isLoading} required autoComplete="current-password"
           />
-
           <div className="mt-8">
             <Button type="submit" isLoading={isLoading} disabled={isButtonDisabled}>
               Đăng nhập
@@ -130,12 +132,10 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
-      <Dialog
-        isOpen={isErrorDialogOpen}
-        onClose={() => setIsErrorDialogOpen(false)}
-        title="Đăng nhập thất bại"
-        message={apiErrorMessage}
-      />
+      {/* Bạn có thể giữ Dialog nếu muốn dùng cho một số lỗi cụ thể, hoặc xóa đi nếu dùng toast cho tất cả */}
+      {/* <Dialog isOpen={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}
+        title="Đăng nhập thất bại" message={apiErrorMessage}
+      /> */}
     </div>
   );
 }
