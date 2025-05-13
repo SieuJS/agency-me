@@ -12,8 +12,15 @@ import { AuthService } from '../service/auth.service';
 import { UsersService } from '../../users/users.service';
 import { LoginDto, RegisterDto } from '../models/auth.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { NhanVien } from '@prisma/client';
+import { Request as ExpressRequest } from 'express';
 import { ProtectedResponseDto } from '../models/auth-response.dto';
 import { AuthPayloadDto } from '../models/auth-payload.dto';
+import { LoginResponse, RegisterResponse } from '../models/auth-response.dto';
+
+interface RequestWithUser extends ExpressRequest {
+  user: NhanVien;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -40,6 +47,22 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiResponse({
+    type: RegisterResponse,
+    description: 'Register a new account',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Account with this name already exists',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message: 'Account with this name already exists',
+        },
+      },
+    },
+  })
   @ApiBody({ type: RegisterDto })
   async register(@Body() registerDto: RegisterDto) {
     const existing = await this.usersService.findByEmail(registerDto.email);
@@ -60,6 +83,22 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
+  @ApiResponse({
+    type: LoginResponse,
+    description: 'Login to an account',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Wrong email or password',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message: 'Wrong email or password',
+        },
+      },
+    },
+  })
   @ApiBody({ type: LoginDto })
   login(@Request() req: { user: AuthPayloadDto }) {
     return this.authService.login(req.user);
