@@ -40,17 +40,26 @@ function generateVietnamPhoneNumber() {
 }
 
 function generateVietnamAddress() {
-    const streets = ['Nguyễn Trãi', 'Lê Lợi', 'Trần Hưng Đạo', 'Nguyễn Huệ', 'Cách Mạng Tháng 8', 'Pasteur', 'Điện Biên Phủ', 'Phan Đình Phùng'];
-    const districts = ['Quận 1', 'Quận 3', 'Quận 5', 'Quận 7', 'Bình Thạnh', 'Tân Bình', 'Đống Đa', 'Ba Đình', 'Hoàn Kiếm'];
-    const cities = ['TP.HCM', 'Hà Nội', 'Hải Phòng'];
-
-    const street = faker.helpers.arrayElement(streets);
-    const district = faker.helpers.arrayElement(districts);
+    const streets = [
+      'Nguyễn Trãi', 'Lê Lợi', 'Trần Hưng Đạo', 'Nguyễn Huệ',
+      'Cách Mạng Tháng 8', 'Pasteur', 'Điện Biên Phủ', 'Phan Đình Phùng'
+    ];
+  
+    const cityDistrictMap: Record<string, string[]> = {
+      'TP.HCM': ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 7', 'Bình Thạnh', 'Tân Bình'],
+      'Hà Nội': ['Đống Đa', 'Ba Đình', 'Hoàn Kiếm', 'Hà Đông', 'Long Biên', 'Nam Từ Liêm', 'Cầu Giấy', 'Thanh Xuân'],
+      'Hải Phòng': ['Lê Chân', 'Hải An', 'Ngô Quyền', 'Kiến An', 'Hồng Bàng'],
+    };
+  
+    const cities = Object.keys(cityDistrictMap);
     const city = faker.helpers.arrayElement(cities);
+    const district = faker.helpers.arrayElement(cityDistrictMap[city]);
+    const street = faker.helpers.arrayElement(streets);
     const houseNumber = faker.number.int({ min: 1, max: 999 });
-
+  
     return `${houseNumber} ${street}, ${district}, ${city}`;
-}
+  }
+  
 
 export async function generateRandomNhanVien(count: number): Promise<NhanVien[]> {
     const nhanViens: NhanVien[] = [];
