@@ -39,6 +39,18 @@ export class AgencyService {
               gte: new Date(ngay_tiep_nhan),
             }
           : {},
+        loaiDaiLy: {
+          ten_loai: {
+            contains: params.loai_daily,
+            mode: 'insensitive',
+          },
+        },
+        quan: {
+          ten_quan: {
+            contains: params.quan,
+            mode: 'insensitive',
+          },
+        },
       },
       include: {
         quan: true,
