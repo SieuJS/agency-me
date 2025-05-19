@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // --- Validation (Giữ nguyên như phiên bản trước) ---
+  // --- Validation ---
   const validateEmail = (emailValue: string): string => {
     if (!emailValue.trim()) return 'Email không được để trống.';
     if (!/\S+@\S+\.\S+/.test(emailValue)) return 'Định dạng email không hợp lệ.';
@@ -92,7 +92,7 @@ export default function LoginPage() {
 
        try {
            const authResponse = await loginUser(payload);
-           toast.success(authResponse.message || 'Đăng nhập thành công!');
+           toast.success('Đăng nhập thành công!');
 
            // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
            setTimeout(() => {
