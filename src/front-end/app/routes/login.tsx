@@ -12,6 +12,8 @@ import { Dialog } from '../components/ui/Dialog'; // Hoặc chỉ dùng toast
 import { loginUser, type LoginPayload } from '../services/authService';
 import toast, { Toaster } from 'react-hot-toast';
 
+import { isAuthenticated } from '../services/authService';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +24,12 @@ export default function LoginPage() {
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
+  
+//   useEffect(() => {
+//   if (isAuthenticated()) {
+//     navigate('/agency/lookup'); // Hoặc trang chính sau khi đăng nhập
+//   }
+// }, []);
 
   // --- Validation (Giữ nguyên như phiên bản trước) ---
   const validateEmail = (emailValue: string): string => {
@@ -62,6 +70,8 @@ export default function LoginPage() {
   }, [email, password, emailError]); // Thêm emailError vào dependencies
 
 
+  
+
   const isButtonDisabled = isLoading || !!emailError || !!passwordError || !email.trim() || !password;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -91,13 +101,36 @@ export default function LoginPage() {
        const payload: LoginPayload = { email: email.trim(), password };
 
        try {
-           const authResponse = await loginUser(payload);
-           toast.success(authResponse.message || 'Đăng nhập thành công!');
+          //  const authResponse = await loginUser(payload);
+          //  localStorage.setItem('token', authResponse.accessToken);
+          //  toast.success(authResponse.message || 'Đăng nhập thành công!');
 
-           // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
-           setTimeout(() => {
-               navigate('agency/lookup'); // Điều hướng đến trang admin
-           }, 1000);
+          //  // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
+          //  setTimeout(() => {
+          //      navigate('agency/lookup'); // Điều hướng đến trang admin
+          //  }, 1000);
+
+         const authResponse = await loginUser(payload);
+    //console.log('Full authResponse from loginUser:', authResponse);
+
+    // Sửa ở đây: sử dụng authResponse.access_token (thay vì authResponse.accessToken)
+    if (authResponse && authResponse.access_token) {
+        // Bạn vẫn có thể lưu vào localStorage với key là 'accessToken' nếu muốn,
+        // miễn là hàm isAuthenticated của bạn cũng đọc từ key này.
+        // Hoặc bạn có thể đổi key ở localStorage thành 'access_token' cho nhất quán.
+        // Ở đây, chúng ta giữ nguyên key 'accessToken' trong localStorage như code cũ của bạn.
+        localStorage.setItem('access_token', authResponse.access_token);
+        toast.success(authResponse.message || 'Đăng nhập thành công!');
+        console.log('Token stored:', authResponse.access_token); // Log đúng giá trị token
+
+        setTimeout(() => {
+            navigate('/agency/lookup');
+        }, 1000);
+    } else {
+        // Cập nhật thông báo lỗi nếu muốn, để rõ ràng hơn
+        console.error('Login successful, but access_token is missing or invalid in the response:', authResponse);
+        toast.error('Đăng nhập thành công nhưng không nhận được token (access_token) hợp lệ từ phản hồi. Vui lòng thử lại.');
+    }
 
        } catch (error) {
            const message = error instanceof Error ? error.message : 'Lỗi không xác định.';

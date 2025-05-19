@@ -12,6 +12,19 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken'); // Hoặc dùng getAuthToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // 2. Định nghĩa Interface cho Request Payload (đã khớp Swagger)
 export interface LoginPayload {
   email: string;
@@ -27,7 +40,7 @@ export interface AuthResponse {
     name?: string;
     // Thêm các trường khác của user nếu API trả về
   };
-  accessToken: string; // Hoặc tên token mà API của bạn trả về (ví dụ: token, jwt)
+  access_token: string; // Hoặc tên token mà API của bạn trả về (ví dụ: token, jwt)
   // refreshToken?: string; // Nếu có
   message?: string; // Thêm message nếu API trả về thông báo thành công
 }
@@ -41,8 +54,8 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
     console.log('AuthService: Login successful, response data:', response.data);
 
     // 5. Xử lý sau khi đăng nhập thành công (ví dụ: lưu token)
-    if (response.data && response.data.accessToken) {
-      localStorage.setItem('accessToken', response.data.accessToken);
+    if (response.data && response.data.access_token) {
+      localStorage.setItem('accessToken', response.data.access_token);
       if (response.data.user) {
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
