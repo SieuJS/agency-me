@@ -17,52 +17,16 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 // import { Dialog } from '../components/ui/Dialog'; // Không cần Dialog nữa
 
-// --- Giả lập hàm gọi API để lưu hồ sơ đại lý (Giữ nguyên) ---
-const AgencyApi = async (agencyData: any) => {
-  const token = localStorage.getItem('access_token');
-  console.log('Token used for API call:', token);
-  const response = await fetch('http://localhost:3000/agency/create', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(agencyData),
-  });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Có lỗi xảy ra');
-  }
-
-  return await response.json();
-};
+import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../services/agencyService'; // Giả định bạn có một service để gọi API
 
 
-// --- Hàm gọi API để lấy danh sách Loại Đại Lý ---
-const fetchAgencyTypesAPI = async () => {
-  // Thay thế URL này bằng API endpoint thực tế của bạn
-  const response = await fetch('http://localhost:3000/agencyType/list');
-  if (!response.ok) {
-    throw new Error('Không thể tải danh sách loại đại lý');
-  }
-  return await response.json(); // Giả sử API trả về mảng dạng [{id: string, name: string}, ...]
-};
 
-// --- Hàm gọi API để lấy danh sách Quận ---
-const fetchDistrictsAPI = async () => {
-  // Thay thế URL này bằng API endpoint thực tế của bạn
-  const response = await fetch('http://localhost:3000/districts');
-  if (!response.ok) {
-    throw new Error('Không thể tải danh sách quận');
-  }
-  return await response.json(); // Giả sử API trả về mảng dạng [{id: string, name: string}, ...]
-};
-// --- Kết thúc hàm giả lập ---
+
 
 export default function AgencyReceptionPage() {
   const navigate = useNavigate();
-  const location = useLocation(); // Để highlight tab và menu dựa trên URL hiện tại
+  const location = useLocation(); 
 
   // --- State cho các trường nhập liệu ---
   const [agencyName, setAgencyName] = useState('');
@@ -80,10 +44,7 @@ export default function AgencyReceptionPage() {
   const [districtsFromAPI, setDistrictsFromAPI] = useState<{ districtId: string; name: string }[]>([]);
   const [isAgencyTypesLoading, setIsAgencyTypesLoading] = useState(true);
   const [isDistrictsLoading, setIsDistrictsLoading] = useState(true);
-  // Không cần state cho dialog nữa
-  // const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [dialogMessage, setDialogMessage] = useState('');
-  // const [dialogTitle, setDialogTitle] = useState('');
+ 
 
   // --- useEffect để tải dữ liệu cho combobox khi component mount ---
   useEffect(() => {
@@ -143,28 +104,29 @@ export default function AgencyReceptionPage() {
     }
     setIsLoading(true);
 
-    const defaultNhanVienTiepNhanId = "nv001"; // <<< THAY THẾ BẰNG ID NHÂN VIÊN MẶC ĐỊNH THỰC TẾ
+    const defaultNhanVienTiepNhanId = "nv003"; // <<< THAY THẾ BẰNG ID NHÂN VIÊN MẶC ĐỊNH THỰC TẾ
                                         // Đảm bảo ID này tồn tại trong bảng NhanVien
                                         // và kiểu dữ liệu khớp (ví dụ: string hoặc number)
 
     const defaultTienNo = 0; // Tiền nợ mặc định khi tạo mới
 
-    const agencyData = {
-      ten: agencyName,
+    const agencyData : AddAgencyPayload = {
+ten: agencyName,
       loai_daily_id: agencyType, // Gửi ID loại đại lý
       quan_id: district, // Gửi ID quận
       dia_chi: address,
       dien_thoai: phone,
       email: email,
-      ngay_tiep_nhan: filingDate?.toISOString().split('T')[0],
+      ngay_tiep_nhan: (filingDate ?? new Date()).toISOString().split('T')[0],
       tien_no: defaultTienNo,                         // THÊM TIỀN NỢ
-      nhan_vien_tiep_nhan: defaultNhanVienTiepNhanId, // THÊM NHÂN VIÊN TIẾP NHẬN
+      nhan_vien_tiep_nhan: defaultNhanVienTiepNhanId,
     };
 
     console.log('Dữ liệu chuẩn bị gửi đi từ frontend:', agencyData);
 
     try {
-      const response: any = await AgencyApi(agencyData);
+      console.log("Nhân viên id: ",agencyData.nhan_vien_tiep_nhan)
+      const response: any = await addAgency(agencyData);
       toast.success(response.message || 'Lưu hồ sơ đại lý thành công.');
       resetForm();
     } catch (error) {
@@ -196,124 +158,7 @@ export default function AgencyReceptionPage() {
 
   // --- JSX ---
   return (
-    /* Container chính: Sử dụng flex-col để header ở trên cùng */
-    <div className="min-h-screen flex flex-col bg-gray-100">
-
-      {/* Thêm component Toaster để hiển thị toast */}
-      <Toaster position="top-right" reverseOrder={false} />
-
-      {/* --- HEADER --- */}
-      <header className="bg-white shadow-md p-4">
-        {/* Hàng trên cùng của Header: Logo và Admin Info */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-xl font-bold text-gray-800">
-            agency-me
-          </div>
-          <div className="flex items-center space-x-2">
-            {/* Placeholder Avatar */}
-            <div className="h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">A</div>
-            <span className="text-gray-700 font-semibold">Admin</span>
-          </div>
-        </div>
-
-        {/* Thanh điều hướng dạng Tab */}
-        <nav className="border-b border-gray-300">
-          <ul className="flex -mb-px">
-            <li className="mr-2">
-              {/* Tab "Đại lý" */}
-              {/* Highlight tab Đại lý nếu đường dẫn bắt đầu bằng /admin/dai-ly hoặc /admin/agency */}
-              <Link
-                to="/admin/dai-ly" // Điều chỉnh đường dẫn thực tế cho trang "Đại lý"
-                className={`inline-block py-2 px-4 text-sm font-medium border-b-2 ${
-                  location.pathname.startsWith('/admin/dai-ly') || location.pathname.startsWith('/admin/agency')
-                    ? 'text-blue-600 border-blue-600'
-                    : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                }`}
-              >
-                Đại lý
-              </Link>
-            </li>
-            <li className="mr-2">
-              {/* Tab "Loại đại lý" */}
-              <Link
-                to="/admin/loai-dai-ly" // Điều chỉnh đường dẫn thực tế cho trang "Loại đại lý"
-                className={`inline-block py-2 px-4 text-sm font-medium border-b-2 ${
-                  location.pathname.startsWith('/admin/loai-dai-ly')
-                    ? 'text-blue-600 border-blue-600'
-                    : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                }`}
-              >
-                Loại đại lý
-              </Link>
-            </li>
-            <li className="mr-2">
-              {/* Tab "Thay đổi quy định" */}
-              <Link
-                to="/admin/quy-dinh" // Điều chỉnh đường dẫn thực tế cho trang "Thay đổi quy định"
-                className={`inline-block py-2 px-4 text-sm font-medium border-b-2 ${
-                  location.pathname.startsWith('/admin/quy-dinh')
-                    ? 'text-blue-600 border-blue-600'
-                    : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                }`}
-              >
-                Thay đổi quy định
-              </Link>
-            </li>
-            {/* Thêm các tab khác nếu có */}
-          </ul>
-        </nav>
-      </header>
-      {/* --- END HEADER --- */}
-
-      {/* Content Area: Sidebar và Main Content - Sử dụng flex để xếp cạnh nhau */}
-      {/* flex-1 để khu vực này chiếm hết không gian còn lại sau header */}
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-md p-4 flex-shrink-0 overflow-y-auto">
-          <div className="space-y-2">
-            <div className="text-gray-600 font-semibold uppercase text-sm mb-2">Agency-me Menu</div>
-            {/* Menu Items với Link component */}
-
-            {/* Tra cứu đại lý */}
-            <Link to="/agency-lookup" className={`block w-full text-left py-2 px-4 rounded ${location.pathname.startsWith('/admin/tra-cuu-dai-ly') ? 'bg-gray-200' : 'hover:bg-gray-200'}`}>Tra cứu đại lý</Link>
-
-            {/* Nhóm menu Quản lý đại lý */}
-            {/* Highlight mục cha nếu đang ở bất kỳ trang con nào */}
-            <div className={`block w-full text-left py-2 px-4 rounded font-bold ${location.pathname.startsWith('/admin/agency') ? 'bg-gray-200' : ''}`}>
-              Quản lý đại lý
-            </div>
-            {/* Nested menu items */}
-            <div className="ml-4 space-y-1">
-
-              {/* Tiếp nhận đại lý - Thêm Icon */}
-              <Link
-                to="/admin/agency/reception" // Đảm bảo đây là đường dẫn chính xác
-                // Highlight khi đường dẫn chính xác là /admin/agency/reception
-                className={`flex items-center w-full text-left py-2 px-4 rounded ${location.pathname === '/admin/agency/reception' ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-200'}`}
-              >
-                <FileText className="mr-2 h-4 w-4" /> {/* Icon */}
-                Tiếp nhận đại lý
-              </Link>
-
-              {/* Xóa đại lý - Thêm Icon */}
-              <Link
-                to="/admin/agency/delete" // Đảm bảo đây là đường dẫn chính xác
-                className={`flex items-center w-full text-left py-2 px-4 rounded ${location.pathname === '/admin/agency/delete' ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-200'}`}
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> {/* Icon */}
-                Xóa đại lý
-              </Link>
-            </div>
-
-            {/* Lập phiếu xuất hàng */}
-            <Link to="/admin/lap-phieu-xuat-hang" className={`block w-full text-left py-2 px-4 rounded ${location.pathname.startsWith('/admin/lap-phieu-xuat-hang') ? 'bg-gray-200' : 'hover:bg-gray-200'}`}>Lập phiếu xuất hàng</Link>
-
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <main className="flex-1 p-8 overflow-y-auto">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+     <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Hồ sơ đại lý</h2>
             <form onSubmit={handleSubmit} noValidate>
               {/* Điều chỉnh grid để phù hợp với thiết kế ảnh */}
@@ -466,10 +311,5 @@ export default function AgencyReceptionPage() {
               </div>
             </form>
           </div>
-        </main>
-      </div>
-
-      
-    </div>
   );
 }

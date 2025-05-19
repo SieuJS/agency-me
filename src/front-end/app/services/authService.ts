@@ -1,10 +1,11 @@
 // src/front-end/app/services/authService.ts
 import axios from 'axios';
+//import Agency from '../routes/agency/agency-lookup'; // Giả sử Agency được định nghĩa trong apiClient.ts
 
-// 1. Đặt API_BASE_URL chính xác
-const API_BASE_URL = 'http://localhost:3000'; // Dựa trên Swagger UI của bạn
+// *** ĐẢM BẢO URL NÀY ĐÚNG VỚI BACKEND CỦA BẠN ***
+const API_BASE_URL = 'http://localhost:3000'; // Ví dụ: backend có /api prefix
+// Hoặc: const API_BASE_URL = 'http://localhost:3000'; // Nếu backend không có /api prefix
 
-// Tạo một instance axios với cấu hình chung
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -12,37 +13,28 @@ const apiClient = axios.create({
   },
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken'); // Hoặc dùng getAuthToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-// 2. Định nghĩa Interface cho Request Payload (đã khớp Swagger)
+
+// 2. Định nghĩa Interface cho Request Payload 
+
 export interface LoginPayload {
   email: string;
   password: string;
 }
 
-// 3. Định nghĩa Interface cho Response (RẤT QUAN TRỌNG: Cần khớp với API của bạn)
-//    Ví dụ này giả định API trả về user và accessToken. HÃY SỬA CHO ĐÚNG!
+// 3. Định nghĩa Interface cho Response
 export interface AuthResponse {
+  access_token: string;
   user: {
-    id: string | number;
-    email: string;
-    name?: string;
-    // Thêm các trường khác của user nếu API trả về
+  nhan_vien_id: string;
+  ten: string;
+  dien_thoai: string;
+  email: string;
+  loai_nhan_vien_id: string;
+  dia_chi: string;
+  mat_khau: string;
+  ngay_them: string;
   };
-  access_token: string; // Hoặc tên token mà API của bạn trả về (ví dụ: token, jwt)
-  // refreshToken?: string; // Nếu có
-  message?: string; // Thêm message nếu API trả về thông báo thành công
 }
 
 // 4. Hàm gọi API Đăng nhập

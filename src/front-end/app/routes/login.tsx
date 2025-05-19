@@ -31,7 +31,7 @@ export default function LoginPage() {
 //   }
 // }, []);
 
-  // --- Validation (Giữ nguyên như phiên bản trước) ---
+  // --- Validation ---
   const validateEmail = (emailValue: string): string => {
     if (!emailValue.trim()) return 'Email không được để trống.';
     if (!/\S+@\S+\.\S+/.test(emailValue)) return 'Định dạng email không hợp lệ.';
@@ -101,36 +101,16 @@ export default function LoginPage() {
        const payload: LoginPayload = { email: email.trim(), password };
 
        try {
-          //  const authResponse = await loginUser(payload);
-          //  localStorage.setItem('token', authResponse.accessToken);
-          //  toast.success(authResponse.message || 'Đăng nhập thành công!');
 
-          //  // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
-          //  setTimeout(() => {
-          //      navigate('agency/lookup'); // Điều hướng đến trang admin
-          //  }, 1000);
+           const authResponse = await loginUser(payload);
+           toast.success('Đăng nhập thành công!');
 
-         const authResponse = await loginUser(payload);
-    //console.log('Full authResponse from loginUser:', authResponse);
+           // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
+           setTimeout(() => {
+               navigate('agency/lookup'); // Điều hướng đến trang admin
+           }, 1000);
 
-    // Sửa ở đây: sử dụng authResponse.access_token (thay vì authResponse.accessToken)
-    if (authResponse && authResponse.access_token) {
-        // Bạn vẫn có thể lưu vào localStorage với key là 'accessToken' nếu muốn,
-        // miễn là hàm isAuthenticated của bạn cũng đọc từ key này.
-        // Hoặc bạn có thể đổi key ở localStorage thành 'access_token' cho nhất quán.
-        // Ở đây, chúng ta giữ nguyên key 'accessToken' trong localStorage như code cũ của bạn.
-        localStorage.setItem('access_token', authResponse.access_token);
-        toast.success(authResponse.message || 'Đăng nhập thành công!');
-        console.log('Token stored:', authResponse.access_token); // Log đúng giá trị token
 
-        setTimeout(() => {
-            navigate('/agency/lookup');
-        }, 1000);
-    } else {
-        // Cập nhật thông báo lỗi nếu muốn, để rõ ràng hơn
-        console.error('Login successful, but access_token is missing or invalid in the response:', authResponse);
-        toast.error('Đăng nhập thành công nhưng không nhận được token (access_token) hợp lệ từ phản hồi. Vui lòng thử lại.');
-    }
 
        } catch (error) {
            const message = error instanceof Error ? error.message : 'Lỗi không xác định.';
