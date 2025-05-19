@@ -33,6 +33,7 @@ model DaiLy {
   tien_no             Float
   ngay_tiep_nhan      DateTime
   nhan_vien_tiep_nhan String
+  da_xoa              Boolean         @default(false)
   loaiDaiLy           LoaiDaiLy       @relation(fields: [loai_daily_id], references: [loai_daily_id])
   nhanVien            NhanVien        @relation("NhanVienTiepNhan", fields: [nhan_vien_tiep_nhan], references: [nhan_vien_id])
   quan                Quan            @relation(fields: [quan_id], references: [quan_id])

@@ -12,6 +12,8 @@ import { Dialog } from '../components/ui/Dialog'; // Hoặc chỉ dùng toast
 import { loginUser, type LoginPayload } from '../services/authService';
 import toast, { Toaster } from 'react-hot-toast';
 
+import { isAuthenticated } from '../services/authService';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +24,12 @@ export default function LoginPage() {
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
+  
+//   useEffect(() => {
+//   if (isAuthenticated()) {
+//     navigate('/agency/lookup'); // Hoặc trang chính sau khi đăng nhập
+//   }
+// }, []);
 
   // --- Validation ---
   const validateEmail = (emailValue: string): string => {
@@ -62,6 +70,8 @@ export default function LoginPage() {
   }, [email, password, emailError]); // Thêm emailError vào dependencies
 
 
+  
+
   const isButtonDisabled = isLoading || !!emailError || !!passwordError || !email.trim() || !password;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -91,6 +101,7 @@ export default function LoginPage() {
        const payload: LoginPayload = { email: email.trim(), password };
 
        try {
+
            const authResponse = await loginUser(payload);
            toast.success('Đăng nhập thành công!');
 
@@ -98,6 +109,8 @@ export default function LoginPage() {
            setTimeout(() => {
                navigate('agency/lookup'); // Điều hướng đến trang admin
            }, 1000);
+
+
 
        } catch (error) {
            const message = error instanceof Error ? error.message : 'Lỗi không xác định.';

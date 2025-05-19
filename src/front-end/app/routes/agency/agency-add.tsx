@@ -17,7 +17,9 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 // import { Dialog } from '../components/ui/Dialog'; // Không cần Dialog nữa
 
+
 import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../services/agencyService'; // Giả định bạn có một service để gọi API
+
 
 
 
@@ -119,6 +121,8 @@ ten: agencyName,
       tien_no: defaultTienNo,                         // THÊM TIỀN NỢ
       nhan_vien_tiep_nhan: defaultNhanVienTiepNhanId,
     };
+
+    console.log('Dữ liệu chuẩn bị gửi đi từ frontend:', agencyData);
 
     try {
       console.log("Nhân viên id: ",agencyData.nhan_vien_tiep_nhan)
