@@ -1,18 +1,12 @@
 // src/front-end/app/routes/login.tsx
 import React, { useState, useEffect, type FormEvent } from 'react';
-// Quan trọng: Đảm bảo import useNavigate từ 'react-router' cho thiết lập của bạn
 import { useNavigate } from 'react-router';
-
-// --- Import các UI Component ---
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { Dialog } from '../components/ui/Dialog'; // Hoặc chỉ dùng toast
-
-// --- Import service và Toaster ---
-import { loginUser, type LoginPayload } from '../services/authService';
+import { Dialog } from '../components/ui/Dialog';
+import { loginUser, type LoginPayload, isAuthenticated } from '../services/authService'; // Import isAuthenticated
 import toast, { Toaster } from 'react-hot-toast';
 
-import { isAuthenticated } from '../services/authService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,12 +18,14 @@ export default function LoginPage() {
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
-  
-//   useEffect(() => {
-//   if (isAuthenticated()) {
-//     navigate('/agency/lookup'); // Hoặc trang chính sau khi đăng nhập
-//   }
-// }, []);
+
+  // --- KIỂM TRA NẾU ĐÃ ĐĂNG NHẬP ---
+  useEffect(() => {
+    if (isAuthenticated()) {
+      console.log('LoginPage: User already authenticated, redirecting to admin.');
+      navigate('/agency/lookup', { replace: true }); // Chuyển hướng đến trang admin mặc định
+    }
+  }, [navigate]); // Chỉ chạy 1 lần khi component mount
 
   // --- Validation ---
   const validateEmail = (emailValue: string): string => {

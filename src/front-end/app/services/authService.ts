@@ -37,60 +37,67 @@ export interface AuthResponse {
   };
 }
 
-// 4. Hàm gọi API Đăng nhập
+// --- Hàm xử lý lỗi chung cho Auth ---
+const handleAuthError = (error: any, defaultMessage: string): Error => {
+    console.error(`AuthService Error: ${defaultMessage}`, error);
+    if (axios.isAxiosError(error) && error.response) {
+        const backendError = error.response.data;
+        let errorMessage = defaultMessage;
+        if (backendError && backendError.message) {
+            errorMessage = Array.isArray(backendError.message) ? backendError.message.join(', ') : backendError.message;
+        } else if (typeof backendError === 'string') {
+            errorMessage = backendError;
+        }
+        return new Error(errorMessage);
+    }
+    return new Error(`Lỗi kết nối hoặc không xác định: ${defaultMessage.toLowerCase()}`);
+};
+
+
+
 export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> => {
   try {
     console.log('AuthService: Attempting login with payload:', payload);
-    // Endpoint là '/auth/login' so với API_BASE_URL
-    const response = await apiClient.post<AuthResponse>('/auth/login', payload);
+    const response = await apiClient.post<AuthResponse>('/auth/login', payload); // Endpoint đăng nhập
     console.log('AuthService: Login successful, response data:', response.data);
 
-    // 5. Xử lý sau khi đăng nhập thành công (ví dụ: lưu token)
-    if (response.data && response.data.access_token) {
+    if (response.data && response.data.access_token) { // Sửa thành access_token nếu API trả về vậy
       localStorage.setItem('accessToken', response.data.access_token);
       if (response.data.user) {
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
-      console.log('AuthService: Token and user data stored in localStorage.');
+      console.log('AuthService: Token and user data stored.');
     } else {
-      // Trường hợp API thành công (status 2xx) nhưng không có accessToken như mong đợi
-      console.warn('AuthService: Login response successful but no accessToken found.');
-      // Có thể ném lỗi ở đây nếu accessToken là bắt buộc
-      // throw new Error('Phản hồi đăng nhập không hợp lệ từ server.');
+      console.warn('AuthService: Login response successful but no access_token found.');
+      // throw new Error('Phản hồi đăng nhập không hợp lệ từ server.'); // Cân nhắc ném lỗi
     }
-
     return response.data;
   } catch (error) {
-    console.error("AuthService: Login API error:", error);
-    if (axios.isAxiosError(error) && error.response) {
-      // Ném lỗi với message từ backend để component hiển thị
-      const backendError = error.response.data;
-      let errorMessage = 'Email hoặc mật khẩu không đúng.'; // Mặc định
-      if (backendError && backendError.message) {
-          errorMessage = Array.isArray(backendError.message) ? backendError.message.join(', ') : backendError.message;
-      } else if (typeof backendError === 'string') {
-          errorMessage = backendError;
-      }
-      throw new Error(errorMessage);
-    }
-    // Lỗi không phải từ Axios (ví dụ: lỗi mạng)
-    throw new Error('Lỗi kết nối hoặc lỗi không xác định khi đăng nhập.');
+    throw handleAuthError(error, 'Email hoặc mật khẩu không đúng.');
   }
 };
 
-// --- Các hàm tiện ích khác (tùy chọn) ---
+// --- Hàm Logout ---
 export const logoutUser = (): void => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userData');
-    // Gọi API logout của backend nếu có
-    console.log('AuthService: User logged out.');
+    console.log('AuthService: User logged out, token and user data removed.');
 };
 
+// --- Hàm kiểm tra Đăng nhập ---
+export const isAuthenticated = (): boolean => {
+    const token = localStorage.getItem('accessToken');
+    // Trong tương lai, bạn có thể thêm logic kiểm tra token hết hạn ở đây
+    // Ví dụ, giải mã token và kiểm tra trường 'exp'
+    return !!token; // Trả về true nếu có token
+};
+
+// --- Các hàm tiện ích lấy thông tin ---
 export const getAuthToken = (): string | null => {
     return localStorage.getItem('accessToken');
 };
 
-export const getUserData = (): any | null => { // Nên tạo kiểu User cụ thể
+export const getUserData = (): AuthResponse['user'] | null => { // Sử dụng kiểu User từ AuthResponse
     const userDataString = localStorage.getItem('userData');
     try {
         return userDataString ? JSON.parse(userDataString) : null;
@@ -98,8 +105,4 @@ export const getUserData = (): any | null => { // Nên tạo kiểu User cụ th
         console.error("AuthService: Error parsing user data from localStorage", e);
         return null;
     }
-};
-
-export const isAuthenticated = (): boolean => {
-    return !!getAuthToken(); // True nếu có token
 };
