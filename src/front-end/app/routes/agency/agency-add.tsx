@@ -19,10 +19,13 @@ import { Button } from '../../components/ui/Button';
 
 // --- Giả lập hàm gọi API để lưu hồ sơ đại lý (Giữ nguyên) ---
 const AgencyApi = async (agencyData: any) => {
+  const token = localStorage.getItem('access_token');
+  console.log('Token used for API call:', token);
   const response = await fetch('http://localhost:3000/agency/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify(agencyData),
   });
@@ -157,6 +160,8 @@ export default function AgencyReceptionPage() {
       tien_no: defaultTienNo,                         // THÊM TIỀN NỢ
       nhan_vien_tiep_nhan: defaultNhanVienTiepNhanId, // THÊM NHÂN VIÊN TIẾP NHẬN
     };
+
+    console.log('Dữ liệu chuẩn bị gửi đi từ frontend:', agencyData);
 
     try {
       const response: any = await AgencyApi(agencyData);
