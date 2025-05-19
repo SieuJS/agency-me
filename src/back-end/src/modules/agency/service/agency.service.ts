@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { AgencyParams } from '../models/agency.params';
 import { AgencyDto } from '../models/agency.dto';
@@ -23,6 +19,7 @@ export class AgencyService {
     const { tien_no, ten, ngay_tiep_nhan } = params;
     const rawResult = await this.prisma.daiLy.findMany({
       where: {
+        da_xoa: false,
         tien_no: tien_no
           ? {
               gte: tien_no,
@@ -145,6 +142,7 @@ export class AgencyService {
     const agency = await this.prisma.daiLy.findUnique({
       where: {
         daily_id: id,
+        da_xoa: false,
       },
       include: {
         quan: true,
@@ -199,8 +197,15 @@ export class AgencyService {
       updateData.tien_no = input.tien_no;
     }
 
+    const existingAgency = await this.prisma.daiLy.findUnique({
+      where: { daily_id: id, da_xoa: false },
+    });
+    if (!existingAgency) {
+      throw new NotFoundException('Agency not found');
+    }
+
     const agency = await this.prisma.daiLy.update({
-      where: { daily_id: id },
+      where: { daily_id: id, da_xoa: false },
       include: {
         quan: true,
         loaiDaiLy: true,
@@ -212,22 +217,17 @@ export class AgencyService {
     return new AgencyDto(agency);
   }
 
-  async deleteAgency(id: string, userId: string): Promise<AgencyDto> {
+  async deleteAgency(id: string): Promise<AgencyDto> {
     const existingAgency = await this.prisma.daiLy.findUnique({
-      where: { daily_id: id },
+      where: { daily_id: id, da_xoa: false },
     });
     if (!existingAgency) {
       throw new NotFoundException('Agency not found');
     }
 
-    if (existingAgency.nhan_vien_tiep_nhan !== userId) {
-      throw new ForbiddenException(
-        'You are not authorized to delete this agency',
-      );
-    }
-
-    const agency = await this.prisma.daiLy.delete({
-      where: { daily_id: id, nhan_vien_tiep_nhan: userId },
+    const agency = await this.prisma.daiLy.update({
+      where: { daily_id: id, da_xoa: false },
+      data: { da_xoa: true },
       include: {
         quan: true,
         loaiDaiLy: true,

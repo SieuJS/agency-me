@@ -94,13 +94,9 @@ export class AgencyController {
   })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
-  deleteAgency(
-    @Param('id') id: string,
-    @Request() req: { user: AuthPayloadDto },
-  ) {
-    const { userId } = req.user;
+  deleteAgency(@Param('id') id: string) {
     try {
-      return this.agencyService.deleteAgency(id, userId);
+      return this.agencyService.deleteAgency(id);
     } catch (error) {
       throw new HttpException(
         (error as Error).message || 'An error occurred',
