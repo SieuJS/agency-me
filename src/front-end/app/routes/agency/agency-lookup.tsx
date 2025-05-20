@@ -85,7 +85,7 @@ export default function AgencyLookupPage() {
     if (searchName.trim()) searchParams.ten = searchName.trim();
     if (selectedDistrict) searchParams.quan = selectedDistrict;
     if (selectedType) searchParams.loai_daily = selectedType;
-    searchParams.maxTienNo = currentDebtFilterValue;
+    searchParams.tien_no = currentDebtFilterValue;
     fetchData(searchParams);
   };
 
