@@ -128,7 +128,6 @@ export default function AdminSectionLayout() { // Đổi tên component
         {/* --- SIDEBAR --- */}
         <aside className="sticky top-16 h-[calc(100vh-4rem)] w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200 p-5 space-y-4">
           <div className="space-y-1">
-            <h3 className="px-3 text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">AGENCY-ME MENU</h3>
             {/* Sử dụng NavLink và đường dẫn tương đối */}
             <NavLink to="/agency/lookup" className={getSidebarNavLinkClass}>
               <Search className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
@@ -136,21 +135,24 @@ export default function AdminSectionLayout() { // Đổi tên component
             </NavLink>
           </div>
           <div className="space-y-1">
-            <h3 className="px-3 text-base font-semibold text-gray-800 mb-1">Quản lý đại lý</h3>
+           
             <NavLink to="/agency/add" className={getSidebarNavLinkClass}>
               <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
               <span className="truncate">Tiếp nhận đại lý</span>
             </NavLink>
-            <NavLink to="agencies-delete" className={getSidebarNavLinkClass}> {/* Sửa path nếu cần */}
-               <Trash2 className="w-5 h-5 mr-3 flex-shrink-0" />
-              <span className="truncate">Xóa đại lý</span>
+            
+          </div>
+          <div className="space-y-1">
+            {/* Sử dụng NavLink và đường dẫn tương đối */}
+            <NavLink to="/agency/lookup-phieu" className={getSidebarNavLinkClass}>
+              <Search className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
+              <span className="truncate">Tra cứu phiếu xuất hàng</span>
             </NavLink>
           </div>
            <div className="space-y-1">
-             <h3 className="px-3 text-base font-semibold text-gray-800 mb-1">Lập phiếu xuất hàng</h3>
              <NavLink to="export-slips-create" className={getSidebarNavLinkClass}> {/* Sửa path nếu cần */}
                <FileText className="w-5 h-5 mr-3 flex-shrink-0" />
-               <span className="truncate">Lập phiếu</span>
+               <span className="truncate">Lập phiếu xuất hàng</span>
              </NavLink>
            </div>
         </aside>
