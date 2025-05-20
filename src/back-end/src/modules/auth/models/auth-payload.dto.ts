@@ -1,4 +1,5 @@
 export class AuthPayloadDto {
-  userId: string;
-  role: string;
+  nhan_vien_id: string;
+  email: string;
+  loai_nhan_vien_id: string;
 }

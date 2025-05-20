@@ -49,8 +49,8 @@ export class AgencyController {
     @Request() req: { user: AuthPayloadDto },
   ) {
     try {
-      const { userId } = req.user;
-      input.nhan_vien_tiep_nhan = userId;
+      const { nhan_vien_id } = req.user;
+      input.nhan_vien_tiep_nhan = nhan_vien_id;
       const newAgency = await this.agencyService.createAgency(input);
       return {
         message: 'Agency created successfully',
@@ -83,8 +83,8 @@ export class AgencyController {
     @Body() input: AgencyInput,
     @Request() req: { user: AuthPayloadDto },
   ) {
-    const { userId } = req.user;
-    input.nhan_vien_tiep_nhan = userId;
+    const { nhan_vien_id } = req.user;
+    input.nhan_vien_tiep_nhan = nhan_vien_id;
     return this.agencyService.updateAgency(id, input);
   }
 

@@ -1,9 +1,10 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ExportSheetsService } from '../../services/export-sheets/export-sheets.service';
 import { ExportSheetInput } from '../../models/export-sheet.input';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthPayloadDto } from 'src/modules/auth/models/auth-payload.dto';
+import { ExportSheetInputPipe } from '../../pipes/export-sheet-input.pipe';
 
 @ApiTags('Export Sheets')
 @Controller('export-sheets')
@@ -21,9 +22,13 @@ export class ExportSheetsController {
         description: 'Agency, employee, or item not found.',
     })
     @UseGuards(AuthGuard('jwt'))
-    async createExportSheet(@Body() input: ExportSheetInput, @Req() req: { user: AuthPayloadDto }) {
-        const user = req.user as AuthPayloadDto;
-        input.nhan_vien_lap_phieu = user.userId;
+    @ApiBearerAuth('access-token')
+    async createExportSheet(@Body(ExportSheetInputPipe) input: ExportSheetInput, @Req() req: { user: AuthPayloadDto }) {
+        const user = req.user;
+        console.log(user);
+
+        input.nhan_vien_lap_phieu = user.nhan_vien_id;
+        console.log(input);
         return await this.exportSheetsService.createExportSheet(input);
     }
 }

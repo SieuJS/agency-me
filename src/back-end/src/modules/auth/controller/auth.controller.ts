@@ -94,6 +94,7 @@ export class AuthController {
   })
   @ApiBody({ type: LoginDto })
   login(@Request() req: { user: AuthPayloadDto }) {
+    console.log(req.user);
     return this.authService.login(req.user);
   }
 }

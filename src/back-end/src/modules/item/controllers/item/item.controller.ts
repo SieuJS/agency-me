@@ -12,6 +12,7 @@ export class ItemController {
     name: 'pattern',
     type: String,
     example: '',
+    required: false,
   })
   @ApiResponse({
     status: 200,
