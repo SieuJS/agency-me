@@ -112,3 +112,26 @@ export const fetchDistrictsAPI = async (): Promise<DistrictFromAPI[]> => {
         throw handleError(error, 'Lỗi tải danh sách quận.');
     }
 };
+
+export interface AgencyDetails extends Agency {
+  daily_id : string;
+  ten : string;
+  dien_thoai :string;
+  email :string;
+  tien_no : number;
+  dia_chi : string;
+  quan : string;
+  loai_daily : string;
+  ngay_tiep_nhan : string;
+}
+
+export const fetchAgencyByIdAPI = async (agencyId: string): Promise<AgencyDetails> => {
+  // ----- BẮT ĐẦU CODE GIẢ ĐỊNH -----
+  // Đây là code giả định, bạn cần thay thế bằng logic gọi API thật
+  // Ví dụ: 
+  try {
+  const response = await apiClient.get<AgencyDetails>(`/agency/detail/${agencyId}`);
+  return response.data;
+} catch (error) {
+  throw handleError(error, 'Không thể tải chi tiết đại lý.');
+}}
