@@ -21,9 +21,6 @@ import { Button } from '../../components/ui/Button';
 import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../services/agencyService'; // Giả định bạn có một service để gọi API
 
 
-
-
-
 export default function AgencyReceptionPage() {
   const navigate = useNavigate();
   const location = useLocation(); 

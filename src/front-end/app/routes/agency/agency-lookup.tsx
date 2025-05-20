@@ -222,7 +222,14 @@ export default function AgencyLookupPage() {
                     agencies.map((agency) => (
                       <tr key={agency.id} className="hover:bg-slate-50">
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{agency.stt}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600 hover:underline cursor-pointer">{agency.name}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                          <Link
+                            to={`/agency/detail/${agency.id || agency.stt}`} // QUAN TRỌNG: URL đến trang chi tiết
+                            className="text-blue-600 hover:underline cursor-pointer"
+                            >
+                            {agency.name}
+                          </Link>
+                        </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agency.type}</td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agency.district}</td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right tabular-nums">
