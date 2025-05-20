@@ -28,7 +28,7 @@ export interface AgenciesApiResponse {
 }
 
 export interface AgencySearchParams {
-  ten?: string; quan?: string; loai_daily?: string; maxTienNo?: number; page?: number; limit?: number;
+  ten?: string; quan?: string; loai_daily?: string; tien_no?: number; page?: number; limit?: number;
 }
 
 export interface AddAgencyPayload {
