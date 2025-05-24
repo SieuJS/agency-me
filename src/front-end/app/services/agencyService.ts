@@ -254,4 +254,17 @@ export const getAllAgencies = async (): Promise<Agency[]> => {
   }
 };
 
+export interface AgencyTypeCreatePayload {
+  ten_loai: string;
+  tien_no_toi_da: number;
+}
+
+export const createAgencyTypeAPI = async (payload: AgencyTypeCreatePayload): Promise<void> => {
+  try {
+    await apiClient.post('/agencyType/create', payload);
+  } catch (error) {
+    throw handleError(error, 'Không thể tạo loại đại lý.');
+  }
+};
+
 

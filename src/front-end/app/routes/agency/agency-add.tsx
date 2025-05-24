@@ -148,9 +148,9 @@ ten: agencyName,
   
    // --- Hàm xử lý khi nhấn nút "Thêm" cho Loại Đại Lý (ví dụ) ---
   const handleAddAgencyType = () => {
-    toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
+    //toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
     // Trong tương lai, bạn có thể navigate tới trang quản lý loại đại lý:
-    // navigate('/admin/loai-dai-ly/them-moi');
+     navigate('/agency/type-create');
   };
 
   // --- JSX ---
