@@ -140,7 +140,7 @@ export default function AgencyDetailsPage() {
           <h2 className="text-3xl font-semibold text-gray-800">Chi Tiết Đại Lý</h2>
         </div>
         <div className="flex space-x-2">
-          <Button onClick={() => navigate(-1)}>
+          <Button onClick={() => navigate('/agency/lookup')} className="bg-gray-200 hover:bg-gray-300 text-gray-800">
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>
           <Button 

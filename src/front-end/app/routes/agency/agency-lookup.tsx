@@ -4,7 +4,8 @@ import { Link, type MetaFunction } from 'react-router';
 import { Search, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-import { getAgencies, type Agency, type AgencySearchParams } from '../../services/agencyService'; 
+
+import { getAgencies, type Agency, type AgencySearchParams, deleteAgencyById  } from '../../services/agencyService'; 
 import ConfirmationModal from '../../components/ui/ConfirmationModal'; 
 
 export const meta: MetaFunction = () => {
@@ -27,7 +28,7 @@ export default function AgencyLookupPage() {
   const [allTypes, setAllTypes] = useState<string[]>([]);
   const [minDebtRange, setMinDebtRange] = useState(0);
   const [maxDebtRange, setMaxDebtRange] = useState(1000000);
-  const [currentDebtFilterValue, setCurrentDebtFilterValue] = useState<number>(maxDebtRange);
+  const [currentDebtFilterValue, setCurrentDebtFilterValue] = useState<number>(minDebtRange);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [agencyToDelete, setAgencyToDelete] = useState<{ id: string | number; name: string } | null>(null);
@@ -62,12 +63,12 @@ export default function AgencyLookupPage() {
         const newMinDebt = Math.min(0, ...debts);
         const newMaxDebt = Math.max(0, ...debts);
         //setMinDebtRange(newMinDebt);
-        const effectiveMaxDebt = newMaxDebt > 0 ? newMaxDebt : 5000000;
+        //const effectiveMaxDebt = newMaxDebt > 0 ? newMaxDebt : 5000000;
         //setMaxDebtRange(effectiveMaxDebt);
         //setCurrentDebtFilterValue(effectiveMaxDebt);
       } else if ((!params || Object.keys(params).length === 0)) {
         setAllDistricts([]); setAllTypes([]);
-        setMinDebtRange(0); setMaxDebtRange(5000000); setCurrentDebtFilterValue(5000000);
+        setMinDebtRange(0); setMaxDebtRange(1000000); setCurrentDebtFilterValue(0);
       }
 
     } catch (error) {
@@ -84,8 +85,8 @@ export default function AgencyLookupPage() {
 
 
   useEffect(() => {
-    setCurrentDebtFilterValue(maxDebtRange);
-  }, [maxDebtRange]);
+    setCurrentDebtFilterValue(minDebtRange);
+  }, [minDebtRange]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -112,25 +113,20 @@ export default function AgencyLookupPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteAgency = () => {
-    if (!agencyToDelete) return;
-    const { id, name } = agencyToDelete;
-    const deletePromise = new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`Simulating delete for agency ID: ${id}`);
-        resolve(`Đã xóa đại lý ${name}.`);
-      }, 1000);
-    });
+const confirmDeleteAgency = async () => {
+  if (!agencyToDelete) return;
+  const { id, name } = agencyToDelete;
 
-    toast.promise(deletePromise, {
-      loading: `Đang xóa đại lý "${name}"...`,
-      success: (message) => {
-        setAgencies(prevAgencies => prevAgencies.filter(agency => agency.id !== id));
-        return String(message);
-      },
-      error: (err) => `Lỗi khi xóa đại lý "${name}": ${err.message || 'Unknown error'}.`,
-    });
-  };
+  try {
+    await deleteAgencyById(id);
+    toast.success(`Đã xóa đại lý "${name}" thành công.`);
+    setAgencies(prev => prev.filter(agency => agency.id !== id));
+    setIsDeleteModalOpen(false);
+    setAgencyToDelete(null);
+  } catch (error) {
+    toast.error(`Lỗi khi xóa đại lý "${name}": ${(error as Error).message}`);
+  }
+};
 
   return (
     <div className="flex flex-col space-y-5">

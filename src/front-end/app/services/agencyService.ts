@@ -15,7 +15,7 @@ interface AgencyFromApi {
   quan: string;
   loai_daily: string;
   ngay_tiep_nhan: string; // Format YYYY-MM-DD hoặc dd/MM/YYYY tùy API
-  // Thêm các trường khác nếu API trả về
+ 
 }
 
 // 2. Interface cho đối tượng Đại lý mà Frontend sẽ sử dụng (tên trường tiếng Anh)
@@ -79,6 +79,20 @@ export interface AddAgencyPayload {
     loai_daily_id: string;  // Backend thường nhận ID cho quan hệ
     ngay_tiep_nhan: string; // Format YYYY-MM-DD
     nhan_vien_tiep_nhan_id: string; // ID của nhân viên, backend cần trường này
+}
+
+//8. Interface cho cập nhật đại lý
+export interface UpdateAgencyPayload {
+  ten: string;
+  dien_thoai: string;
+  email?: string;
+  tien_no: number;
+  dia_chi: string;
+  quan: string;
+  loai_daily: string;
+  ngay_tiep_nhan: string;
+  loai_daily_id?: string;
+  quan_id?: string;
 }
 
 // --- HELPER FUNCTIONS ---
@@ -188,7 +202,7 @@ export const fetchDistrictsAPI = async (): Promise<DistrictFromAPI[]> => {
     }
 };
 
-// --- Hàm lấy chi tiết đại lý (ví dụ) ---
+// --- Hàm lấy chi tiết đại lý theo ID ---
 export const fetchAgencyByIdAPI = async (agencyId: string | number): Promise<Agency> => {
   try {
     const response = await apiClient.get<AgencyFromApi>(`/agency/detail/${agencyId}`); // Endpoint của bạn
@@ -201,3 +215,20 @@ export const fetchAgencyByIdAPI = async (agencyId: string | number): Promise<Age
   }
 };
 
+
+
+export const deleteAgencyById = async (id: string | number): Promise<void> => {
+  try {
+    await apiClient.delete(`/agency/delete/${id}`);
+  } catch (error) {
+    throw handleError(error, `Không thể xóa đại lý với ID ${id}`);
+  }
+};
+
+export const updateAgencyByIdAPI = async (id: string | number, payload: UpdateAgencyPayload): Promise<void> => {
+  try {
+    await apiClient.put(`/agency/update/${id}`, payload);
+  } catch (error) {
+    throw handleError(error, `Không thể cập nhật đại lý với ID ${id}`);
+  }
+};
