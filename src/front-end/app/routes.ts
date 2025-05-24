@@ -28,10 +28,20 @@ export default [
                 file: "routes/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
             },
             {
+
                 path: "edit/:agencyId",
                 file: "routes/agency/agency-edit.tsx", // Đảm bảo file này tồn tại
             }
          
+            {
+                path: "export-slips-create",
+                file: "routes/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại
+            },
+            // (Optional) Index route cho /admin
+            // {
+            //   index: true,
+            //   file: "routes/admin/agency-lookup.tsx" // Ví dụ
+            // }
         ]
     }
 ] satisfies RouteConfig;

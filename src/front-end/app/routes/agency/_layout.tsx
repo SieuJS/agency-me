@@ -105,7 +105,7 @@ export default function AdminSectionLayout() { // Đổi tên component
           <ul className="flex space-x-4 -mb-px"> {/* Dùng space-x thay vì mr-2 trên li */}
             <li>
               {/* Sử dụng NavLink để tự động xử lý active state */}
-              <NavLink to="/agency/lookup" className={getHeaderTabNavLinkClass}>
+              <NavLink to="/agency" className={getHeaderTabNavLinkClass}>
                 Đại lý
               </NavLink>
             </li>
