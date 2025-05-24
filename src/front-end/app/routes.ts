@@ -31,8 +31,7 @@ export default [
 
                 path: "edit/:agencyId",
                 file: "routes/agency/agency-edit.tsx", // Đảm bảo file này tồn tại
-            }
-         
+            },
             {
                 path: "export-slips-create",
                 file: "routes/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại

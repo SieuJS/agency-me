@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 import { PlusCircle, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 // Assuming you have a date picker component or will use a library
@@ -12,7 +13,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 //import { getAgencies } from '../../services/agencyService'; // Đường dẫn đúng
 //import type { Agency } from '../../services/agencyService'; // Import kiểu Agency
 
-import { getAgencies, type Agency} from '../../services/agencyService';
+import { getAllAgencies, type Agency} from '../../services/agencyService';
 import { createExportSheetAPI, type ExportSheetInputPayload} from '../../services/exportSheetService';
 import { fetchItemsAPI, type Item} from '../../services/itemService';
 // --- Helper Functions/Services (Illustrative - to be implemented) ---
@@ -51,7 +52,7 @@ export default function CreateExportSlipPage() {
       try {
         // Use API functions
         const [agenciesData, itemsData] = await Promise.all([
-          getAgencies(),
+          getAllAgencies(),
           fetchItemsAPI()
         ]);
         setAgencies(agenciesData);
@@ -191,29 +192,28 @@ export default function CreateExportSlipPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Tên đại lý */}
           <div>
-            <label htmlFor="agencyName" className="block text-sm font-medium text-gray-700 mb-1">
-              Tên đại lý <span className="text-red-500">*</span>
-            </label>
-            <select
-  id="agencyName"
-  value={selectedAgencyId}
-  onChange={(e) => setSelectedAgencyId(e.target.value)}
-  className={`mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm
-    `}
-  required
->
-  <option value="" disabled hidden>
-    -- Chọn đại lý --
-  </option>
-  {agencies.map((agency) => (
-    <option key={agency.id} value={agency.id}>
-      {agency.name}
-    </option>
-  ))}
-</select>
-
-
-
+            <label className="block text-sm font-medium text-gray-700 mb-1">Đại lý</label>
+            <Select
+              options={agencies.map((agency) => ({
+                value: String(agency.id),
+                label: agency.name,
+              }))}
+              value={
+                agencies.find(a => a.id === selectedAgencyId)
+                  ? {
+                      value: selectedAgencyId,
+                      label: agencies.find(a => a.id === selectedAgencyId)?.name || '',
+                    }
+                  : null
+              }
+              onChange={(selected) => {
+                setSelectedAgencyId(selected?.value || '');
+              }}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="-- Chọn đại lý --"
+              isSearchable
+            />
           </div>
 
           {/* Ngày lập phiếu */}

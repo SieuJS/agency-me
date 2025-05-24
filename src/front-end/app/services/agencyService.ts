@@ -78,7 +78,7 @@ export interface AddAgencyPayload {
     quan_id: string;        // Backend thường nhận ID cho quan hệ
     loai_daily_id: string;  // Backend thường nhận ID cho quan hệ
     ngay_tiep_nhan: string; // Format YYYY-MM-DD
-    nhan_vien_tiep_nhan_id: string; // ID của nhân viên, backend cần trường này
+    nhan_vien_tiep_nhan: string; // ID của nhân viên, backend cần trường này
 }
 
 //8. Interface cho cập nhật đại lý
@@ -142,6 +142,7 @@ export const getAgencies = async (params?: AgencySearchParams): Promise<GetAgenc
 
     if (response.data && Array.isArray(response.data.payload) && response.data.meta) {
       const mappedAgencies = response.data.payload.map(mapToAgency);
+      console.log('AgencyService: Mapped agencies:', mappedAgencies);
       return {
         agencies: mappedAgencies,
         meta: response.data.meta,
@@ -232,4 +233,25 @@ export const updateAgencyByIdAPI = async (id: string | number, payload: UpdateAg
     throw handleError(error, `Không thể cập nhật đại lý với ID ${id}`);
   }
 };
+
+export const getAllAgencies = async (): Promise<Agency[]> => {
+  const allAgencies: Agency[] = [];
+  let currentPage = 1;
+  const perPage = 100;
+  let totalPages = 1;
+
+  try {
+    do {
+      const { agencies, meta } = await getAgencies({ page: currentPage, perPage });
+      allAgencies.push(...agencies);
+      totalPages = meta.totalPage;
+      currentPage++;
+    } while (currentPage <= totalPages);
+
+    return allAgencies;
+  } catch (error) {
+    throw handleError(error, 'Không thể tải toàn bộ danh sách đại lý.');
+  }
+};
+
 
