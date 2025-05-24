@@ -9,6 +9,8 @@ import { AgencyTypeModule } from './modules/agencyType/agencyType.module';
 import { DistrictModule } from './modules/district/district.module';
 import { ItemModule } from './modules/item/item.module';
 import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
+import { RegulationModule } from './modules/regulations/regulation.module';
+import { ReceiptModule } from './modules/receipt/receipt.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
     DistrictModule,
     ItemModule,
     ExportSheetModule,
+    RegulationModule,
+    ReceiptModule,
   ],
   controllers: [AppController],
   providers: [AppService],
