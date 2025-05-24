@@ -88,7 +88,7 @@ export default function AdminSectionLayout() { // Đổi tên component
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200"> {/* Header chính */}
           <Link to="/" className="text-xl font-bold text-gray-800">agency-me</Link>
           <div className="flex items-center space-x-3">
-            <img src="https://via.placeholder.com/32" alt="User Avatar" className="w-8 h-8 rounded-full object-cover"/>
+            <img src="https://png.pngtree.com/png-vector/20191110/ourlarge/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg" alt="User Avatar" className="w-8 h-8 rounded-full object-cover"/>
             <span className="text-sm font-medium text-gray-700">{adminName}</span>
             <button
               onClick={handleLogout}

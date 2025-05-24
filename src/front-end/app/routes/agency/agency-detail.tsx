@@ -13,7 +13,7 @@ import { Button } from '../../components/ui/Button'; // Điều chỉnh đườn
 // import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../../components/ui/Dialog'; // Nếu bạn có Dialog component
 
 // --- Import service và types ---
-import { fetchAgencyByIdAPI, type AgencyDetails } from '../../services/agencyService'; // Điều chỉnh đường dẫn
+import { fetchAgencyByIdAPI, type Agency } from '../../services/agencyService'; // Điều chỉnh đường dẫn
 
 // Helper để định dạng ngày tháng
 const formatDate = (dateString: string | undefined) => {
@@ -44,7 +44,7 @@ export default function AgencyDetailsPage() {
   const navigate = useNavigate();
   const { agencyId } = useParams<{ agencyId: string }>(); // Lấy agencyId từ URL
 
-  const [agency, setAgency] = useState<AgencyDetails | null>(null);
+  const [agency, setAgency] = useState<Agency | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -144,60 +144,26 @@ export default function AgencyDetailsPage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>
           <Button 
-            onClick={() => navigate(`/agency/edit/${agency.daily_id}`)} // Giả sử có trang chỉnh sửa
+            onClick={() => navigate(`/agency/edit/${agency.id}`)} // Giả sử có trang chỉnh sửa
             className="bg-yellow-500 hover:bg-yellow-600 text-white"
             disabled={isDeleting}
           >
             <Edit3 className="mr-2 h-4 w-4" /> Sửa
           </Button>
-          {/* Sử dụng Dialog để xác nhận xóa (nếu bạn có component Dialog) */}
-          {/* <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-            <DialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
-                <Trash2 className="mr-2 h-4 w-4" /> Xóa
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Xác nhận xóa đại lý</DialogTitle>
-                <DialogDescription>
-                  Bạn có chắc chắn muốn xóa đại lý "{agency.ten}" không? Hành động này không thể hoàn tác.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline" disabled={isDeleting}>Hủy</Button>
-                </DialogClose>
-                <Button variant="destructive" onClick={handleDelete} isLoading={isDeleting} disabled={isDeleting}>
-                  Xác nhận Xóa
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog> */}
-
-          
         </div>
       </div>
 
       {/* Agency Info Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-        <DetailItem icon={UserCircle} label="Tên đại lý" value={agency.ten} />
-        <DetailItem icon={Building} label="Loại đại lý" value={agency.loai_daily} />
-        <DetailItem icon={MapPin} label="Quận" value={agency.quan} />
-        <DetailItem icon={MapPin} label="Địa chỉ" value={agency.dia_chi} />
-        <DetailItem icon={Phone} label="Điện thoại" value={agency.dien_thoai} />
+        <DetailItem icon={UserCircle} label="Tên đại lý" value={agency.name} />
+        <DetailItem icon={Building} label="Loại đại lý" value={agency.type} />
+        <DetailItem icon={MapPin} label="Quận" value={agency.district} />
+        <DetailItem icon={MapPin} label="Địa chỉ" value={agency.address} />
+        <DetailItem icon={Phone} label="Điện thoại" value={agency.phone} />
         <DetailItem icon={Mail} label="Email" value={agency.email} />
-        <DetailItem icon={CalendarDays} label="Ngày tiếp nhận" value={formatDate(agency.ngay_tiep_nhan)} />
-        <DetailItem icon={DollarSign} label="Tiền nợ hiện tại" value={formatCurrency(agency.tien_no)} />
-        {/* Thêm các trường khác nếu có */}
+        <DetailItem icon={CalendarDays} label="Ngày tiếp nhận" value={formatDate(agency.createdDate)} />
+        <DetailItem icon={DollarSign} label="Tiền nợ hiện tại" value={formatCurrency(agency.debt)} />
       </div>
-
-      {/* Có thể thêm các section khác ở đây, ví dụ: Lịch sử giao dịch, Ghi chú, v.v. */}
-      {/* <div className="mt-8 pt-6 border-t border-gray-200">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">Thông tin bổ sung</h3>
-        <p className="text-gray-600">Chưa có thông tin bổ sung.</p>
-      </div> 
-      */}
     </div>
   );
 }
