@@ -1,13 +1,13 @@
 // src/front-end/app/routes/admin/agency-lookup.tsx
-import React, { useState, useEffect, useCallback, Fragment } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, type MetaFunction } from 'react-router';
 import { Search, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-import { getAgencies, type Agency, type AgencySearchParams } from '../../services/agencyService'; 
+
+import { getAgencies, type Agency, type AgencySearchParams, deleteAgencyById  } from '../../services/agencyService'; 
 import ConfirmationModal from '../../components/ui/ConfirmationModal'; 
 
-// --- Meta Function ---
 export const meta: MetaFunction = () => {
   return [
     { title: "Admin - Tra cứu đại lý" },
@@ -15,7 +15,6 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-// --- Component Chính ---
 export default function AgencyLookupPage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,64 +27,75 @@ export default function AgencyLookupPage() {
   const [allDistricts, setAllDistricts] = useState<string[]>([]);
   const [allTypes, setAllTypes] = useState<string[]>([]);
   const [minDebtRange, setMinDebtRange] = useState(0);
-  const [maxDebtRange, setMaxDebtRange] = useState(5000000);
-  const [currentDebtFilterValue, setCurrentDebtFilterValue] = useState<number>(maxDebtRange);
+  const [maxDebtRange, setMaxDebtRange] = useState(1000000);
+  const [currentDebtFilterValue, setCurrentDebtFilterValue] = useState<number>(minDebtRange);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [agencyToDelete, setAgencyToDelete] = useState<{ id: string | number; name: string } | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [lastSearchParams, setLastSearchParams] = useState<AgencySearchParams>({});
+
   const fetchData = useCallback(async (params?: AgencySearchParams) => {
     setIsLoading(true);
     try {
-      const fetchedAgenciesFromService = await getAgencies(params);
+      const finalParams = {
+        ...params,
+        page: currentPage,
+        perPage: 10,
+      };
 
-      if (Array.isArray(fetchedAgenciesFromService)) {
-        const agenciesWithStt = fetchedAgenciesFromService.map((agency, index) => ({
-          ...agency,
-          stt: index + 1,
-        }));
-        setAgencies(agenciesWithStt);
+      const { agencies: fetchedAgencies, meta } = await getAgencies(finalParams);
 
-        if ((!params || Object.keys(params).length === 0) && fetchedAgenciesFromService.length > 0) {
-          setAllDistricts([...new Set(fetchedAgenciesFromService.map(a => a.district).filter(Boolean))].sort());
-          setAllTypes([...new Set(fetchedAgenciesFromService.map(a => a.type).filter(Boolean))].sort());
-          const debts = fetchedAgenciesFromService.map(a => a.debt);
-          const newMinDebt = Math.min(0, ...debts);
-          const newMaxDebt = Math.max(0, ...debts);
-          setMinDebtRange(newMinDebt);
-          const effectiveMaxDebt = newMaxDebt > 0 ? newMaxDebt : 5000000;
-          setMaxDebtRange(effectiveMaxDebt);
-          setCurrentDebtFilterValue(effectiveMaxDebt);
-        } else if ((!params || Object.keys(params).length === 0)) {
-          setAllDistricts([]); setAllTypes([]);
-          setMinDebtRange(0); setMaxDebtRange(5000000); setCurrentDebtFilterValue(5000000);
-        }
-      } else {
-        toast.error("Dữ liệu đại lý trả về không hợp lệ.");
-        setAgencies([]);
+      const agenciesWithStt = fetchedAgencies.map((agency, index) => ({
+        ...agency,
+        stt: (meta.curPage - 1) * meta.perPage + index + 1,
+      }));
+
+      setAgencies(agenciesWithStt);
+      setTotalPages(meta.totalPage || 1);
+
+      if ((!params || Object.keys(params).length === 0) && fetchedAgencies.length > 0) {
+        setAllDistricts([...new Set(fetchedAgencies.map(a => a.district).filter(Boolean))].sort());
+        setAllTypes([...new Set(fetchedAgencies.map(a => a.type).filter(Boolean))].sort());
+        const debts = fetchedAgencies.map(a => a.debt);
+        const newMinDebt = Math.min(0, ...debts);
+        const newMaxDebt = Math.max(0, ...debts);
+        //setMinDebtRange(newMinDebt);
+        //const effectiveMaxDebt = newMaxDebt > 0 ? newMaxDebt : 5000000;
+        //setMaxDebtRange(effectiveMaxDebt);
+        //setCurrentDebtFilterValue(effectiveMaxDebt);
+      } else if ((!params || Object.keys(params).length === 0)) {
+        setAllDistricts([]); setAllTypes([]);
+        setMinDebtRange(0); setMaxDebtRange(1000000); setCurrentDebtFilterValue(0);
       }
+
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Lỗi tải danh sách đại lý.");
       setAgencies([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  fetchData(lastSearchParams); 
+}, [fetchData, currentPage, lastSearchParams]);
+
 
   useEffect(() => {
-    setCurrentDebtFilterValue(maxDebtRange);
-  }, [maxDebtRange]);
+    setCurrentDebtFilterValue(minDebtRange);
+  }, [minDebtRange]);
 
   const handleSearch = () => {
+    setCurrentPage(1);
     const searchParams: AgencySearchParams = {};
     if (searchName.trim()) searchParams.ten = searchName.trim();
     if (selectedDistrict) searchParams.quan = selectedDistrict;
     if (selectedType) searchParams.loai_daily = selectedType;
     searchParams.tien_no = currentDebtFilterValue;
+    setLastSearchParams(searchParams); // 👈 Lưu lại
     fetchData(searchParams);
   };
 
@@ -93,6 +103,8 @@ export default function AgencyLookupPage() {
     setSearchName('');
     setSelectedDistrict('');
     setSelectedType('');
+    setLastSearchParams({});
+    setCurrentPage(1);
     fetchData();
   };
 
@@ -101,30 +113,20 @@ export default function AgencyLookupPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteAgency = () => {
-    if (!agencyToDelete) return;
+const confirmDeleteAgency = async () => {
+  if (!agencyToDelete) return;
+  const { id, name } = agencyToDelete;
 
-    const { id, name } = agencyToDelete;
-
-    const deletePromise = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.log(`Simulating delete for agency ID: ${id}`);
-        resolve(`Đã xóa đại lý ${name}.`);
-      }, 1000);
-    });
-
-    toast.promise(
-      deletePromise,
-      {
-        loading: `Đang xóa đại lý "${name}"...`,
-        success: (message) => {
-          setAgencies(prevAgencies => prevAgencies.filter(agency => agency.id !== id));
-          return String(message);
-        },
-        error: (err) => `Lỗi khi xóa đại lý "${name}": ${err.message || 'Unknown error'}.`,
-      }
-    );
-  };
+  try {
+    await deleteAgencyById(id);
+    toast.success(`Đã xóa đại lý "${name}" thành công.`);
+    setAgencies(prev => prev.filter(agency => agency.id !== id));
+    setIsDeleteModalOpen(false);
+    setAgencyToDelete(null);
+  } catch (error) {
+    toast.error(`Lỗi khi xóa đại lý "${name}": ${(error as Error).message}`);
+  }
+};
 
   return (
     <div className="flex flex-col space-y-5">
@@ -133,7 +135,7 @@ export default function AgencyLookupPage() {
       {activeTab === 'agency' && (
         <div className="space-y-5">
           <h2 className="text-xl font-semibold text-gray-900">Danh sách các đại lý</h2>
-          
+
           <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50/50">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4 items-end">
               <div className="md:col-span-1">
@@ -194,75 +196,101 @@ export default function AgencyLookupPage() {
               </div>
             </div>
 
-            <div className="flex justify-start pt-2">
-              <button type="button" onClick={handleResetSearch} disabled={isLoading}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+            <div className="pt-2">
+              <button onClick={handleResetSearch} disabled={isLoading}
+                className="px-4 py-2 border rounded-md bg-white text-gray-700">
                 Đặt lại
               </button>
             </div>
           </div>
 
-          <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+          <div className="overflow-x-auto border rounded-lg">
             {isLoading ? (
               <div className="p-10 text-center text-sm text-gray-500">Đang tải danh sách đại lý...</div>
             ) : (
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đại lý</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quận</th>
-                    <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Tiền nợ</th>
-                    <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">STT</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Đại lý</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quận</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Tiền nợ</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {agencies.length > 0 ? (
-                    agencies.map((agency) => (
-                      <tr key={agency.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{agency.stt}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          <Link
-                            to={`/agency/detail/${agency.id || agency.stt}`} // QUAN TRỌNG: URL đến trang chi tiết
-                            className="text-blue-600 hover:underline cursor-pointer"
-                            >
-                            {agency.name}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agency.type}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agency.district}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right tabular-nums">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(agency.debt)}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
-                          <button
-                            onClick={() => handleDeleteClick(agency.id, agency.name)}
-                            className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-md transition-colors duration-150 ease-in-out" // <<< UPDATED HERE
-                            title={`Xóa đại lý ${agency.name}`}
-                          >
-                            <Trash2 size={18} strokeWidth={2.5}/> {/* Added strokeWidth */}
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500">Không tìm thấy đại lý nào phù hợp.</td></tr>
+                  {agencies.length > 0 ? agencies.map((agency) => (
+                    <tr key={agency.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 text-sm text-gray-600">{agency.stt}</td>
+                      <td className="px-4 py-3 text-sm font-medium">
+                        <Link to={`/agency/detail/${agency.id}`} className="text-blue-600 hover:underline">{agency.name}</Link>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500">{agency.type}</td>
+                      <td className="px-4 py-3 text-sm text-gray-500">{agency.district}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(agency.debt)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button onClick={() => handleDeleteClick(agency.id, agency.name)}
+                          className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-md">
+                          <Trash2 size={18} strokeWidth={2.5} />
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan={6} className="p-10 text-center text-sm text-gray-500">Không tìm thấy đại lý nào phù hợp.</td></tr>
                   )}
                 </tbody>
               </table>
             )}
           </div>
+
+            {!isLoading && totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-4">
+                {/* Nút Trang trước */}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded-md bg-white text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
+                  ←
+                </button>
+
+                {/* Dropdown chọn trang */}
+                <div className="relative">
+                  <select
+                    value={currentPage}
+                    onChange={(e) => setCurrentPage(Number(e.target.value))}
+                    className="px-4 py-1 border border-gray-300 rounded-md bg-white text-sm cursor-pointer"
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <option key={page} value={page}>
+                        Trang {page}/{totalPages}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Nút Trang sau */}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border rounded-md bg-white text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
+                  →
+                </button>
+              </div>
+            )}
+
+
         </div>
       )}
 
       {agencyToDelete && (
         <ConfirmationModal
           isOpen={isDeleteModalOpen}
-          onClose={() => {
-            setIsDeleteModalOpen(false);
-            setAgencyToDelete(null);
-          }}
+          onClose={() => { setIsDeleteModalOpen(false); setAgencyToDelete(null); }}
           onConfirm={confirmDeleteAgency}
           title="Bạn chắc chắn muốn xóa chứ?"
           message="Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn đại lý này và các dữ liệu liên quan."
