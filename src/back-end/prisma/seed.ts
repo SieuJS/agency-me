@@ -167,7 +167,7 @@ async function main() {
   });
 
   // Seed nhân viên cố định
-  const hashedPassword = await bcrypt.hash('123', 10);
+  const hashedPassword = await bcrypt.hash('123456789', 10);
   await prisma.nhanVien.createMany({
     data: [
       {
