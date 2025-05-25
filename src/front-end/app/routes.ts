@@ -23,6 +23,23 @@ export default [
                 path: "add",
                 file: "routes/agency/agency-add.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
+            {
+                path: "detail/:agencyId",
+                file: "routes/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
+            },
+            {
+
+                path: "edit/:agencyId",
+                file: "routes/agency/agency-edit.tsx", // Đảm bảo file này tồn tại
+            },
+            {
+                path: "export-slips-create",
+                file: "routes/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại
+            },
+            {
+                path: 'type-create',
+                file: 'routes/agency/agency-type-create.tsx', // Đảm bảo file này tồn tại
+            },
             // (Optional) Index route cho /admin
             // {
             //   index: true,

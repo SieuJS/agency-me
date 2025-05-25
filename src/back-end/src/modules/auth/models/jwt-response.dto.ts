@@ -1,5 +1,5 @@
 export class JwtResponseDto {
-  userId: string;
+  nhan_vien_id: string;
   email: string;
-  role: string;
+  loai_nhan_vien_id: string;
 }

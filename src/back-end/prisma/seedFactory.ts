@@ -65,7 +65,7 @@ export async function generateRandomNhanVien(count: number): Promise<NhanVien[]>
     const nhanViens: NhanVien[] = [];
 
     for (let i = 1; i <= count; i++) {
-        const password = 'nhanvien' + i.toString();
+        const password = '123456789';
         const hashedPassword = await bcrypt.hash(password, 10);
         nhanViens.push({
             nhan_vien_id: `nv${i.toString().padStart(3, '0')}`,

@@ -4,7 +4,7 @@ import { IsArray, IsNotEmpty, IsNumber } from "class-validator";
 import { IsString } from "class-validator";
 import { ItemDto } from "src/modules/item/models/item.dto";
 
-export class ExportSheetInput extends OmitType(ExportSheetsDto, ['phieu_id']) {
+export class ExportSheetInput extends OmitType(ExportSheetsDto, ['phieu_id','daily_name','nhan_vien_lap_phieu']) {
     @ApiProperty({
         description: 'Id dai ly',
         example: '1234567890',
@@ -16,9 +16,8 @@ export class ExportSheetInput extends OmitType(ExportSheetsDto, ['phieu_id']) {
     @ApiProperty({
         description: 'Id nhan vien',
         example: '1234567890',
+        required: false,
     })
-    @IsString()
-    @IsNotEmpty()
     nhan_vien_lap_phieu: string;
 
     @ApiProperty({

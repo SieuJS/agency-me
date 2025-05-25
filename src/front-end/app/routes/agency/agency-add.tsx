@@ -21,9 +21,6 @@ import { Button } from '../../components/ui/Button';
 import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../services/agencyService'; // Giả định bạn có một service để gọi API
 
 
-
-
-
 export default function AgencyReceptionPage() {
   const navigate = useNavigate();
   const location = useLocation(); 
@@ -151,9 +148,9 @@ ten: agencyName,
   
    // --- Hàm xử lý khi nhấn nút "Thêm" cho Loại Đại Lý (ví dụ) ---
   const handleAddAgencyType = () => {
-    toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
+    //toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
     // Trong tương lai, bạn có thể navigate tới trang quản lý loại đại lý:
-    // navigate('/admin/loai-dai-ly/them-moi');
+     navigate('/agency/type-create');
   };
 
   // --- JSX ---
@@ -195,7 +192,7 @@ ten: agencyName,
                       required
                       className={`flex-grow mt-1 block w-full rounded-md border ${errors.agencyType ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-[42px]`}
                     >
-                      <option value="" disabled>
+                      <option value="" disabled hidden>
                         {isAgencyTypesLoading ? 'Đang tải...' : '-- Chọn loại đại lý --'}
                       </option>
                       {!isAgencyTypesLoading && agencyTypesFromAPI.map((type) => (
@@ -247,7 +244,7 @@ ten: agencyName,
                     required
                     className={`mt-1 block w-full rounded-md border ${errors.district ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-[42px]`}
                   >
-                    <option value="" disabled>
+                    <option value="" disabled hidden>
                         {isDistrictsLoading ? 'Đang tải...' : '-- Chọn quận --'}
                     </option>
                     {!isDistrictsLoading && districtsFromAPI.map((dist) => (
