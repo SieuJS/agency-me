@@ -2,6 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { CreateReceiptInput } from '../models/receipt.input';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID library
+import { ReceiptParams } from '../models/receipt.params';
+import { ReceiptDto } from '../models/receipt.dto';
 
 @Injectable()
 export class ReceiptService {
@@ -44,5 +46,22 @@ export class ReceiptService {
     });
 
     return { message: 'Tạo phiếu thu thành công', phieuThu };
+  }
+
+  async findAll(params: ReceiptParams): Promise<ReceiptDto[]> {
+    const page = params.page ? Number(params.page) : 1;
+    const perPage = params.perPage ? Number(params.perPage) : 10;
+
+    const receipts = await this.prisma.phieuThuTien.findMany({
+      where: {
+        daily_id: params.daily_id,
+        nhan_vien_thu_tien: params.nhan_vien_thu_tien,
+        // Thêm các điều kiện khác nếu cần
+      },
+      orderBy: { ngay_thu: 'desc' },
+      skip: (page - 1) * perPage,
+      take: perPage,
+    });
+    return receipts.map(r => new ReceiptDto(r));
   }
 }
