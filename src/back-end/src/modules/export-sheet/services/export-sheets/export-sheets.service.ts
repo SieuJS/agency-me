@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { ExportSheetInput } from '../../models/export-sheet.input';
 import { v4 as uuidv4 } from 'uuid';
+import { ExportSheetListItemResponse } from '../../models/export-sheet-list.response';
+import { DetailExportSheetsResponse } from '../../models/detail-export-sheets.response';
 
 @Injectable()
 export class ExportSheetsService {
@@ -32,9 +34,7 @@ export class ExportSheetsService {
       throw new NotFoundException('Nhan vien khong ton tai');
     }
 
-    // Create phieu xuat with its items in a transaction
     return await this.prisma.$transaction(async (prisma) => {
-      // Create phieu xuat
       const phieuXuat = await prisma.phieuXuatHang.create({
         data: {
           phieu_id: uuidv4(),
@@ -44,7 +44,6 @@ export class ExportSheetsService {
         },
       });
 
-      // Create chi tiet phieu xuat for each item
       const chiTietPhieuXuat = await Promise.all(
         items.map(async (item) => {
           // Validate matHang exists
@@ -77,5 +76,79 @@ export class ExportSheetsService {
         chiTietPhieuXuat,
       };
     });
+  }
+
+  async getExportSheetById(id: string) {
+    const phieuXuat = await this.prisma.phieuXuatHang.findUnique({
+      where: { phieu_id: id },
+      include: {
+        daiLy: true,
+        nhanVien: true,
+        chiTietPhieuXuat: {
+          include: {
+            matHang: {
+              include: {
+                donViTinh: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!phieuXuat) {
+      throw new NotFoundException('Phieu xuat khong ton tai');
+    }
+
+    return new DetailExportSheetsResponse(phieuXuat);
+  }
+
+  async getListExportSheets(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) {
+    const { page = 1, limit = 10, search = '' } = params;
+    const skip = (page - 1) * limit;
+
+    const where = search
+      ? {
+          OR: [
+            { phieu_id: { contains: search } },
+            { daiLy: { ten: { contains: search } } },
+            { nhanVien: { ten: { contains: search } } },
+          ],
+        }
+      : {};
+
+    const [total, phieuXuatList] = await Promise.all([
+      this.prisma.phieuXuatHang.count({ where }),
+      this.prisma.phieuXuatHang.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          daiLy: true,
+          nhanVien: true,
+          chiTietPhieuXuat: {
+            include: {
+              matHang: true,
+            },
+          },
+        },
+        orderBy: {
+          ngay_lap_phieu: 'desc',
+        },
+      }),
+    ]);
+
+    return {
+      total,
+      page,
+      limit,
+      data: phieuXuatList.map(
+        (phieu) => new ExportSheetListItemResponse(phieu),
+      ),
+    };
   }
 }
