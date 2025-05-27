@@ -11,15 +11,33 @@ import {
   updateAgencyByIdAPI
 } from '../../services/agencyService';
 
+const fieldLabels: { [key: string]: string } = {
+  name: 'Tên đại lý',
+  phone: 'Điện thoại',
+  address: 'Địa chỉ',
+  type: 'Loại đại lý',
+  district: 'Quận',
+  createdDate: 'Ngày tiếp nhận',
+};
+
+
 export default function AgencyEditPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const id = location.pathname.split('/').pop();
 
-  const [agency, setAgency] = useState<Agency | null>(null);
+  const agencyFromState = (location.state as { agency?: Agency })?.agency;
+
+  //const [agency, setAgency] = useState<Agency | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [districts, setDistricts] = useState<{ districtId: string; name: string }[]>([]);
   const [types, setTypes] = useState<{ loai_daily_id: string; ten_loai: string }[]>([]);
+  //const [originalAgency, setOriginalAgency] = useState<Agency | null>(null);
+
+  const [agency, setAgency] = useState<Agency | null>(agencyFromState || null);
+  const [originalAgency, setOriginalAgency] = useState<Agency | null>(agencyFromState || null);
+
+
 
   useEffect(() => {
     if (!id) {
@@ -36,6 +54,7 @@ export default function AgencyEditPage() {
           fetchAgencyTypesAPI(),
         ]);
         setAgency(agencyData);
+        setOriginalAgency(agencyData);
         setDistricts(districtList);
         setTypes(typeList);
       } catch (error) {
@@ -63,6 +82,50 @@ export default function AgencyEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agency || !id) return;
+
+    // Kiểm tra các trường bắt buộc
+  const requiredFields = ['name', 'phone', 'address', 'type', 'district', 'createdDate', 'email'];
+  for (const field of requiredFields) {
+    if (!agency[field as keyof typeof agency]) {
+      const label = fieldLabels[field] || field;
+      toast.error(`Trường "${label}" không được để trống.`);
+      return;
+    }
+  }
+
+
+  // Kiểm tra định dạng email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (agency.email && !emailRegex.test(agency.email)) {
+    toast.error('Email không hợp lệ.');
+    return;
+  }
+
+  // Kiểm tra định dạng số điện thoại
+  const phoneRegex = /^0\d{9}$/;
+  if (!phoneRegex.test(agency.phone)) {
+    toast.error('Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số.');
+    return;
+  }
+
+  if (originalAgency) {
+    const isUnchanged =
+      agency.name === originalAgency.name &&
+      agency.phone === originalAgency.phone &&
+      agency.email === originalAgency.email &&
+      agency.debt === originalAgency.debt &&
+      agency.address === originalAgency.address &&
+      agency.district === originalAgency.district &&
+      agency.type === originalAgency.type &&
+      agency.createdDate === originalAgency.createdDate;
+
+    if (isUnchanged) {
+      toast('Không có thay đổi nào được thực hiện.', { icon: 'ℹ️' });
+      navigate('/agency/detail/' + id);
+      return;
+    }
+  }
+
 
     const payload = {
       ten: agency.name,
@@ -98,7 +161,7 @@ export default function AgencyEditPage() {
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Tên đại lý</label>
           <input type="text" name="name" value={agency.name} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" required />
+            className="w-full px-4 py-2 border rounded"  />
         </div>
 
         <div className="col-span-1">
@@ -108,14 +171,15 @@ export default function AgencyEditPage() {
             onChange={handleDateChange}
             dateFormat="dd/MM/yyyy"
             className="w-full px-4 py-2 border rounded"
-            required
+            placeholderText="Chọn ngày tiếp nhận"
+            popperPlacement="bottom-start"
           />
         </div>
 
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Loại đại lý</label>
           <select name="type" value={agency.type} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" required>
+            className="w-full px-4 py-2 border rounded" >
             <option value="">Chọn loại đại lý</option>
             {types.map(t => (
               <option key={t.loai_daily_id} value={t.ten_loai}>{t.ten_loai}</option>
@@ -126,7 +190,7 @@ export default function AgencyEditPage() {
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Quận</label>
           <select name="district" value={agency.district} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" required>
+            className="w-full px-4 py-2 border rounded" >
             <option value="">Chọn quận</option>
             {districts.map(d => (
               <option key={d.districtId} value={d.name}>{d.name}</option>
@@ -137,18 +201,18 @@ export default function AgencyEditPage() {
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
           <input type="text" name="address" value={agency.address} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" required />
+            className="w-full px-4 py-2 border rounded"  />
         </div>
 
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Điện thoại</label>
           <input type="text" name="phone" value={agency.phone} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" required />
+            className="w-full px-4 py-2 border rounded"  />
         </div>
 
         <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="email" name="email" value={agency.email} onChange={handleChange}
+          <input type="text" name="email" value={agency.email} onChange={handleChange}
             className="w-full px-4 py-2 border rounded" />
         </div>
 

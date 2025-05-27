@@ -144,7 +144,7 @@ export default function AgencyDetailsPage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>
           <Button 
-            onClick={() => navigate(`/agency/edit/${agency.id}`)} // Giả sử có trang chỉnh sửa
+            onClick={() => navigate(`/agency/edit/${agency.id}`, { state: { agency } })}
             className="bg-yellow-500 hover:bg-yellow-600 text-white"
             disabled={isDeleting}
           >
