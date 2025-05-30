@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
+import { Button } from '../../components/ui/Button';
+import { FileText, Edit3, Trash2, ArrowLeft, UserCircle, DollarSign, MapPin, Building, Phone, Mail, CalendarDays } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   fetchAgencyByIdAPI,
@@ -156,73 +158,147 @@ export default function AgencyEditPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
       <Toaster position="top-right" />
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">Chỉnh sửa đại lý</h2>
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200">
+        <div className="flex items-center mb-4 sm:mb-0">
+          <h2 className="text-lg font-semibold flex items-center gap-2 ">
+            <Edit3 className="w-5 h-5 text-blue-800" />
+            Chỉnh sửa đại lý
+          </h2>
+        </div>
+        <div className="flex space-x-2">
+          <Button onClick={() => navigate(-1)} className="bg-gray-200 hover:bg-gray-300 text-gray-800">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
+          </Button>
+  
+        </div>
+      </div>
+      
       <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tên đại lý</label>
-          <input type="text" name="name" value={agency.name} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"  />
-        </div>
+          {/* Tên đại lý */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <UserCircle className="mr-2 h-5 w-5 text-blue-500" />
+              Tên đại lý
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={agency.name}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            />
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ngày tiếp nhận</label>
-          <DatePicker
-            selected={agency.createdDate ? new Date(agency.createdDate) : null}
-            onChange={handleDateChange}
-            dateFormat="dd/MM/yyyy"
-            className="w-full px-4 py-2 border rounded"
-            placeholderText="Chọn ngày tiếp nhận"
-            popperPlacement="bottom-start"
-          />
-        </div>
+          {/* Ngày tiếp nhận */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <CalendarDays className="mr-2 h-5 w-5 text-blue-500" />
+              Ngày tiếp nhận
+            </label>
+            <DatePicker
+              selected={agency.createdDate ? new Date(agency.createdDate) : null}
+              onChange={handleDateChange}
+              dateFormat="dd/MM/yyyy"
+              className="w-full px-4 py-2 border rounded"
+              placeholderText="Chọn ngày tiếp nhận"
+              popperPlacement="bottom-start"
+            />
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Loại đại lý</label>
-          <select name="type" value={agency.type} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" >
-            <option value="">Chọn loại đại lý</option>
-            {types.map(t => (
-              <option key={t.loai_daily_id} value={t.ten_loai}>{t.ten_loai}</option>
-            ))}
-          </select>
-        </div>
+          {/* Loại đại lý */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <Building className="mr-2 h-5 w-5 text-blue-500" />
+              Loại đại lý
+            </label>
+            <select
+              name="type"
+              value={agency.type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            >
+              <option value="">Chọn loại đại lý</option>
+              {types.map((t) => (
+                <option key={t.loai_daily_id} value={t.ten_loai}>
+                  {t.ten_loai}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Quận</label>
-          <select name="district" value={agency.district} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" >
-            <option value="">Chọn quận</option>
-            {districts.map(d => (
-              <option key={d.districtId} value={d.name}>{d.name}</option>
-            ))}
-          </select>
-        </div>
+          {/* Quận */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <MapPin className="mr-2 h-5 w-5 text-blue-500" />
+              Quận
+            </label>
+            <select
+              name="district"
+              value={agency.district}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            >
+              <option value="">Chọn quận</option>
+              {districts.map((d) => (
+                <option key={d.districtId} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
-          <input type="text" name="address" value={agency.address} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"  />
-        </div>
+          {/* Địa chỉ */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <MapPin className="mr-2 h-5 w-5 text-blue-500" />
+              Địa chỉ
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={agency.address}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            />
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Điện thoại</label>
-          <input type="text" name="phone" value={agency.phone} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"  />
-        </div>
+          {/* Điện thoại */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <Phone className="mr-2 h-5 w-5 text-blue-500" />
+              Điện thoại
+            </label>
+            <input
+              type="text"
+              name="phone"
+              value={agency.phone}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            />
+          </div>
 
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="text" name="email" value={agency.email} onChange={handleChange}
-            className="w-full px-4 py-2 border rounded" />
-        </div>
+          {/* Email */}
+          <div className="col-span-1">
+            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+              <Mail className="mr-2 h-5 w-5 text-blue-500" />
+              Email
+            </label>
+            <input
+              type="text"
+              name="email"
+              value={agency.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded"
+            />
+          </div>
 
-        <div className="col-span-full mt-4">
-          <button type="submit"
-            className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900">
-            Cập nhật
-          </button>
-        </div>
-      </form>
+          {/* Nút Cập nhật */}
+          <div className="col-span-full mt-4">
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Edit3 className="mr-2 h-4 w-4" /> Cập nhật 
+            </Button>
+          </div>
+        </form>
     </div>
   );
 }
