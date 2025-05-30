@@ -110,7 +110,7 @@ export default function AdminSectionLayout() { // Đổi tên component
               </NavLink>
             </li>
             <li>
-              <NavLink to="/admin/agency-types" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
+              <NavLink to="/agency/type-create" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
                 Loại đại lý
               </NavLink>
             </li>
