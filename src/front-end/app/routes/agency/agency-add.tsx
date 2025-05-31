@@ -124,11 +124,17 @@ ten: agencyName,
     try {
       console.log("Nhân viên id: ",agencyData.nhan_vien_tiep_nhan)
       const response: any = await addAgency(agencyData);
-      toast.success(response.message || 'Lưu hồ sơ đại lý thành công.');
-      resetForm();
+      console.log('Response từ API sau khi thêm đại lý:', response);
+      toast.success('Lưu hồ sơ đại lý thành công.',  {
+        duration: 4000, 
+      });
+      resetForm(); // Reset form sau khi lưu thành công
+      
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Đã có lỗi xảy ra khi lưu hồ sơ.';
-      toast.error(message);
+      toast.error(message,  {
+        duration: 4000, 
+      });
     } finally {
       setIsLoading(false);
     }

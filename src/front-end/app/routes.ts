@@ -46,5 +46,17 @@ export default [
             //   file: "routes/admin/agency-lookup.tsx" // Ví dụ
             // }
         ]
+    },
+
+    {
+        path: 'type-agency',
+        file: 'routes/type-agency/_layout.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        children: [
+            {
+                path: "create",
+                // Đường dẫn file component con, tương đối với app/
+                file: "routes/type-agency/agency-type-create.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            }
+            ,]
     }
 ] satisfies RouteConfig;

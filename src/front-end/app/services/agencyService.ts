@@ -187,12 +187,15 @@ export interface DistrictFromAPI { districtId: string; name: string; /* các tr�
 
 export const fetchAgencyTypesAPI = async (): Promise<AgencyTypeFromAPI[]> => {
     try {
-        const response = await apiClient.get<AgencyTypeFromAPI[]>('/agencyType/list'); // Endpoint của bạn
+        const response = await apiClient.get<AgencyTypeFromAPI[]>('/agencyType/list'); 
+        console.log('AgencyService: Fetched agency types:', response.data);
         return response.data || [];
     } catch (error) {
         throw handleError(error, 'Lỗi tải loại đại lý.');
     }
 };
+
+
 
 export const fetchDistrictsAPI = async (): Promise<DistrictFromAPI[]> => {
     try {
@@ -266,5 +269,14 @@ export const createAgencyTypeAPI = async (payload: AgencyTypeCreatePayload): Pro
     throw handleError(error, 'Không thể tạo loại đại lý.');
   }
 };
+
+export const getAllAgencyTypes = async (): Promise<AgencyTypeFromAPI[]> => {
+  try {
+    const response = await apiClient.get<AgencyTypeFromAPI[]>('/agencyType/list');
+    return response.data || [];
+  } catch (error) {
+    throw handleError(error, 'Không thể tải danh sách loại đại lý.');
+  }
+}
 
 
