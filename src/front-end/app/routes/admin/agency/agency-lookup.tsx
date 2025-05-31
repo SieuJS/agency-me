@@ -4,8 +4,8 @@ import { Link, type MetaFunction } from 'react-router';
 import { Search, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-import { getAgencies, type Agency, type AgencySearchParams, deleteAgencyById } from '../../services/agencyService';
-import ConfirmationModal from '../../components/ui/ConfirmationModal';
+import { getAgencies, type Agency, type AgencySearchParams, deleteAgencyById } from '../../../services/agencyService';
+import ConfirmationModal from '../../../components/ui/ConfirmationModal';
 
 export const meta: MetaFunction = () => {
   return [
@@ -280,7 +280,7 @@ export default function AgencyLookupPage() {
                     <tr key={agency.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3 text-sm text-gray-600">{agency.stt}</td>
                       <td className="px-4 py-3 text-sm font-medium">
-                        <Link to={`/agency/detail/${agency.id}`} className="text-blue-600 hover:underline">{agency.name}</Link>
+                        <Link to={`/admin/agency/detail/${agency.id}`} className="text-blue-600 hover:underline">{agency.name}</Link>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">{agency.type}</td>
                       <td className="px-4 py-3 text-sm text-gray-500">{agency.district}</td>

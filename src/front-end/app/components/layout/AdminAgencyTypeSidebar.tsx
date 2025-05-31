@@ -14,7 +14,7 @@ export default function AdminAgencyTypeSidebar() {
   return (
     <aside className="sticky top-16 h-[calc(100vh-4rem)] w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200 p-5 space-y-4">
       <div className="space-y-1">
-        <NavLink to="/type-agency/create" className={getSidebarNavLinkClass}>
+        <NavLink to="/admin/type-agency/create" className={getSidebarNavLinkClass}>
           <PlusSquare className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Thêm loại đại lý</span>
         </NavLink>

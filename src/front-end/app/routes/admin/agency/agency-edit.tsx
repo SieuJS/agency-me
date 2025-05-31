@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../../components/ui/Button';
 import { FileText, Edit3, Trash2, ArrowLeft, UserCircle, DollarSign, MapPin, Building, Phone, Mail, CalendarDays } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
@@ -11,7 +11,7 @@ import {
   fetchAgencyTypesAPI,
   fetchDistrictsAPI,
   updateAgencyByIdAPI
-} from '../../services/agencyService';
+} from '../../../services/agencyService';
 
 const fieldLabels: { [key: string]: string } = {
   name: 'Tên đại lý',
@@ -44,7 +44,7 @@ export default function AgencyEditPage() {
   useEffect(() => {
     if (!id) {
       toast.error('Thiếu ID đại lý.');
-      navigate('/agency/lookup');
+      navigate('/admin/agency/lookup');
       return;
     }
 
@@ -123,7 +123,7 @@ export default function AgencyEditPage() {
 
     if (isUnchanged) {
       toast('Không có thay đổi nào được thực hiện.', { icon: 'ℹ️' });
-      navigate('/agency/detail/' + id);
+      navigate('/admin/agency/detail/' + id);
       return;
     }
   }
@@ -145,7 +145,7 @@ export default function AgencyEditPage() {
     try {
       await updateAgencyByIdAPI(id, payload);
       toast.success('Cập nhật đại lý thành công.');
-      navigate('/agency/detail/' + id);
+      navigate('/admin/agency/detail/' + id);
     } catch (error) {
       toast.error('Cập nhật thất bại.');
     }

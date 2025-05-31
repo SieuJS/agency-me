@@ -106,3 +106,8 @@ export const getUserData = (): AuthResponse['user'] | null => { // Sử dụng k
         return null;
     }
 };
+
+export const getUserRole = (): 'admin' | 'staff' | string | null => { 
+    const userData = getUserData();
+    return userData ? userData.loai_nhan_vien_id : null;
+};

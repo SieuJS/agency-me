@@ -270,13 +270,6 @@ export const createAgencyTypeAPI = async (payload: AgencyTypeCreatePayload): Pro
   }
 };
 
-export const getAllAgencyTypes = async (): Promise<AgencyTypeFromAPI[]> => {
-  try {
-    const response = await apiClient.get<AgencyTypeFromAPI[]>('/agencyType/list');
-    return response.data || [];
-  } catch (error) {
-    throw handleError(error, 'Không thể tải danh sách loại đại lý.');
-  }
-}
+
 
 

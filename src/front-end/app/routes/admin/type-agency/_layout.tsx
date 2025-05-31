@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router';
-import AdminHeader from '../../components/layout/header';
-import AdminAgencyTypeSidebar from '../../components/layout/AdminAgencyTypeSidebar';
+import AdminHeader from '../../../components/layout/header';
+import AdminAgencyTypeSidebar from '../../../components/layout/AdminAgencyTypeSidebar';
 
 export default function AdminAgencyTypeSectionLayout() {
   return (

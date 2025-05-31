@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'; // Thêm useState
 import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router';
 import { Search, FileText, Trash2, LogOut } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import { isAuthenticated, logoutUser, getUserData } from '../../services/authService';
-import AdminHeader from '../../components/layout/header';
-import AdminSidebar from '../../components/layout/AdminSidebar';
-export default function AdminSectionLayout() {
+import { isAuthenticated, logoutUser, getUserData } from '../../../services/authService';
+import AdminHeader from '../../../components/layout/staffHeader';
+import AdminSidebar from '../../../components/layout/staffAgencySidebar';
+export default function StaffSectionLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   // Thêm state để chỉ render khi đã xác thực và tránh render khi đang chuyển hướng
@@ -50,7 +50,7 @@ export default function AdminSectionLayout() {
 
   // Lấy thông tin người dùng (ví dụ: để hiển thị tên)
   const userData = getUserData();
-  const adminName = userData?.ten || 'Admin'; // Giả sử user object có trường 'ten'
+  const adminName = userData?.ten || 'Staff'; // Giả sử user object có trường 'ten'
 
   // Hàm xác định class cho NavLink active/inactive trong Sidebar
   const getSidebarNavLinkClass = ({ isActive }: { isActive: boolean }): string =>

@@ -4,9 +4,9 @@ import toast from 'react-hot-toast';
 
 import { logoutUser, getUserData } from '../../services/authService';
 
-export default function AdminHeader() {
+export default function StaffHeader() {
   const userData = getUserData();
-  const adminName = userData?.ten || 'Admin';
+  const adminName = userData?.ten || 'Staff';
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -45,20 +45,16 @@ export default function AdminHeader() {
           <ul className="flex space-x-4 -mb-px"> {/* Dùng space-x thay vì mr-2 trên li */}
             <li>
               {/* Sử dụng NavLink để tự động xử lý active state */}
-              <NavLink to="/admin/agency" className={getHeaderTabNavLinkClass}>
+              <NavLink to="/staff/agency/" className={getHeaderTabNavLinkClass}>
                 Đại lý
               </NavLink>
             </li>
             <li>
-              <NavLink to="/admin/type-agency/create" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
-                Loại đại lý
+              <NavLink to="/staff/report" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
+                Báo cáo
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/admin/regulations" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
-                Thay đổi quy định
-              </NavLink>
-            </li>
+          
           </ul>
         </nav>
       </header>
