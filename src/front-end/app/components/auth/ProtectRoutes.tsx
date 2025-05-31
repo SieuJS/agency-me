@@ -1,23 +1,33 @@
-// src/front-end/app/components/auth/ProtectedRoute.tsx (Tạo file mới)
+// src/front-end/app/components/auth/ProtectedRoute.tsx
 import React from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router'; // Import từ react-router
-import { isAuthenticated } from '../../services/authService';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { isAuthenticated, getUserRole } from '../../services/authService';
+import toast from 'react-hot-toast';
 
 interface ProtectedRouteProps {
-  // children?: React.ReactNode; // Không cần children nếu dùng Outlet
+  allowedRoles?: Array<'admin' | 'staff' | string>; // Kiểu cụ thể hơn cho allowedRoles
+  children?: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = () => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
   const location = useLocation();
+  const isAuth = isAuthenticated();
+  const userRole = getUserRole(); // userRole giờ là 'admin', 'staff', hoặc null/string khác
 
-  if (!isAuthenticated()) {
-    // Người dùng chưa đăng nhập, chuyển hướng đến trang login
-    // Lưu lại trang họ đang cố gắng truy cập để có thể quay lại sau khi đăng nhập
+  if (!isAuth) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Người dùng đã đăng nhập, cho phép truy cập route
-  return <Outlet />; // Outlet sẽ render component con của route được bảo vệ
+  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+    toast.error("Bạn không có quyền truy cập trang này.");
+    // Điều hướng về trang phù hợp dựa trên role thực tế của họ
+    if (userRole === 'admin') return <Navigate to="/admin/agency-lookup" replace />;
+    if (userRole === 'staff') return <Navigate to="/staff/home" replace />;
+    // Nếu role không xác định, về trang login hoặc trang lỗi
+    return <Navigate to="/login" replace />;
+  }
+
+  return children ? <>{children}</> : <Outlet />;
 };
 
 export default ProtectedRoute;

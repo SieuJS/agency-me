@@ -8,43 +8,83 @@ export default [
     // Route '/home' sẽ render component từ app/routes/home.tsx
     route("home", "routes/home.tsx"), // <-- SỬA Ở ĐÂY: Thêm "routes/"
 
+
     // Định nghĩa nhóm route /admin với layout chung
     {
-        path: "agency",
+        path: "admin/agency",
         // Đường dẫn đến file layout, tương đối với app/
-        file: "routes/agency/_layout.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        file: "routes/admin/agency/_layout.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
         children: [
             {
                 path: "lookup",
                 // Đường dẫn file component con, tương đối với app/
-                file: "routes/agency/agency-lookup.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+                file: "routes/admin/agency/agency-lookup.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
             {
                 path: "add",
-                file: "routes/agency/agency-add.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+                file: "routes/admin/agency/agency-add.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
             {
                 path: "detail/:agencyId",
-                file: "routes/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
+                file: "routes/admin/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
             },
             {
 
                 path: "edit/:agencyId",
-                file: "routes/agency/agency-edit.tsx", // Đảm bảo file này tồn tại
+                file: "routes/admin/agency/agency-edit.tsx", // Đảm bảo file này tồn tại
             },
             {
                 path: "export-slips-create",
-                file: "routes/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại
+                file: "routes/admin/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại
             },
             {
                 path: 'type-create',
-                file: 'routes/agency/agency-type-create.tsx', // Đảm bảo file này tồn tại
+                file: 'routes/admin/agency/agency-type-create.tsx', // Đảm bảo file này tồn tại
             },
             // (Optional) Index route cho /admin
             // {
             //   index: true,
             //   file: "routes/admin/agency-lookup.tsx" // Ví dụ
             // }
+        ]
+    },
+
+    {
+        path: 'admin/type-agency',
+        file: 'routes/admin/type-agency/_layout.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        children: [
+            {
+                path: "create",
+                // Đường dẫn file component con, tương đối với app/
+                file: "routes/admin/type-agency/agency-type-create.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            }
+            ,]
+    },
+   /* {
+        path: 'admin/change-rule',
+        file: 'routes/admin/change-rule/_layout.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        children: [
+            {
+                path: "change-rule-create",
+                // Đường dẫn file component con, tương đối với app/
+                file: "routes/admin/change-rule/change-rule-create.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+        ]
+    },*/
+
+    // Route cho staff
+    {
+        path: "staff/agency",
+        file: "routes/staff/agency/_layout.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        children: [
+            {
+                path: "lookup",
+                file: "routes/staff/agency/agency-lookup.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: 'receipt',
+                file: 'routes/staff/agency/agency-receiptmoney.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            }
         ]
     }
 ] satisfies RouteConfig;

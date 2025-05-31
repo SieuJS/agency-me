@@ -13,12 +13,12 @@ import toast, { Toaster } from 'react-hot-toast'; // Cần cài đặt: npm inst
 
 // --- Import các UI Component ---
 // Điều chỉnh đường dẫn import cho phù hợp với cấu trúc dự án của bạn
-import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
+import { Button } from '../../../components/ui/Button';
 // import { Dialog } from '../components/ui/Dialog'; // Không cần Dialog nữa
 
 
-import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../services/agencyService'; // Giả định bạn có một service để gọi API
+import {addAgency, fetchAgencyTypesAPI, fetchDistrictsAPI, type Agency, type AddAgencyPayload} from '../../../services/agencyService'; // Giả định bạn có một service để gọi API
 
 
 export default function AgencyReceptionPage() {
@@ -124,11 +124,17 @@ ten: agencyName,
     try {
       console.log("Nhân viên id: ",agencyData.nhan_vien_tiep_nhan)
       const response: any = await addAgency(agencyData);
-      toast.success(response.message || 'Lưu hồ sơ đại lý thành công.');
-      resetForm();
+      console.log('Response từ API sau khi thêm đại lý:', response);
+      toast.success('Lưu hồ sơ đại lý thành công.',  {
+        duration: 4000, 
+      });
+      resetForm(); // Reset form sau khi lưu thành công
+      
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Đã có lỗi xảy ra khi lưu hồ sơ.';
-      toast.error(message);
+      toast.error(message,  {
+        duration: 4000, 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +156,7 @@ ten: agencyName,
   const handleAddAgencyType = () => {
     //toast('Chức năng "Thêm loại đại lý" chưa được cài đặt.', { icon: 'ℹ️' });
     // Trong tương lai, bạn có thể navigate tới trang quản lý loại đại lý:
-     navigate('/agency/type-create');
+     navigate('/admin/agency/type-create');
   };
 
   // --- JSX ---

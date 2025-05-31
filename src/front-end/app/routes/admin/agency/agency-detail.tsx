@@ -9,11 +9,11 @@ import { FileText, Edit3, Trash2, ArrowLeft, UserCircle, DollarSign, MapPin, Bui
 import toast, { Toaster } from 'react-hot-toast';
 
 // --- Import các UI Component ---
-import { Button } from '../../components/ui/Button'; // Điều chỉnh đường dẫn
+import { Button } from '../../../components/ui/Button'; // Điều chỉnh đường dẫn
 // import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../../components/ui/Dialog'; // Nếu bạn có Dialog component
 
 // --- Import service và types ---
-import { fetchAgencyByIdAPI, type Agency } from '../../services/agencyService'; // Điều chỉnh đường dẫn
+import { fetchAgencyByIdAPI, type Agency } from '../../../services/agencyService'; // Điều chỉnh đường dẫn
 
 // Helper để định dạng ngày tháng
 const formatDate = (dateString: string | undefined) => {
@@ -55,7 +55,7 @@ export default function AgencyDetailsPage() {
       setError('Không tìm thấy ID đại lý.');
       setIsLoading(false);
       toast.error('ID đại lý không hợp lệ.');
-      navigate('/agency/lookup'); // Chuyển hướng về trang danh sách nếu không có ID
+      navigate('/admin/agency/lookup'); // Chuyển hướng về trang danh sách nếu không có ID
       return;
     }
 
@@ -98,7 +98,7 @@ export default function AgencyDetailsPage() {
         </div>
         <span className="block sm:inline ml-8">{error}</span>
         <div className="mt-4 text-right">
-          <Button onClick={() => navigate('/agency/lookup')} >
+          <Button onClick={() => navigate('/admin/agency/lookup')} >
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại danh sách
           </Button>
         </div>
@@ -111,7 +111,7 @@ export default function AgencyDetailsPage() {
       <div className="text-center p-10">
         <FileText size={48} className="mx-auto text-gray-400 mb-4" />
         <p className="text-xl text-gray-600">Không tìm thấy thông tin đại lý.</p>
-        <Button onClick={() => navigate('/agencies')} className="mt-6" >
+        <Button onClick={() => navigate('/admin/agency/lookup')} className="mt-6" >
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại danh sách
         </Button>
       </div>
@@ -144,7 +144,7 @@ export default function AgencyDetailsPage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>
           <Button 
-            onClick={() => navigate(`/agency/edit/${agency.id}`, { state: { agency } })}
+            onClick={() => navigate(`/admin/agency/edit/${agency.id}`, { state: { agency } })}
             className="bg-yellow-500 hover:bg-yellow-600 text-white"
             disabled={isDeleting}
           >

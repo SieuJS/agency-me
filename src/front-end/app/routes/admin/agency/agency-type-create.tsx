@@ -1,7 +1,7 @@
 // src/front-end/app/routes/admin/agency-type-create.tsx
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { createAgencyTypeAPI } from '../../services/agencyService';
+import { createAgencyTypeAPI } from '../../../services/agencyService';
 
 export default function CreateAgencyTypePage() {
   const [name, setName] = useState('');

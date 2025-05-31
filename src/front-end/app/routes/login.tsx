@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Dialog } from '../components/ui/Dialog';
-import { loginUser, type LoginPayload, isAuthenticated } from '../services/authService'; // Import isAuthenticated
+import { loginUser, type LoginPayload, isAuthenticated, getUserRole, logoutUser} from '../services/authService'; // Import isAuthenticated
 import toast, { Toaster } from 'react-hot-toast';
 
 
@@ -20,12 +20,22 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   // --- KIỂM TRA NẾU ĐÃ ĐĂNG NHẬP ---
-  useEffect(() => {
+ useEffect(() => {
     if (isAuthenticated()) {
-      console.log('LoginPage: User already authenticated, redirecting to admin.');
-      navigate('/agency/lookup', { replace: true }); // Chuyển hướng đến trang admin mặc định
+      const role = getUserRole(); // role bây giờ là 'admin', 'staff', hoặc null/string khác
+      console.log(`LoginPage: User already authenticated with role: ${role}, redirecting.`);
+
+      if (role === 'admin') {
+        navigate('/admin/agency/lookup', { replace: true });
+      } else if (role === 'staff') {
+        navigate('/staff/agency/lookup', { replace: true });
+      } else {
+        console.warn('User authenticated but role is unknown or invalid. Logging out.');
+        logoutUser();
+        navigate('/login', { replace: true });
+      }
     }
-  }, [navigate]); // Chỉ chạy 1 lần khi component mount
+  }, [navigate]);
 
   // --- Validation ---
   const validateEmail = (emailValue: string): string => {
@@ -96,28 +106,33 @@ export default function LoginPage() {
 
        const payload: LoginPayload = { email: email.trim(), password };
 
-       try {
+      try {
+      const authData = await loginUser(payload);
+      toast.success('Đăng nhập thành công!');
 
-           const authResponse = await loginUser(payload);
-           toast.success('Đăng nhập thành công!');
+      // authData.user.loai_nhan_vien_id giờ đây là 'admin' hoặc 'staff'
+      const userRole = authData.user?.loai_nhan_vien_id;
 
-           // Đợi một chút để người dùng đọc toast rồi mới chuyển hướng
-           setTimeout(() => {
-               navigate('agency/lookup'); // Điều hướng đến trang admin
-           }, 1000);
+      setTimeout(() => {
+        if (userRole === 'admin') {
+          navigate('/admin/agency/lookup');
+        } else if (userRole === 'staff') {
+          navigate('/staff/agency/lookup');
+        } else {
+          console.warn("Đăng nhập thành công nhưng role không xác định:", userRole);
+          toast.error("Không thể xác định vai trò người dùng. Vui lòng liên hệ quản trị viên.");
+          logoutUser();
+          navigate('/login');
+        }
+      }, 1000);
 
-
-
-       } catch (error) {
-           const message = error instanceof Error ? error.message : 'Lỗi không xác định.';
-           toast.error(message); // Hiển thị lỗi bằng Toast
-           // setApiErrorMessage(message); // Nếu vẫn muốn dùng Dialog song song
-           // setIsErrorDialogOpen(true);
-       } finally {
-           setIsLoading(false);
-       }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Lỗi không xác định.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-600 p-4">
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} /> {/* Cấu hình Toaster */}
