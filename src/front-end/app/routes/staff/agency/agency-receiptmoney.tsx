@@ -192,11 +192,11 @@ export default function ReceiptFormPage() {
         <button
           type="button"
           onClick={handleReset}
-          className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
+          className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-yellow hover:bg-gray-50"
           disabled={isSubmitting}
         >
           <RefreshCw size={16} />
-          <span className="text-sm text-gray-700">Đặt lại</span>
+          <span className="text-sm text-black-700">Đặt lại</span>
         </button>
       </div>
 
