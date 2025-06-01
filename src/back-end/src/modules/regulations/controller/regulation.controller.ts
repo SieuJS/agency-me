@@ -15,13 +15,12 @@ export class RegulationController {
     return this.regulationService.getAll();
   }
 
-  @Put(':type')
+  @Put()
   async update(
-    @Param('type') type: string,
     @Body() input: UpdateRegulationInput,
   ) {
     try {
-      return await this.regulationService.update(type, input.value, input);
+      return await this.regulationService.update(input);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }

@@ -13,7 +13,7 @@ export class RegulationService {
     return quyDinh;
   }
 
-  async update(type: string, value: number, input: UpdateRegulationInput) {
+  async update(input: UpdateRegulationInput) {
     // Chỉ cho phép update các trường hợp lệ
     const allowedKeys = [
       'so_luong_cac_loai_daily',
@@ -27,7 +27,7 @@ export class RegulationService {
     }
     const data = { [input.key]: input.value };
     const quyDinh = await this.prisma.quy_Dinh_1.update({
-      where: { id: 1 },
+      where: { loai_daily_id: input.loai_daily_id },
       data,
     });
     return quyDinh;
