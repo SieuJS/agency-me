@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { CreateReceiptInput } from '../models/receipt.input';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID library
@@ -63,5 +63,13 @@ export class ReceiptService {
       take: perPage,
     });
     return receipts.map(r => new ReceiptDto(r));
+  }
+
+  async findOne(phieu_thu_id: string): Promise<ReceiptDto> {
+    const receipt = await this.prisma.phieuThuTien.findUnique({
+      where: { phieu_thu_id },
+    });
+    if (!receipt) throw new NotFoundException('Không tìm thấy phiếu thu');
+    return new ReceiptDto(receipt);
   }
 }

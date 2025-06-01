@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Query, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query, Req, Param } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ReceiptService } from '../service/receipt.service';
 import { CreateReceiptInput } from '../models/receipt.input';
@@ -22,5 +22,10 @@ export class ReceiptController {
   @Get()
   async findAll(@Query() params: ReceiptParams): Promise<ReceiptDto[]> {
     return this.receiptService.findAll(params);
+  }
+
+  @Get(':phieu_thu_id')
+  async findOne(@Param('phieu_thu_id') phieu_thu_id: string): Promise<ReceiptDto> {
+    return this.receiptService.findOne(phieu_thu_id);
   }
 }
