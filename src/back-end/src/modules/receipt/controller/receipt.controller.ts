@@ -5,7 +5,6 @@ import { CreateReceiptInput } from '../models/receipt.input';
 import { AuthGuard } from '@nestjs/passport';
 import { ReceiptParams } from '../models/receipt.params';
 import { ReceiptDto } from '../models/receipt.dto';
-import { AuthPayloadDto } from 'src/modules/auth/models/auth-payload.dto';
 
 @Controller('receipts')
 @UseGuards(AuthGuard('jwt'))
@@ -14,8 +13,10 @@ export class ReceiptController {
   constructor(private readonly receiptService: ReceiptService) {}
 
   @Post()
-  async create(@Body() input: CreateReceiptInput) {
-    return this.receiptService.create(input);
+  async create(@Body() input: CreateReceiptInput, @Req() req) {
+    // Lấy ID nhân viên từ JWT (req.user)
+    const nhanVienId = req.user.nhan_vien_id;
+    return this.receiptService.create(input, nhanVienId);
   }
 
   @Get()

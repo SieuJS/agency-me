@@ -13,8 +13,4 @@ export class CreateReceiptInput {
   @ApiProperty({ example: 1000000 })
   @IsNumber()
   so_tien_thu: number;
-
-  @ApiProperty({ example: 'nv001' })
-  @IsString()
-  nhan_vien_thu_tien: string;
 }

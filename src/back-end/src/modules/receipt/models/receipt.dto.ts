@@ -14,14 +14,10 @@ export class ReceiptDto {
   @ApiProperty({ example: 1000000 })
   so_tien_thu: number;
 
-  @ApiProperty({ example: 'nv001' })
-  nhan_vien_thu_tien: string;
-
   constructor(dbInstance: PhieuThuTien) {
     this.phieu_thu_id = dbInstance.phieu_thu_id;
     this.daily_id = dbInstance.daily_id;
     this.ngay_thu = dbInstance.ngay_thu;
     this.so_tien_thu = dbInstance.so_tien_thu;
-    this.nhan_vien_thu_tien = dbInstance.nhan_vien_thu_tien;
   }
 }

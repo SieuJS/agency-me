@@ -12,7 +12,7 @@ export class ReceiptService {
   }
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(input: CreateReceiptInput) {
+  async create(input: CreateReceiptInput, nhan_vien_thu_tien: string) {
     // 1. Kiểm tra đại lý tồn tại
     const daiLy = await this.prisma.daiLy.findUnique({ where: { daily_id: input.daily_id } });
     if (!daiLy) throw new BadRequestException('Đại lý không tồn tại');
@@ -35,7 +35,7 @@ export class ReceiptService {
         daily_id: input.daily_id,
         ngay_thu: ngayThu,
         so_tien_thu: input.so_tien_thu,
-        nhan_vien_thu_tien: input.nhan_vien_thu_tien,
+        nhan_vien_thu_tien: nhan_vien_thu_tien,
       },
     });
 
