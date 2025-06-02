@@ -7,9 +7,8 @@ export class RegulationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAll() {
-    // Lấy bản ghi duy nhất (id=1) hoặc lấy tất cả nếu có nhiều bản ghi
-    const quyDinh = await this.prisma.quy_Dinh_1.findUnique({ where: { id: 1 } });
-    if (!quyDinh) throw new NotFoundException('Không tìm thấy quy định');
+    const quyDinh = await this.prisma.quy_Dinh_1.findMany();
+    if (!quyDinh || quyDinh.length === 0) throw new NotFoundException('Không tìm thấy quy định');
     return quyDinh;
   }
 
