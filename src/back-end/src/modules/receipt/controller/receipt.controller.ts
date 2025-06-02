@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Query, Req, Param } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ReceiptService } from '../service/receipt.service';
 import { CreateReceiptInput } from '../models/receipt.input';
 import { AuthGuard } from '@nestjs/passport';
@@ -13,6 +13,7 @@ export class ReceiptController {
   constructor(private readonly receiptService: ReceiptService) {}
 
   @Post()
+  @ApiOperation({ summary: "Tạo phiếu thu"})
   async create(@Body() input: CreateReceiptInput, @Req() req) {
     // Lấy ID nhân viên từ JWT (req.user)
     const nhanVienId = req.user.nhan_vien_id;
@@ -20,11 +21,13 @@ export class ReceiptController {
   }
 
   @Get()
+  @ApiOperation({ summary: "Tìm phiếu thu"})
   async findAll(@Query() params: ReceiptParams): Promise<ReceiptDto[]> {
     return this.receiptService.findAll(params);
   }
 
   @Get(':phieu_thu_id')
+  @ApiOperation({ summary: "Tìm phiếu thu theo id phiếu thu"})
   async findOne(@Param('phieu_thu_id') phieu_thu_id: string): Promise<ReceiptDto> {
     return this.receiptService.findOne(phieu_thu_id);
   }
