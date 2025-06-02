@@ -11,6 +11,7 @@ import { ItemModule } from './modules/item/item.module';
 import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
 import { RegulationModule } from './modules/regulations/regulation.module';
 import { ReceiptModule } from './modules/receipt/receipt.module';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReceiptModule } from './modules/receipt/receipt.module';
     ExportSheetModule,
     RegulationModule,
     ReceiptModule,
+    ReportModule
   ],
   controllers: [AppController],
   providers: [AppService],
