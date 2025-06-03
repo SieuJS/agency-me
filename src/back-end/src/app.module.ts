@@ -9,6 +9,7 @@ import { AgencyTypeModule } from './modules/agencyType/agencyType.module';
 import { DistrictModule } from './modules/district/district.module';
 import { ItemModule } from './modules/item/item.module';
 import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
+import { ReportRevenueModule } from './modules/report-revenue/report-revenue.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
     DistrictModule,
     ItemModule,
     ExportSheetModule,
+    ReportRevenueModule,
   ],
   controllers: [AppController],
   providers: [AppService],
