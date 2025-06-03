@@ -26,6 +26,8 @@ import { ExportSheetParamsPipe } from '../../pipes/export-sheet-params.pipe';
 
 @ApiTags('Export Sheets')
 @Controller('export-sheets')
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth('access-token')
 export class ExportSheetsController {
   constructor(private readonly exportSheetsService: ExportSheetsService) {}
 
@@ -39,8 +41,6 @@ export class ExportSheetsController {
     status: 404,
     description: 'Agency, employee, or item not found.',
   })
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth('access-token')
   async createExportSheet(
     @Body(ExportSheetInputPipe) input: ExportSheetInput,
     @Req() req: { user: AuthPayloadDto },
@@ -58,8 +58,6 @@ export class ExportSheetsController {
     description: 'The list of export sheets has been successfully retrieved.',
     type: ExportSheetListResponse,
   })
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth('access-token')
   async getListExportSheets(
     @Query(new ExportSheetParamsPipe()) params: ExportSheetParams,
   ) {
@@ -73,8 +71,6 @@ export class ExportSheetsController {
     description: 'The export sheet has been successfully retrieved.',
     type: ExportSheetsDto,
   })
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth('access-token')
   async getExportSheetById(@Param('id') id: string) {
     return await this.exportSheetsService.getExportSheetById(id);
   }

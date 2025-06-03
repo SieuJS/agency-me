@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
+import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { ExportSheetInput } from '../../models/export-sheet.input';
 import { v4 as uuidv4 } from 'uuid';
 import { ExportSheetListItemResponse } from '../../models/export-sheet-list.response';
 import { DetailExportSheetsResponse } from '../../models/detail-export-sheets.response';
+import { ExportSheetsDto } from '../../models/export-sheets.dto';
 
 @Injectable()
 export class ExportSheetsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly paginationService: PaginationService<ExportSheetsDto>,
+  ) {}
 
   async createExportSheet(input: ExportSheetInput) {
     const { daily_id, nhan_vien_lap_phieu, items } = input;
@@ -109,7 +114,6 @@ export class ExportSheetsService {
     search?: string;
   }) {
     const { page = 1, limit = 10, search = '' } = params;
-    const skip = (page - 1) * limit;
 
     const where = search
       ? {
@@ -121,34 +125,28 @@ export class ExportSheetsService {
         }
       : {};
 
-    const [total, phieuXuatList] = await Promise.all([
-      this.prisma.phieuXuatHang.count({ where }),
-      this.prisma.phieuXuatHang.findMany({
-        where,
-        skip,
-        take: limit,
-        include: {
-          daiLy: true,
-          nhanVien: true,
-          chiTietPhieuXuat: {
-            include: {
-              matHang: true,
-            },
+    const rawResult = await this.prisma.phieuXuatHang.findMany({
+      where,
+      include: {
+        daiLy: true,
+        nhanVien: true,
+        chiTietPhieuXuat: {
+          include: {
+            matHang: true,
           },
         },
-        orderBy: {
-          ngay_lap_phieu: 'desc',
-        },
-      }),
-    ]);
+      },
+      orderBy: {
+        ngay_lap_phieu: 'desc',
+      },
+    });
 
-    return {
-      total,
+    const response = this.paginationService.paginate(
+      rawResult.map((item) => new ExportSheetsDto(item)),
       page,
       limit,
-      data: phieuXuatList.map(
-        (phieu) => new ExportSheetListItemResponse(phieu),
-      ),
-    };
+    );
+
+    return response;
   }
 }

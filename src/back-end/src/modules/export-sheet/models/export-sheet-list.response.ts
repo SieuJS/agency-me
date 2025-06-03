@@ -1,31 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ExportSheetsDto, ExportSheetsInclude } from './export-sheets.dto';
 import { Prisma } from '@prisma/client';
+import { PaginationDTO } from 'src/modules/common';
 
 export class ExportSheetListResponse {
-  @ApiProperty({
-    description: 'Total number of records',
-    example: 100,
-  })
-  total: number;
-
-  @ApiProperty({
-    description: 'Current page number',
-    example: 1,
-  })
-  page: number;
-
-  @ApiProperty({
-    description: 'Number of records per page',
-    example: 10,
-  })
-  limit: number;
-
   @ApiProperty({
     description: 'List of export sheets',
     type: [ExportSheetsDto],
   })
   data: ExportSheetsDto[];
+  @ApiProperty({
+    type: PaginationDTO,
+    description: 'Pagination information',
+  })
+  meta: PaginationDTO;
 }
 
 export class ExportSheetListItemResponse extends ExportSheetsDto {
