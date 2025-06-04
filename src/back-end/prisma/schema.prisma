@@ -135,6 +135,6 @@ model Quy_Dinh_1 {
   so_dai_ly_toi_da_trong_quan Int
   so_luong_mat_hang_toi_da    Int
   so_luong_don_vi_tinh        Int
-  loai_daily_id               String
+  loai_daily_id               String @unique
   tien_no_toi_da              Float
 }

@@ -10,6 +10,9 @@ import { DistrictModule } from './modules/district/district.module';
 import { ItemModule } from './modules/item/item.module';
 import { ExportSheetModule } from './modules/export-sheet/export-sheet.module';
 import { ReportRevenueModule } from './modules/report-revenue/report-revenue.module';
+import { RegulationModule } from './modules/regulations/regulation.module';
+import { ReceiptModule } from './modules/receipt/receipt.module';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
   imports: [
@@ -21,7 +24,10 @@ import { ReportRevenueModule } from './modules/report-revenue/report-revenue.mod
     DistrictModule,
     ItemModule,
     ExportSheetModule,
-    ReportRevenueModule,
+    RegulationModule,
+    ReceiptModule,
+    ReportModule,
+    ReportRevenueModule
   ],
   controllers: [AppController],
   providers: [AppService],
