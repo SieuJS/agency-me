@@ -34,7 +34,7 @@ export class ExportSheetsDto {
   @IsNotEmpty()
   nhan_vien_lap_phieu: string;
 
-  constructor(dbIstance : Prisma.PhieuXuatHangGetPayload<ExportSheetsInclude>) {
+  constructor(dbIstance: Prisma.PhieuXuatHangGetPayload<ExportSheetsInclude>) {
     this.phieu_id = dbIstance.phieu_id;
     this.daily_name = dbIstance.daiLy.ten;
     this.ngay_lap_phieu = dbIstance.ngay_lap_phieu;
@@ -48,5 +48,3 @@ export type ExportSheetsInclude = {
     nhanVien: true;
   };
 };
-
-

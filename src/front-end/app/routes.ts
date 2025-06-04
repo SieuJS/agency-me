@@ -82,8 +82,12 @@ export default [
                 file: "routes/staff/agency/agency-lookup.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
             {
-                path: 'receipt',
+                path: 'receipt-add',
                 file: 'routes/staff/agency/agency-receiptmoney.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: 'receipt-lookup',
+                file: 'routes/staff/agency/agency-receipt-lookup.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
             }
         ]
     }

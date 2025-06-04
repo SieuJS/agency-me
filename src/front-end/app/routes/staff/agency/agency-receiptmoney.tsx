@@ -4,24 +4,10 @@ import { RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 // Bỏ comment các dòng import service thật khi bạn có API
-// import { getAgencies, getAgencyById, type Agency } from '../../../services/agencyService';
+import { getAgencies, fetchAgencyByIdAPI, type Agency } from '../../../services/agencyService';
 // import { createReceipt, type ReceiptInput } from '../../../services/receiptService';
 
 // --- BEGIN MOCK DATA AND SERVICES ---
-export type Agency = {
-  id: string; // Hoặc number nếu API của bạn dùng number
-  name: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  // Các trường khác nếu có, ví dụ:
-  // type?: string;
-  // district?: string;
-  // debt?: number;
-  // maxDebt?: number;
-  // incurredDebt?: number;
-  // lastPaymentDate?: string;
-};
 
 export type ReceiptInput = {
   agencyId: string;
@@ -29,42 +15,8 @@ export type ReceiptInput = {
   amount: number;
 };
 
-const mockAgenciesData: Agency[] = [
-  { id: '1', name: 'Đại lý A (Mock)', address: '123 Đường ABC, Quận 1, TP. HCM', phone: '0901234567', email: 'agency.a@example.com' },
-  { id: '2', name: 'Đại lý B (Mock)', address: '456 Đường XYZ, Quận 2, TP. HCM', phone: '0907654321', email: 'agency.b@example.com' },
-  { id: '3', name: 'Đại lý C (Mock)', address: '789 Đường KLM, Quận 3, TP. HCM', phone: '0912345678', email: 'agency.c@example.com' },
-  { id: '4', name: 'Đại lý không có đủ thông tin (Mock)', address: 'Địa chỉ không rõ', phone: '', email: ''}
-];
 
-// Mock service getAgencies
-const getAgencies = async (params: { perPage: number, page: number }): Promise<{ agencies: Agency[], total: number, perPage: number, page: number }> => {
-  console.log('MOCK: getAgencies called with params:', params);
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        agencies: mockAgenciesData,
-        total: mockAgenciesData.length,
-        perPage: params.perPage,
-        page: params.page,
-      });
-    }, 500); // Giả lập độ trễ mạng
-  });
-};
 
-// Mock service getAgencyById
-const getAgencyById = async (id: string): Promise<Agency> => {
-  console.log('MOCK: getAgencyById called with id:', id);
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const agency = mockAgenciesData.find(a => a.id === id);
-      if (agency) {
-        resolve(agency);
-      } else {
-        reject(new Error('Mock: Agency not found'));
-      }
-    }, 300); // Giả lập độ trễ mạng
-  });
-};
 
 // Mock service createReceipt
 const createReceipt = async (payload: ReceiptInput): Promise<{ id: string } & ReceiptInput> => {
@@ -125,7 +77,7 @@ export default function ReceiptFormPage() {
     }
     const fetchAgencyDetail = async () => {
       try {
-        const agency = await getAgencyById(selectedAgencyId); // Sử dụng mock getAgencyById
+        const agency = await fetchAgencyByIdAPI(selectedAgencyId); // Sử dụng mock getAgencyById
         setAddress(agency.address || '');
         setPhone(agency.phone || '');
         setEmail(agency.email || '');
@@ -137,13 +89,18 @@ export default function ReceiptFormPage() {
     fetchAgencyDetail();
   }, [selectedAgencyId]);
 
+  useEffect(() => {
+  setReceiptDate(new Date().toISOString().split('T')[0]);
+}, []);
+
+
   // Xử lý reset form
   const handleReset = () => {
     setSelectedAgencyId('');
     setAddress('');
     setPhone('');
     setEmail('');
-    setReceiptDate('');
+    setReceiptDate(new Date().toISOString().split('T')[0]);
     setAmount('');
     toast.success('Form đã được đặt lại.');
   };

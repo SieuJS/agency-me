@@ -19,13 +19,13 @@ export default function StaffSidebar() {
         </NavLink>
       </div>
       <div className="space-y-1">
-        <NavLink to="/admin/agency/add" className={getSidebarNavLinkClass}>
+        <NavLink to="/staff/agency/receipt-add" className={getSidebarNavLinkClass}>
           <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
           <span className="truncate">Lập phiếu thu tiền</span>
         </NavLink>
       </div>
       <div className="space-y-1">
-        <NavLink to="/staff/agency/receipt" className={getSidebarNavLinkClass}>
+        <NavLink to="/staff/agency/receipt-lookup" className={getSidebarNavLinkClass}>
           <Search className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Tra cứu phiếu thu tiền</span>
         </NavLink>
