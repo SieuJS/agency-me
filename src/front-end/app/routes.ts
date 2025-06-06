@@ -83,7 +83,7 @@ export default [
             },
             {
                 path: 'receipt-add',
-                file: 'routes/staff/agency/agency-receiptmoney.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+                file: 'routes/staff/agency/agency-receipt-add.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
             {
                 path: 'receipt-lookup',
