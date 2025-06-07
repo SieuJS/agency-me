@@ -123,7 +123,7 @@ export default function AgencyEditPage() {
 
     if (isUnchanged) {
       toast('Không có thay đổi nào được thực hiện.', { icon: 'ℹ️' });
-      navigate('/admin/agency/detail/' + id);
+      navigate(-1);
       return;
     }
   }

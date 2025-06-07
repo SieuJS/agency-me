@@ -1,9 +1,21 @@
+import apiClient from "./apiClient";
+
 export interface Receipt {
   id: string | number;
   agencyName: string;
   amount: number;
   date: string;
   stt?: number;
+}
+
+export interface AddRecepitPayload {
+  daily_id: string | number;
+  ngay_thu: string;
+  so_tien_thu: number;
+}
+
+interface ApiResponseMessage {
+  message: string;
 }
 
 export const getReceipts = async (params: {
@@ -34,3 +46,28 @@ export const getReceipts = async (params: {
     });
   }, 300));
 };
+
+export const addReceipt = async (
+  receipt: AddRecepitPayload
+): Promise<string> => {
+  try {
+    console.log("API called (ReceiptAdd) with receipt:", receipt);
+    // Kỳ vọng API trả về { message: string }
+    const response = await apiClient.post<ApiResponseMessage>(
+      '/receipts',
+      receipt
+    );
+    if (!response.data || !response.data.message) {
+      throw new Error(
+        'Không có message được trả về từ API sau khi thêm phiếu thu.'
+      );
+    }
+    console.log("API response message:", response.data.message);
+    // Trả về đúng chuỗi message
+    return response.data.message;
+  } catch (error) {
+    console.error("Error adding receipt:", error);
+    throw error;
+  }
+}
+
