@@ -3,38 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Bỏ comment các dòng import service thật khi bạn có API
 import { getAgencies, fetchAgencyByIdAPI, type Agency } from '../../../services/agencyService';
-// import { createReceipt, type ReceiptInput } from '../../../services/receiptService';
-
-// --- BEGIN MOCK DATA AND SERVICES ---
-
-export type ReceiptInput = {
-  agencyId: string;
-  date: string; // ISO string yyyy-MM-dd
-  amount: number;
-};
-
-
-
-
-// Mock service createReceipt
-const createReceipt = async (payload: ReceiptInput): Promise<{ id: string } & ReceiptInput> => {
-  console.log('MOCK: createReceipt called with payload:', payload);
-  return new Promise(resolve => {
-    setTimeout(() => {
-      // Giả lập việc tạo thành công và trả về receipt đã tạo (có thể có thêm ID)
-      const newReceipt = {
-        id: `mock_receipt_${Date.now()}`,
-        ...payload,
-      };
-      console.log('MOCK: Receipt created:', newReceipt);
-      resolve(newReceipt);
-    }, 1000); // Giả lập độ trễ mạng
-  });
-};
-// --- END MOCK DATA AND SERVICES ---
-
+import { addReceipt, type AddRecepitPayload } from '../../../services/receiptService';
 
 export default function ReceiptFormPage() {
   // Danh sách đại lý để chọn
@@ -55,11 +25,11 @@ export default function ReceiptFormPage() {
     const fetchAgencies = async () => {
       setIsLoadingAgencies(true);
       try {
-        const response = await getAgencies({ perPage: 1000, page: 1 }); // Sử dụng mock getAgencies
+        const response = await getAgencies({ perPage: 1000, page: 1 });
         setAgencies(response.agencies);
       } catch (err) {
-        console.error("Error fetching mock agencies:", err);
-        toast.error('Không thể tải danh sách đại lý (mock).');
+        console.error('Error fetching agencies:', err);
+        toast.error('Không thể tải danh sách đại lý.');
       } finally {
         setIsLoadingAgencies(false);
       }
@@ -77,22 +47,22 @@ export default function ReceiptFormPage() {
     }
     const fetchAgencyDetail = async () => {
       try {
-        const agency = await fetchAgencyByIdAPI(selectedAgencyId); // Sử dụng mock getAgencyById
+        const agency = await fetchAgencyByIdAPI(selectedAgencyId);
         setAddress(agency.address || '');
         setPhone(agency.phone || '');
         setEmail(agency.email || '');
       } catch (err) {
-        console.error("Error fetching mock agency detail:", err);
-        toast.error('Không thể lấy thông tin đại lý (mock).');
+        console.error('Error fetching agency detail:', err);
+        toast.error('Không thể lấy thông tin đại lý.');
       }
     };
     fetchAgencyDetail();
   }, [selectedAgencyId]);
 
+  // Mặc định để ngày hiện tại
   useEffect(() => {
-  setReceiptDate(new Date().toISOString().split('T')[0]);
-}, []);
-
+    setReceiptDate(new Date().toISOString().split('T')[0]);
+  }, []);
 
   // Xử lý reset form
   const handleReset = () => {
@@ -102,7 +72,7 @@ export default function ReceiptFormPage() {
     setEmail('');
     setReceiptDate(new Date().toISOString().split('T')[0]);
     setAmount('');
-    toast.success('Form đã được đặt lại.');
+    
   };
 
   // Xử lý lưu phiếu thu
@@ -121,20 +91,23 @@ export default function ReceiptFormPage() {
       return;
     }
 
-    const payload: ReceiptInput = {
-      agencyId: selectedAgencyId,
-      date: receiptDate,
-      amount: Number(amount),
+    const payload: AddRecepitPayload = {
+      daily_id: selectedAgencyId,
+      ngay_thu: receiptDate,
+      so_tien_thu: Number(amount),
     };
 
     setIsSubmitting(true);
     try {
-      await createReceipt(payload); // Sử dụng mock createReceipt
-      toast.success('Lưu phiếu thu thành công (mock).');
+      // Gọi API thật
+      const message = await addReceipt(payload);
+      toast.success(message);
       handleReset();
-    } catch (err) {
-      console.error("Error creating mock receipt:", err);
-      toast.error('Lỗi khi lưu phiếu thu (mock).');
+    } catch (err: any) {
+      console.error('Error creating receipt:', err);
+      const errorMsg =
+        err?.response?.data?.message || 'Lỗi khi lưu phiếu thu.';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -145,23 +118,35 @@ export default function ReceiptFormPage() {
       <Toaster position="top-right" />
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Phiếu thu tiền </h1>
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Phiếu thu tiền
+        </h1>
         <button
           type="button"
           onClick={handleReset}
+          
           className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-yellow hover:bg-gray-50"
           disabled={isSubmitting}
         >
           <RefreshCw size={16} />
           <span className="text-sm text-black-700">Đặt lại</span>
         </button>
+        
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }}
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           {/* Tên đại lý */}
           <div className="col-span-1">
-            <label htmlFor="agencySelect" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="agencySelect"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Tên đại lý
             </label>
             <select
@@ -178,12 +163,19 @@ export default function ReceiptFormPage() {
                 </option>
               ))}
             </select>
-            {isLoadingAgencies && <p className="text-xs text-gray-500 mt-1">Đang tải danh sách đại lý...</p>}
+            {isLoadingAgencies && (
+              <p className="text-xs text-gray-500 mt-1">
+                Đang tải danh sách đại lý...
+              </p>
+            )}
           </div>
 
           {/* Địa chỉ */}
           <div className="col-span-1">
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="address"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Địa chỉ
             </label>
             <input
@@ -198,7 +190,10 @@ export default function ReceiptFormPage() {
 
           {/* Điện thoại */}
           <div className="col-span-1">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Điện thoại
             </label>
             <input
@@ -213,7 +208,10 @@ export default function ReceiptFormPage() {
 
           {/* Email */}
           <div className="col-span-1">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email
             </label>
             <input
@@ -228,7 +226,10 @@ export default function ReceiptFormPage() {
 
           {/* Ngày thu tiền */}
           <div className="col-span-1">
-            <label htmlFor="receiptDate" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="receiptDate"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Ngày thu tiền
             </label>
             <input
@@ -243,7 +244,10 @@ export default function ReceiptFormPage() {
 
           {/* Số tiền thu */}
           <div className="col-span-1">
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="amount"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Số tiền thu
             </label>
             <input
@@ -257,7 +261,7 @@ export default function ReceiptFormPage() {
               placeholder="Số tiền thu"
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               disabled={isSubmitting}
-              min="0" // Thêm để trình duyệt hỗ trợ validation
+              min="0"
             />
           </div>
         </div>
@@ -266,7 +270,7 @@ export default function ReceiptFormPage() {
           <button
             type="submit"
             className="px-6 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 disabled:opacity-50"
-            disabled={isSubmitting || isLoadingAgencies} // Thêm isLoadingAgencies để disable nút khi đang tải
+            disabled={isSubmitting || isLoadingAgencies}
           >
             {isSubmitting ? 'Đang lưu...' : 'Lưu'}
           </button>
