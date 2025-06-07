@@ -3,8 +3,8 @@ import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router';
 import { Search, FileText, Trash2, LogOut } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { isAuthenticated, logoutUser, getUserData } from '../../../services/authService';
-import AdminHeader from '../../../components/layout/staffHeader';
-import AdminSidebar from '../../../components/layout/staffAgencySidebar';
+import StaffHeader from '../../../components/layout/staffHeader';
+import StaffReportSidebar from '../../../components/layout/staffAgencySidebar';
 export default function StaffSectionLayout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,9 +83,9 @@ export default function StaffSectionLayout() {
   // Nếu đã xác thực và có quyền admin hoặc staff, hiển thị layout admin
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <AdminHeader />
+      <StaffHeader />
       <div className="flex flex-1 overflow-hidden">
-        <AdminSidebar />
+        <StaffReportSidebar />
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100">
           <Outlet />
         </main>

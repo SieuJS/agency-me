@@ -20,7 +20,7 @@ export default function StaffSidebar() {
       </div>
       <div className="space-y-1">
         <NavLink to="/staff/agency/receipt-add" className={getSidebarNavLinkClass}>
-          <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+          <FileText className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Lập phiếu thu tiền</span>
         </NavLink>
       </div>
