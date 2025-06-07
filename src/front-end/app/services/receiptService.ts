@@ -18,6 +18,20 @@ interface ApiResponseMessage {
   message: string;
 }
 
+export interface ReceiptDebtReportInput{
+  month: number;
+  year: number;
+}
+
+export interface ReceiptDebtReportOutput {
+  daily_id: string;
+  ten: string;
+  no_dau: number;
+  phat_sinh: number;
+  tien_thu: number;
+  no_cuoi: number;
+}
+
 export const getReceipts = async (params: {
   agencyName?: string;
   fromDate?: string;
@@ -70,4 +84,25 @@ export const addReceipt = async (
     throw error;
   }
 }
+
+export const getReceiptDebtReport = async (
+  input: ReceiptDebtReportInput
+): Promise<ReceiptDebtReportOutput[]> => {
+  console.log("API called (ReceiptDebtReport) with input:", input);
+ 
+  try {
+    const response = await apiClient.post<ReceiptDebtReportOutput[]>(
+      '/report/debt',
+      input
+    );
+    if (!response.data || !Array.isArray(response.data)) {
+      throw new Error('Không có dữ liệu báo cáo công nợ được trả về từ API.');
+    }
+    console.log("API response data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting receipt debt report:", error);
+    throw error;
+  }
+};
 

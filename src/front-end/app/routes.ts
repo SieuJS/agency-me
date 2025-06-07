@@ -88,7 +88,21 @@ export default [
             {
                 path: 'receipt-lookup',
                 file: 'routes/staff/agency/agency-receipt-lookup.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: "detail/:agencyId",
+                file: "routes/staff/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
             }
         ]
-    }
+    },
+    {
+        path: "staff/report",
+        file: "routes/staff/report/_layout.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+        children: [
+            {
+                path: "debt-report",
+                file: "routes/staff/report/debt-report.tsx", // Đảm bảo file này tồn tại
+            }
+        ]
+    },
 ] satisfies RouteConfig;

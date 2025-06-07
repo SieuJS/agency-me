@@ -296,7 +296,7 @@ export default function AgencyLookupPage() {
                       </td>
                       <td className="px-4 py-3 text-sm font-medium">
                         <Link
-                          to={`/admin/agency/detail/${agency.id}`}
+                          to={`/staff/agency/detail/${agency.id}`}
                           className="text-blue-600 hover:underline"
                         >
                           {agency.name}

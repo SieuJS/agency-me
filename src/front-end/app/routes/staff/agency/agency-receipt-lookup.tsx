@@ -334,13 +334,13 @@ export default function ReceiptSearchRefactored() {
       {/* Pagination */}
       {!isLoading && totalPages > 1 && (
         <div className="flex items-center justify-center space-x-3 mt-6">
-          <Button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1 || isLoading}
-            
-          >
-            ←
-          </Button>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded-md bg-white text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
+                  ←
+                </button>
           <select
             value={currentPage}
             onChange={(e) => setCurrentPage(Number(e.target.value))}
@@ -355,13 +355,13 @@ export default function ReceiptSearchRefactored() {
               )
             )}
           </select>
-          <Button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages || isLoading}
-    
-          >
-            →
-          </Button>
+               <button
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border rounded-md bg-white text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
+                  →
+                </button>
         </div>
       )}
     </div>
