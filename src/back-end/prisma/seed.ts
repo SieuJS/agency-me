@@ -721,8 +721,6 @@ async function main() {
       so_dai_ly_toi_da_trong_quan: 4,
       so_luong_mat_hang_toi_da: 5,
       so_luong_don_vi_tinh: 3,
-      loai_daily_id: 'loai001',
-      tien_no_toi_da: 5000000,
     },
   });
 
