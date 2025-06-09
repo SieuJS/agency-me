@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ReportService } from '../service/report.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -11,9 +11,9 @@ import { ReportDebtDto } from '../models/report.dto';
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  @Post('debt')
+  @Get('debt')
   @ApiOperation({ summary: "Báo cáo công nợ"})
-  async calcDebt(@Body() params: ReportDebtInput): Promise<ReportDebtDto[]> {
+  async calcDebt(@Query() params: ReportDebtInput): Promise<ReportDebtDto[]> {
     return this.reportService.calcDebt(params);
   }
 }
