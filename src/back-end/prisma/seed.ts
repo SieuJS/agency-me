@@ -285,6 +285,48 @@ async function main() {
         thanh_pho: 'Hải Phòng',
         gioi_han_so_daily: 4,
       },
+      {
+        quan_id: '06',
+        ten_quan: 'Quận 6',
+        thanh_pho: 'TP.HCM',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: '07',
+        ten_quan: 'Quận 7',
+        thanh_pho: 'TP.HCM',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: '08',
+        ten_quan: 'Quận 8',
+        thanh_pho: 'TP.HCM',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: '10',
+        ten_quan: 'Quận 10',
+        thanh_pho: 'TP.HCM',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: 'tayho',
+        ten_quan: 'Quận Tây Hồ',
+        thanh_pho: 'Hà Nội',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: 'haibatrung',
+        ten_quan: 'Quận Hai Bà Trưng',
+        thanh_pho: 'Hà Nội',
+        gioi_han_so_daily: 4,
+      },
+      {
+        quan_id: 'thanhxuan',
+        ten_quan: 'Quận Thanh Xuân',
+        thanh_pho: 'Hà Nội',
+        gioi_han_so_daily: 4,
+      },
     ],
     skipDuplicates: true,
   });
