@@ -174,7 +174,7 @@ async function main() {
         nhan_vien_id: 'nv001',
         ten: 'Nguyễn Hùng Phát',
         dien_thoai: '0000000001',
-        email: 'hungphat@gmail.com',
+        email: '  ',
         loai_nhan_vien_id: 'admin',
         dia_chi: '123 ABC',
         mat_khau: hashedPassword,
@@ -244,7 +244,7 @@ async function main() {
         gioi_han_so_daily: 4,
       },
       {
-        quan_id: 'hoaniem',
+        quan_id: 'hoankiem',
         ten_quan: 'Quận Hoàn Kiếm',
         thanh_pho: 'Hà Nội',
         gioi_han_so_daily: 4,
