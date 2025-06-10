@@ -4,7 +4,7 @@ import { IsEmail } from 'class-validator';
 
 export class AgencyDto {
   @ApiProperty({
-    example: '1',
+    example: 'daily001',
   })
   daily_id: string;
 
@@ -25,17 +25,17 @@ export class AgencyDto {
   email: string;
 
   @ApiProperty({
-    example: '17000',
+    example: '0',
   })
   tien_no: number;
 
   @ApiProperty({
-    example: 'Hà Nội',
+    example: '12 Nguyễn Trãi, Đống Đa, Hà Nội',
   })
   dia_chi: string;
 
   @ApiProperty({
-    example: 'Hà Nội',
+    example: 'Đống Đa',
   })
   quan: string;
 

@@ -113,9 +113,26 @@ export class AgencyService {
     if (!existingQuan) {
       throw new Error('District not found');
     }
-
+    
+    // Kiểm tra số lượng đại lý trong quận (không tính da_xoa: true) so với gioi_han_so_daily
+    const agencyCountInQuan = await this.prisma.daiLy.count({
+      where: {
+        quan_id,
+        da_xoa: false,
+      },
+    });
+    if (agencyCountInQuan >= existingQuan.gioi_han_so_daily) {
+      throw new Error(`Maximum number of agencies (${existingQuan.gioi_han_so_daily}) in this district has been reached`);
+    }
+    
+    // Tạo mã đại lý (daily_id) tự động
     const count = await this.prisma.daiLy.count();
     const daily_id = `daily${(count + 1).toString().padStart(3, '0')}`;
+
+    // Lấy ngày tiếp nhận theo múi giờ Việt Nam (+07:00)
+    const vietnamDate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const ngayTiepNhan = new Date(vietnamDate);
+
     const agency = await this.prisma.daiLy.create({
       data: {
         daily_id,
@@ -126,7 +143,7 @@ export class AgencyService {
         loai_daily_id,
         quan_id,
         tien_no,
-        ngay_tiep_nhan: new Date(),
+        ngay_tiep_nhan: ngayTiepNhan,
         nhan_vien_tiep_nhan,
       },
       include: {

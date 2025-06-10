@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { ExportSheetInput } from '../../models/export-sheet.input';
@@ -22,6 +22,9 @@ export class ExportSheetsService {
       where: {
         daily_id: daily_id,
       },
+      include: {
+        loaiDaiLy: true, // Include loaiDaiLy to check tien_no_toi_da
+      }
     });
 
     if (!daily) {
@@ -39,6 +42,42 @@ export class ExportSheetsService {
       throw new NotFoundException('Nhan vien khong ton tai');
     }
 
+    // Calculate totalThanhTien by fetching don_gia from matHang
+    const itemDetails = await Promise.all(
+      items.map(async (item) => {
+        const matHang = await this.prisma.matHang.findUnique({
+          where: {
+            mathang_id: item.mathang_id,
+          },
+        });
+
+        if (!matHang) {
+          throw new NotFoundException(`Mat hang ${item.mathang_id} khong ton tai`);
+        }
+
+        const don_gia = matHang.don_gia || 0;
+        if (don_gia <= 0) {
+          throw new BadRequestException(`Don gia cua mat hang ${item.mathang_id} khong hop le`);
+        }
+
+        return {
+          mathang_id: item.mathang_id,
+          so_luong: item.so_luong,
+          don_gia: don_gia,
+          thanh_tien: don_gia * item.so_luong,
+        };
+      }),
+    );
+
+    const totalThanhTien = itemDetails.reduce((sum, item) => sum + item.thanh_tien, 0);
+
+    // Check if total debt (tien_no + thanh_tien) exceeds tien_no_toi_da
+    const currentTienNo = daily.tien_no || 0;
+    const maxTienNo = daily.loaiDaiLy.tien_no_toi_da || Infinity; // Default to Infinity if not set
+    if (currentTienNo + totalThanhTien > maxTienNo) {
+      throw new BadRequestException(`Tong no (${currentTienNo + totalThanhTien}) vuot qua gioi han no toi da (${maxTienNo}) cua loai dai ly`);
+    }
+
     return await this.prisma.$transaction(async (prisma) => {
       const phieuXuat = await prisma.phieuXuatHang.create({
         data: {
@@ -50,31 +89,28 @@ export class ExportSheetsService {
       });
 
       const chiTietPhieuXuat = await Promise.all(
-        items.map(async (item) => {
-          // Validate matHang exists
-          const matHang = await prisma.matHang.findUnique({
-            where: {
-              mathang_id: item.mathang_id,
-            },
-          });
-
-          if (!matHang) {
-            throw new NotFoundException(
-              `Mat hang ${item.mathang_id} khong ton tai`,
-            );
-          }
-
-          return prisma.chiTietPhieuXuat.create({
+        itemDetails.map((item) =>
+          prisma.chiTietPhieuXuat.create({
             data: {
               phieu_id: phieuXuat.phieu_id,
               mathang_id: item.mathang_id,
               so_luong: item.so_luong,
-              don_gia: matHang.don_gia,
-              thanh_tien: matHang.don_gia * item.so_luong,
+              don_gia: item.don_gia,
+              thanh_tien: item.thanh_tien,
             },
-          });
-        }),
+          }),
+        ),
       );
+
+      // Update tien_no of daiLy after successful creation
+      await prisma.daiLy.update({
+        where: { daily_id: daily_id },
+        data: {
+          tien_no: {
+            increment: totalThanhTien, // Increase tien_no by totalThanhTien
+          },
+        },
+      });
 
       return {
         ...phieuXuat,

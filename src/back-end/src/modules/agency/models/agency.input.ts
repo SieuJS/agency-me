@@ -3,12 +3,12 @@ import { AgencyDto } from './agency.dto';
 
 export class AgencyInput extends OmitType(AgencyDto, ['daily_id']) {
   @ApiProperty({
-    example: '1',
+    example: 'loai001',
     description: 'ID of the agency',
   })
   loai_daily_id: string;
   @ApiProperty({
-    example: '1',
+    example: 'dongda',
     description: 'ID of the employee who received the agency',
   })
   quan_id: string;
