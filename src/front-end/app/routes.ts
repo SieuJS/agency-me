@@ -92,7 +92,11 @@ export default [
             {
                 path: "detail/:agencyId",
                 file: "routes/staff/agency/agency-detail.tsx", // Đảm bảo file này tồn tại
-            }
+            },
+            {
+                path: "receipt-detail/:receiptId",
+                file: "routes/staff/agency/agency-receipt-detail.tsx", // Đảm bảo file này tồn tại
+            },
         ]
     },
     {
