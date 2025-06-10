@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Param, Body, UseGuards, HttpException } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RegulationService } from '../service/regulation.service';
-import { UpdateRegulationInput } from '../models/update-regulation.input';
+import { UpdateGeneralRegulationInput, UpdateMaxDebtInput } from '../models/update-regulation.input';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('regulation')
@@ -16,13 +16,25 @@ export class RegulationController {
     return this.regulationService.getAll();
   }
 
-  @Put()
-  @ApiOperation({ summary: "Cập nhật quy định"})
+  @Put('general')
+  @ApiOperation({ summary: "Cập nhật quy định chung"})
   async update(
-    @Body() input: UpdateRegulationInput,
+    @Body() input: UpdateGeneralRegulationInput,
   ) {
     try {
-      return await this.regulationService.update(input);
+      return await this.regulationService.update_general(input);
+    } catch (e) {
+      throw new HttpException(e.message, 400);
+    }
+  }
+
+  @Put('max_debt')
+  @ApiOperation({ summary: "Cập nhật tiền nợ tối đa"})
+  async update_max_debt(
+    @Body() input: UpdateMaxDebtInput,
+  ) {
+    try {
+      return await this.regulationService.update_max_debt(input);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
