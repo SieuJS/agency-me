@@ -352,7 +352,7 @@ async function main() {
         dien_thoai: '0982222222',
         dia_chi: '101 ABC',
         email: 'daily2@gmail.com',
-        quan_id: 'hoaniem',
+        quan_id: 'hoankiem',
         loai_daily_id: 'loai002',
         tien_no: 0,
         ngay_tiep_nhan: new Date(),
