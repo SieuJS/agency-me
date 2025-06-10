@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
-import { AgencyRevenueDto, ReportRevenueResponse } from '../models/report-revenue.dto';
+import { AgencyRevenueDto, ReportRevenueResponse, ReportRevenueTimeRangeDto } from '../models/report-revenue.dto';
 
 @Injectable()
 export class ReportRevenueService {
   constructor(private prisma: PrismaService) {}
 
-  async generateRevenueReport(): Promise<ReportRevenueResponse> {
+  async generateRevenueReport(thoi_gian : ReportRevenueTimeRangeDto ): Promise<ReportRevenueResponse> {
     // Get all export sheets with their details
     const exportSheets = await this.prisma.phieuXuatHang.findMany({
       include: {
@@ -18,9 +18,14 @@ export class ReportRevenueService {
           },
         },
       },
+      where:{
+        ngay_lap_phieu: {
+          gte: thoi_gian.tu_ngay,
+          lte: thoi_gian.den_ngay,
+        },
+      }
     });
 
-    // Calculate revenue for each agency
     const agencyRevenues = new Map<string, AgencyRevenueDto>();
 
     exportSheets.forEach((sheet) => {
@@ -38,6 +43,7 @@ export class ReportRevenueService {
           ten_daily: dailyName,
           tong_doanh_so: 0,
           ty_le_phan_tram: 0,
+          thoi_gian,
         });
       }
 
