@@ -174,7 +174,7 @@ async function main() {
         nhan_vien_id: 'nv001',
         ten: 'Nguyễn Hùng Phát',
         dien_thoai: '0000000001',
-        email: '  ',
+        email: 'hungphat@gmail.com',
         loai_nhan_vien_id: 'admin',
         dia_chi: '123 ABC',
         mat_khau: hashedPassword,

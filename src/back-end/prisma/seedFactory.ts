@@ -84,7 +84,7 @@ export async function generateRandomNhanVien(count: number): Promise<NhanVien[]>
 export function generateRandomDaiLy(count: number): DaiLy[] {
     const daiLys: DaiLy[] = [];
 
-    const quanIds = ['01', '02', '03', '04', '05', 'dongda', 'hoankgiem', 'badinh', 'caugiay', 'longbien', 'hongbang', 'ngoquyen', 'lechan'];
+    const quanIds = ['01', '02', '03', '04', '05', 'dongda', 'hoankiem', 'badinh', 'caugiay', 'longbien', 'hongbang', 'ngoquyen', 'lechan'];
     const nhanVienTiepNhanIds = ['nv002', 'nv003', 'nv004', 'nv005', 'nv006', 'nv007', 'nv008', 'nv009', 'nv010'];
 
     for (let i = 1; i <= count; i++) {
