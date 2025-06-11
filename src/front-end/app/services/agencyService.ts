@@ -270,6 +270,79 @@ export const createAgencyTypeAPI = async (payload: AgencyTypeCreatePayload): Pro
   }
 };
 
+export interface RevenueReportInput{
+  month: number;
+  year: number;
+}
 
+export interface RevenueReportOutput {
+  //daily_id: string;
+  ten: string;
+  so_phieu_xuat: number;
+  tong_doanh_so: number;
+  ty_le_phan_tram: string;
+}
 
+// export const getRevenueReport = async (
+//   input: RevenueReportInput
+// ): Promise<RevenueReportOutput[]> => {
+//   console.log("API called (RevenueReport) with input:", input);
+ 
+//   try {
+//     const response = await apiClient.post<RevenueReportOutput[]>(
+//       '/revenue-reports',
+//       input
+//     );
+//     if (!response.data || !Array.isArray(response.data)) {
+//       throw new Error('Không có dữ liệu báo cáo doanh số được trả về từ API.');
+//     }
+//     console.log("API response data:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error getting revenue report:", error);
+//     throw error;
+//   }
+// };
+
+function generateMockData(month: number, year: number): RevenueReportOutput[] {
+  const randomMultiplier = month + year % 10; // Tạo độ khác biệt giữa các tháng/năm
+  const agencies = ["Đại lý A", "Đại lý B", "Đại lý C", "Đại lý D"];
+
+  const data = agencies.map((ten, index) => {
+    const so_phieu_xuat = Math.floor(Math.random() * 20 + 5);
+    const tong_doanh_so = so_phieu_xuat * (randomMultiplier * 100000);
+    return {
+      ten,
+      so_phieu_xuat,
+      tong_doanh_so,
+      ty_le_phan_tram: "0%", // placeholder
+    };
+  });
+
+  // Tính tổng doanh số toàn bộ
+  const tongTatCa = data.reduce((acc, curr) => acc + curr.tong_doanh_so, 0);
+
+  // Cập nhật tỷ lệ phần trăm
+  return data.map(row => ({
+    ...row,
+    ty_le_phan_tram: ((row.tong_doanh_so / tongTatCa) * 100).toFixed(2) + "%",
+  }));
+}
+
+export async function getRevenueReport({
+  month,
+  year,
+}: {
+  month: number;
+  year: number;
+}): Promise<RevenueReportOutput[]> {
+  // Giả lập delay API
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  // Một số tháng không có dữ liệu
+  if (month === 2 && year === 2025) return []; // Giả lập không có dữ liệu
+
+  // Trả về dữ liệu tương ứng
+  return generateMockData(month, year);
+}
 

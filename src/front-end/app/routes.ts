@@ -102,6 +102,10 @@ export default [
             {
                 path: "debt-report",
                 file: "routes/staff/report/debt-report.tsx", // Đảm bảo file này tồn tại
+            },
+            {
+                path: "revenue-report",
+                file: "routes/staff/report/revenue-report.tsx", // Đảm bảo file này tồn tại
             }
         ]
     },
