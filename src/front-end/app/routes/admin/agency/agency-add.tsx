@@ -94,11 +94,28 @@ export default function AgencyReceptionPage() {
     if (!agencyType) newErrors.agencyType = 'Loại đại lý không được để trống.';
     if (!district) newErrors.district = 'Quận không được để trống.';
     if (!address) newErrors.address = 'Địa chỉ không được để trống.';
-    if (!phone) newErrors.phone = 'Điện thoại không được để trống.';
+    if (!phone) {
+    newErrors.phone = 'Điện thoại không được để trống.';
+  } else if (!/^0\d{9}$/.test(phone)) {
+    newErrors.phone = 'Số điện thoại không hợp lệ. Phải có 10 chữ số và bắt đầu bằng 0.';
+  }
     if (!email) newErrors.email = 'Email không được để trống.';
     if (email && !/\S+@\S+\.\S+/.test(email))
       newErrors.email = 'Email không hợp lệ.';
-    if (!filingDate) newErrors.filingDate = 'Ngày lập phiếu không được để trống.';
+    if (!filingDate) {
+  newErrors.filingDate = 'Ngày lập phiếu không được để trống.';
+} else {
+  const today = new Date();
+  const inputDate = new Date(filingDate);
+
+  // So sánh bỏ phần thời gian, chỉ so sánh ngày
+  today.setHours(0, 0, 0, 0);
+  inputDate.setHours(0, 0, 0, 0);
+
+  if (inputDate > today) {
+    newErrors.filingDate = 'Ngày lập phiếu không được lớn hơn ngày hiện tại.';
+  }
+}
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -227,7 +244,7 @@ export default function AgencyReceptionPage() {
               </Button>
             </div>
             {errors.agencyType && (
-              <p className="mt-1 text-sm text-red-600">{errors.agencyType}</p>
+              <p className="mt-1 text-xs text-red-600">{errors.agencyType}</p>
             )}
           </div>
 
@@ -250,7 +267,7 @@ export default function AgencyReceptionPage() {
               required
             />
             {errors.filingDate && (
-              <p className="mt-1 text-sm text-red-600">{errors.filingDate}</p>
+              <p className="mt-1 text-xs text-red-600">{errors.filingDate}</p>
             )}
           </div>
 
@@ -284,7 +301,7 @@ export default function AgencyReceptionPage() {
                 ))}
             </select>
             {errors.district && (
-              <p className="mt-1 text-sm text-red-600">{errors.district}</p>
+              <p className="mt-1 text-xs text-red-600">{errors.district}</p>
             )}
           </div>
           <div>
