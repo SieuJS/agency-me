@@ -33,54 +33,54 @@ export interface ReceiptDebtReportOutput {
 }
 
 export const getReceipts = async (params: {
-  agencyName?: string;
-  ngay_thu?: string;
-  minAmount?: number;
-  page: number;
-  perPage: number;
+  agencyName?: string;
+  ngay_thu?: string;
+  minAmount?: number;
+  page: number;
+  perPage: number;
 }): Promise<{ receipts: Receipt[]; totalPage: number }> => {
-  try {
-    const queryParams: any = {
-      page: params.page,
-      perPage: params.perPage,
-    };
+  try {
+    const queryParams: any = {
+      page: params.page,
+      perPage: params.perPage,
+    };
 
-    if (params.agencyName) queryParams.daily_id = params.agencyName;
-    if (params.ngay_thu) queryParams.ngay_thu = params.ngay_thu;
-    if (params.minAmount !== undefined) queryParams.min_so_tien = params.minAmount;
+    if (params.agencyName) queryParams.daily_id = params.agencyName;
+    if (params.ngay_thu) queryParams.ngay_thu = params.ngay_thu;
+    if (params.minAmount !== undefined) queryParams.min_so_tien = params.minAmount;
 
-    const response = await apiClient.get("/receipts", {
-      params: queryParams,
-    });
+    const response = await apiClient.get("/receipts", {
+    params: queryParams,
+    });
     
     // --- Phần xử lý cấu trúc API response giữ nguyên ---
-    let rawData: any[] = [];
-    let totalPage = 1;
-    if (response.data && Array.isArray(response.data.data)) {
-      rawData = response.data.data;
-      totalPage = response.data.totalPage ?? 1;
-    } 
-    else if (Array.isArray(response.data)) {
-      rawData = response.data;
-    }
+    let rawData: any[] = [];
+    let totalPage = 1;
+    if (response.data && Array.isArray(response.data.data)) {
+      rawData = response.data.data;
+      totalPage = response.data.totalPage ?? 1;
+    } 
+    else if (Array.isArray(response.data)) {
+      rawData = response.data;
+    }
     // --- Kết thúc phần xử lý ---
 
-    const receipts: Receipt[] = rawData.map((item: any, index: number) => ({
-      id: item.phieu_thu_id,
-      agencyName: item.daily_id,
-      amount: item.so_tien_thu,
-      date: item.ngay_thu,
-      stt: (params.page - 1) * params.perPage + index + 1,
-    }));
+    const receipts: Receipt[] = rawData.map((item: any, index: number) => ({
+      id: item.phieu_thu_id,
+      agencyName: item.daily_id,
+      amount: item.so_tien_thu,
+      date: item.ngay_thu,
+      stt: (params.page - 1) * params.perPage + index + 1,
+    }));
 
-    return {
-      receipts,
-      totalPage,
-    };
-  } catch (error) {
-    console.error("Error fetching receipts:", error);
-    throw error;
-  }
+    return {
+      receipts,
+      totalPage,
+    };
+  } catch (error) {
+    console.error("Error fetching receipts:", error);
+    throw error;
+  }
 };
 
 
