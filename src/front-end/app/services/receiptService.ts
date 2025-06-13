@@ -115,9 +115,8 @@ export const getReceiptDebtReport = async (
   console.log("API called (ReceiptDebtReport) with input:", input);
  
   try {
-    const response = await apiClient.post<ReceiptDebtReportOutput[]>(
-      '/report/debt',
-      input
+    const response = await apiClient.get<ReceiptDebtReportOutput[]>(
+      '/report/debt', { params: input }
     );
     if (!response.data || !Array.isArray(response.data)) {
       throw new Error('Không có dữ liệu báo cáo công nợ được trả về từ API.');
