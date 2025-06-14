@@ -31,4 +31,23 @@ export class ExportSheetParams {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiProperty({
+    description: 'Created date',
+    example: 'createdAt',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  ngay_tao?: string;
+
+  @ApiProperty({
+    description: 'Export sheet ID',
+    example: 'exportSheetId',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  tong_tien?: number;
+  
 }

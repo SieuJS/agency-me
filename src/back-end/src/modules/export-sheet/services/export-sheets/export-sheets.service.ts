@@ -5,6 +5,7 @@ import { ExportSheetInput } from '../../models/export-sheet.input';
 import { v4 as uuidv4 } from 'uuid';
 import { DetailExportSheetsResponse } from '../../models/detail-export-sheets.response';
 import { ExportSheetsDto } from '../../models/export-sheets.dto';
+import { ExportSheetParams } from '../../models/export-sheet.params';
 
 @Injectable()
 export class ExportSheetsService {
@@ -143,19 +144,17 @@ export class ExportSheetsService {
     return new DetailExportSheetsResponse(phieuXuat);
   }
 
-  async getListExportSheets(params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }) {
-    const { page = 1, limit = 10, search = '' } = params;
+  async getListExportSheets(params: ExportSheetParams) {
+    const { page = 1, limit = 10, search, ngay_tao, tong_tien } = params;
 
     const where = search
       ? {
-          OR: [
+          AND: [
             { phieu_id: { contains: search } },
             { daiLy: { ten: { contains: search } } },
             { nhanVien: { ten: { contains: search } } },
+            { ngay_tao: ngay_tao ? { gte: ngay_tao } : undefined },
+            { chiTietPhieuXuat: { some: { thanh_tien: tong_tien ? { gte: tong_tien } : undefined } } },
           ],
         }
       : {};
