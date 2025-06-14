@@ -45,6 +45,22 @@ export class ItemDto {
   }
 }
 
+export class ItemSearchParams{
+  @ApiProperty({
+    description: 'Search pattern for item name',
+    example: 'Item',
+    required: false,
+  })
+  pattern?: string;
+
+  @ApiProperty({
+    description: 'Unit of the item',
+    example: 'Cái',
+    required: false,
+  })
+  unit?: string;
+}
+
 export type ItemInclude = {
   include: {
     donViTinh: true;

@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ItemService } from '../../services/item/item.service';
 import { ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { ItemDto } from '../../models/item.dto';
+import { ItemDto, ItemSearchParams } from '../../models/item.dto';
 
 @Controller('item')
 export class ItemController {
@@ -24,7 +24,7 @@ export class ItemController {
     status: 400,
     description: 'The pattern is invalid.',
   })
-  async findWithPattern(@Query('pattern') pattern: string): Promise<ItemDto[]> {
-    return this.itemService.findWithPattern(pattern);
+  async findWithPattern(@Query() query : ItemSearchParams): Promise<ItemDto[]> {
+    return this.itemService.findWithPattern(query);
   }
 }

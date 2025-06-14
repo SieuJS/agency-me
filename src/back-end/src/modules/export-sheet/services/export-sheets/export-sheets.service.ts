@@ -3,7 +3,6 @@ import { PrismaService } from 'src/modules/common';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { ExportSheetInput } from '../../models/export-sheet.input';
 import { v4 as uuidv4 } from 'uuid';
-import { ExportSheetListItemResponse } from '../../models/export-sheet-list.response';
 import { DetailExportSheetsResponse } from '../../models/detail-export-sheets.response';
 import { ExportSheetsDto } from '../../models/export-sheets.dto';
 
