@@ -85,7 +85,19 @@ export default function ReceiptFormPage() {
     if (!receiptDate) {
       toast.error('Vui lòng chọn ngày thu tiền.');
       return;
+    } else {
+    const today = new Date();
+    const inputDate = new Date(receiptDate);
+
+  // So sánh bỏ phần thời gian, chỉ so sánh ngày
+    today.setHours(0, 0, 0, 0);
+    inputDate.setHours(0, 0, 0, 0);
+
+  if (inputDate > today) {
+    toast.error('Ngày lập phiếu không được lớn hơn ngày hiện tại.');
+  }
     }
+
     if (amount === '' || amount <= 0) {
       toast.error('Vui lòng nhập số tiền thu hợp lệ.');
       return;

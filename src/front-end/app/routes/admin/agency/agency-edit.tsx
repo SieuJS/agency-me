@@ -20,6 +20,7 @@ const fieldLabels: { [key: string]: string } = {
   type: 'Loại đại lý',
   district: 'Quận',
   createdDate: 'Ngày tiếp nhận',
+  email: 'Email', // Thêm email vào đây
 };
 
 
@@ -30,15 +31,15 @@ export default function AgencyEditPage() {
 
   const agencyFromState = (location.state as { agency?: Agency })?.agency;
 
-  //const [agency, setAgency] = useState<Agency | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [districts, setDistricts] = useState<{ districtId: string; name: string }[]>([]);
   const [types, setTypes] = useState<{ loai_daily_id: string; ten_loai: string }[]>([]);
-  //const [originalAgency, setOriginalAgency] = useState<Agency | null>(null);
 
   const [agency, setAgency] = useState<Agency | null>(agencyFromState || null);
   const [originalAgency, setOriginalAgency] = useState<Agency | null>(agencyFromState || null);
 
+  // State mới để theo dõi lỗi của các trường
+  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
 
   useEffect(() => {
@@ -73,11 +74,21 @@ export default function AgencyEditPage() {
     if (!agency) return;
     const { name, value } = e.target;
     setAgency({ ...agency, [name]: name === 'debt' ? Number(value) : value });
+
+    // Xóa lỗi của trường khi người dùng bắt đầu nhập
+    if (errors[name]) {
+      setErrors(prevErrors => ({ ...prevErrors, [name]: false }));
+    }
   };
     const handleDateChange = (date: Date | null) => {
     if (!agency || !date) return;
     const formatted = date.toISOString().split('T')[0];
     setAgency({ ...agency, createdDate: formatted });
+    
+    // Xóa lỗi của trường khi người dùng thay đổi ngày
+    if (errors.createdDate) {
+        setErrors(prevErrors => ({ ...prevErrors, createdDate: false }));
+    }
   };
 
 
@@ -85,50 +96,71 @@ export default function AgencyEditPage() {
     e.preventDefault();
     if (!agency || !id) return;
 
-    // Kiểm tra các trường bắt buộc
-  const requiredFields = ['name', 'phone', 'address', 'type', 'district', 'createdDate', 'email'];
-  for (const field of requiredFields) {
-    if (!agency[field as keyof typeof agency]) {
-      const label = fieldLabels[field] || field;
-      toast.error(`Trường "${label}" không được để trống.`);
+    // Object để lưu các trường bị lỗi
+    const newErrors: { [key: string]: boolean } = {};
+
+    // --- Bắt đầu khu vực kiểm tra lỗi ---
+
+    // 1. Kiểm tra các trường bắt buộc
+    const requiredFields = ['name', 'phone', 'address', 'type', 'district', 'createdDate', 'email'];
+    for (const field of requiredFields) {
+      if (!agency[field as keyof typeof agency]) {
+        newErrors[field] = true;
+        const label = fieldLabels[field] || field;
+        toast.error(`Trường "${label}" không được để trống.`);
+      }
+    }
+
+    // 2. Kiểm tra định dạng email (chỉ khi trường email không trống)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (agency.email && !emailRegex.test(agency.email)) {
+      // Chỉ hiện toast này nếu chưa có lỗi 'bắt buộc' cho email
+      if (!newErrors.email) {
+        toast.error('Email không hợp lệ.');
+      }
+      newErrors.email = true;
+    }
+
+    // 3. Kiểm tra định dạng số điện thoại (chỉ khi trường điện thoại không trống)
+    const phoneRegex = /^0\d{9}$/;
+    if (agency.phone && !phoneRegex.test(agency.phone)) {
+      // Chỉ hiện toast này nếu chưa có lỗi 'bắt buộc' cho điện thoại
+      if (!newErrors.phone) {
+        toast.error('Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số.');
+      }
+      newErrors.phone = true;
+    }
+
+    // --- Kết thúc khu vực kiểm tra lỗi ---
+
+    // Cập nhật state errors để tô đỏ các khung bị lỗi trên UI
+    setErrors(newErrors);
+
+    // Nếu object `newErrors` có bất kỳ thuộc tính nào, tức là đã có lỗi -> dừng lại
+    if (Object.keys(newErrors).length > 0) {
       return;
     }
-  }
 
+    // Kiểm tra xem có thay đổi nào không
+    // if (originalAgency) {
+    //   const isUnchanged =
+    //     agency.name === originalAgency.name &&
+    //     agency.phone === originalAgency.phone &&
+    //     agency.email === originalAgency.email &&
+    //     agency.debt === originalAgency.debt &&
+    //     agency.address === originalAgency.address &&
+    //     agency.district === originalAgency.district &&
+    //     agency.type === originalAgency.type &&
+    //     agency.createdDate === originalAgency.createdDate;
 
-  // Kiểm tra định dạng email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (agency.email && !emailRegex.test(agency.email)) {
-    toast.error('Email không hợp lệ.');
-    return;
-  }
+    //   if (isUnchanged) {
+    //     toast('Không có thay đổi nào được thực hiện.', { icon: 'ℹ️' });
+    //     navigate(-1);
+    //     return;
+    //   }
+    // }
 
-  // Kiểm tra định dạng số điện thoại
-  const phoneRegex = /^0\d{9}$/;
-  if (!phoneRegex.test(agency.phone)) {
-    toast.error('Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số.');
-    return;
-  }
-
-  if (originalAgency) {
-    const isUnchanged =
-      agency.name === originalAgency.name &&
-      agency.phone === originalAgency.phone &&
-      agency.email === originalAgency.email &&
-      agency.debt === originalAgency.debt &&
-      agency.address === originalAgency.address &&
-      agency.district === originalAgency.district &&
-      agency.type === originalAgency.type &&
-      agency.createdDate === originalAgency.createdDate;
-
-    if (isUnchanged) {
-      toast('Không có thay đổi nào được thực hiện.', { icon: 'ℹ️' });
-      navigate(-1);
-      return;
-    }
-  }
-
-
+    // Nếu không có lỗi, tiến hành tạo payload và gọi API
     const payload = {
       ten: agency.name,
       dien_thoai: agency.phone,
@@ -158,7 +190,7 @@ export default function AgencyEditPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
       <Toaster position="top-right" />
-           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200">
         <div className="flex items-center mb-4 sm:mb-0">
           <h2 className="text-lg font-semibold flex items-center gap-2 ">
             <Edit3 className="w-5 h-5 text-blue-800" />
@@ -185,7 +217,7 @@ export default function AgencyEditPage() {
               name="name"
               value={agency.name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
             />
           </div>
 
@@ -199,7 +231,7 @@ export default function AgencyEditPage() {
               selected={agency.createdDate ? new Date(agency.createdDate) : null}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.createdDate ? 'border-red-500' : 'border-gray-300'}`}
               placeholderText="Chọn ngày tiếp nhận"
               popperPlacement="bottom-start"
             />
@@ -215,7 +247,7 @@ export default function AgencyEditPage() {
               name="type"
               value={agency.type}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.type ? 'border-red-500' : 'border-gray-300'}`}
             >
               <option value="">Chọn loại đại lý</option>
               {types.map((t) => (
@@ -236,7 +268,7 @@ export default function AgencyEditPage() {
               name="district"
               value={agency.district}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.district ? 'border-red-500' : 'border-gray-300'}`}
             >
               <option value="">Chọn quận</option>
               {districts.map((d) => (
@@ -258,7 +290,7 @@ export default function AgencyEditPage() {
               name="address"
               value={agency.address}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
             />
           </div>
 
@@ -273,7 +305,7 @@ export default function AgencyEditPage() {
               name="phone"
               value={agency.phone}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
             />
           </div>
 
@@ -288,7 +320,7 @@ export default function AgencyEditPage() {
               name="email"
               value={agency.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
+              className={`w-full px-4 py-2 border rounded ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
             />
           </div>
 

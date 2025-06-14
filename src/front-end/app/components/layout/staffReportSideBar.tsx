@@ -13,13 +13,13 @@ export default function StaffReportSidebar() {
   return (
     <aside className="sticky top-16 h-[calc(100vh-4rem)] w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200 p-5 space-y-4">
       <div className="space-y-1">
-        <NavLink to="/staff/report/debt-report" className={getSidebarNavLinkClass}>
+        <NavLink to="/staff/report/revenue-report" className={getSidebarNavLinkClass}>
           <FileText className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Báo cáo doanh số</span>
         </NavLink>
       </div>
       <div className="space-y-1">
-        <NavLink to="/staff/report/aae" className={getSidebarNavLinkClass}>
+        <NavLink to="/staff/report/debt-report" className={getSidebarNavLinkClass}>
           <FileText className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Báo cáo công nợ</span>
         </NavLink>

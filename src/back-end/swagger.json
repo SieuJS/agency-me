@@ -655,6 +655,26 @@
               "example": "search term",
               "type": "string"
             }
+          },
+          {
+            "name": "ngay_tao",
+            "required": false,
+            "in": "query",
+            "description": "Created date",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tong_tien",
+            "required": false,
+            "in": "query",
+            "description": "Export sheet ID",
+            "schema": {
+              "example": "exportSheetId",
+              "type": "number"
+            }
           }
         ],
         "responses": {
