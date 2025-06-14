@@ -40,7 +40,6 @@ export class ItemDto {
     this.mathang_id = dbInstance.mathang_id;
     this.ten = dbInstance.ten;
     this.don_gia = dbInstance.don_gia;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.don_vi_tinh = dbInstance.donViTinh.ten_don_vi;
   }
 }

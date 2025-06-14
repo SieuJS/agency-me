@@ -23,6 +23,9 @@ export class AgencyRevenueDto {
     { type: () => ReportRevenueTimeRangeDto, description: 'Time range for the revenue report' }
   )
   thoi_gian : ReportRevenueTimeRangeDto;
+
+  @ApiProperty({ type: Number, description: 'Number of export sheets for the agency', example: 5 })
+  so_phieu_xuat_hang: number
 }
 
 export class ReportRevenueResponse {

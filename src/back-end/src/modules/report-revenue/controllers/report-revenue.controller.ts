@@ -22,4 +22,4 @@ export class ReportRevenueController {
   async generateRevenueReport(@Query(new RevenueTimePipe())thoi_gian : ReportRevenueTimeRangeDto): Promise<ReportRevenueResponse> {
     return await this.reportRevenueService.generateRevenueReport(thoi_gian);
   }
-} 
+}
