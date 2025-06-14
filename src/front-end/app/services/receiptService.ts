@@ -121,7 +121,6 @@ export const getReceiptDebtReport = async (
     if (!response.data || !Array.isArray(response.data)) {
       throw new Error('Không có dữ liệu báo cáo công nợ được trả về từ API.');
     }
-    console.log("API response data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error getting receipt debt report:", error);

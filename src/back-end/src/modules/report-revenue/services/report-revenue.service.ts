@@ -44,27 +44,26 @@ export class ReportRevenueService {
           tong_doanh_so: 0,
           ty_le_phan_tram: 0,
           thoi_gian,
+          so_phieu_xuat_hang: 0,
         });
       }
 
       const currentAgency = agencyRevenues.get(dailyId);
       if (currentAgency) {
         currentAgency.tong_doanh_so += totalRevenue;
+        currentAgency.so_phieu_xuat_hang += 1;
       }
     });
 
-    // Calculate total system revenue
     const tongDoanhSoHeThong = Array.from(agencyRevenues.values()).reduce(
       (sum, agency) => sum + agency.tong_doanh_so,
       0,
     );
 
-    // Calculate percentage for each agency
     agencyRevenues.forEach((agency) => {
       agency.ty_le_phan_tram = (agency.tong_doanh_so / tongDoanhSoHeThong) * 100;
     });
 
-    // Sort agencies by revenue
     const sortedAgencies = Array.from(agencyRevenues.values()).sort(
       (a, b) => b.tong_doanh_so - a.tong_doanh_so,
     );
@@ -74,4 +73,4 @@ export class ReportRevenueService {
       tong_doanh_so_he_thong: tongDoanhSoHeThong,
     };
   }
-} 
+}

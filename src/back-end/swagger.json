@@ -1,0 +1,1693 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/daily": {
+      "post": {
+        "operationId": "AppController_createDaiLy",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_healthCheck",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/auth/protected": {
+      "get": {
+        "operationId": "AuthController_getProtectedData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated!!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request - Account with this name already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": "Account with this name already exists"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Register a new account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request - Wrong email or password",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": "Wrong email or password"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Login to an account"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/agency/list": {
+      "get": {
+        "operationId": "AgencyController_getAgencyList",
+        "parameters": [
+          {
+            "name": "ten",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Công ty TNHH ABC",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tien_no",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "0",
+              "type": "number"
+            }
+          },
+          {
+            "name": "quan",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Đống Đa",
+              "type": "string"
+            }
+          },
+          {
+            "name": "loai_daily",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "loaị 01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ngay_tiep_nhan",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "example": "12/12/2023",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page 1",
+            "schema": {
+              "example": "1",
+              "type": "number"
+            }
+          },
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "description": "10 items per page",
+            "schema": {
+              "example": "10",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Agency"
+        ]
+      }
+    },
+    "/agency/create": {
+      "post": {
+        "operationId": "AgencyController_createAgency",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Agency input data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Create a new agency",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyCreatedResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "tags": [
+          "Agency"
+        ]
+      }
+    },
+    "/agency/detail/{id}": {
+      "get": {
+        "operationId": "AgencyController_getAgencyDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Agency"
+        ]
+      }
+    },
+    "/agency/update/{id}": {
+      "put": {
+        "operationId": "AgencyController_updateAgency",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "tags": [
+          "Agency"
+        ]
+      }
+    },
+    "/agency/delete/{id}": {
+      "delete": {
+        "operationId": "AgencyController_deleteAgency",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "tags": [
+          "Agency"
+        ]
+      }
+    },
+    "/agencyType/list": {
+      "get": {
+        "operationId": "AgencyTypeController_getAgencyTypeList",
+        "parameters": [
+          {
+            "name": "ten_loai",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Loại 1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tien_no_toi_da",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "description": "Page 1",
+            "schema": {
+              "example": "1",
+              "type": "number"
+            }
+          },
+          {
+            "name": "perPage",
+            "required": true,
+            "in": "query",
+            "description": "10 items per page",
+            "schema": {
+              "example": "10",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "List of agency types with pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyTypeListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgencyType"
+        ]
+      }
+    },
+    "/agencyType/create": {
+      "post": {
+        "operationId": "AgencyTypeController_createAgencyType",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Agency type input data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyTypeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request - Agency type with this name already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": "Agency type with this name already exists"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Create a new agency type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAgencyTypeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgencyType"
+        ]
+      }
+    },
+    "/agencyType/delete": {
+      "delete": {
+        "operationId": "AgencyTypeController_deleteAgencyType",
+        "parameters": [
+          {
+            "name": "loai_daily_id",
+            "required": true,
+            "in": "query",
+            "description": "ID of the agency type to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request - Agency type not found or in use",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": "Agency type not found"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Delete an agency type by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteAgencyTypeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgencyType"
+        ]
+      }
+    },
+    "/districts": {
+      "get": {
+        "operationId": "DistrictController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Danh sách quận",
+        "tags": [
+          "District"
+        ]
+      }
+    },
+    "/item": {
+      "get": {
+        "operationId": "ItemController_findWithPattern",
+        "parameters": [
+          {
+            "name": "pattern",
+            "required": false,
+            "in": "query",
+            "description": "Search pattern for item name",
+            "schema": {
+              "example": "",
+              "type": "string"
+            }
+          },
+          {
+            "name": "unit",
+            "required": false,
+            "in": "query",
+            "description": "Unit of the item",
+            "schema": {
+              "example": "Cái",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The items have been successfully fetched.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The pattern is invalid."
+          }
+        },
+        "tags": [
+          "Item"
+        ]
+      }
+    },
+    "/export-sheets": {
+      "post": {
+        "operationId": "ExportSheetsController_createExportSheet",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportSheetInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The export sheet has been successfully created."
+          },
+          "404": {
+            "description": "Agency, employee, or item not found."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create a new export sheet",
+        "tags": [
+          "Export Sheets"
+        ]
+      }
+    },
+    "/export-sheets/list": {
+      "get": {
+        "operationId": "ExportSheetsController_getListExportSheets",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of records per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search term",
+            "schema": {
+              "example": "search term",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of export sheets has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportSheetListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get list of export sheets",
+        "tags": [
+          "Export Sheets"
+        ]
+      }
+    },
+    "/export-sheets/{id}": {
+      "get": {
+        "operationId": "ExportSheetsController_getExportSheetById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The export sheet has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportSheetsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get an export sheet by id",
+        "tags": [
+          "Export Sheets"
+        ]
+      }
+    },
+    "/regulation": {
+      "get": {
+        "operationId": "RegulationController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Tìm tất cả quy định",
+        "tags": [
+          "Regulation"
+        ]
+      }
+    },
+    "/regulation/general": {
+      "put": {
+        "operationId": "RegulationController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGeneralRegulationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Cập nhật quy định chung",
+        "tags": [
+          "Regulation"
+        ]
+      }
+    },
+    "/regulation/max_debt": {
+      "put": {
+        "operationId": "RegulationController_update_max_debt",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaxDebtInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Cập nhật tiền nợ tối đa",
+        "tags": [
+          "Regulation"
+        ]
+      }
+    },
+    "/receipts": {
+      "post": {
+        "operationId": "ReceiptController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReceiptInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Tạo phiếu thu",
+        "tags": [
+          "Receipt"
+        ]
+      },
+      "get": {
+        "operationId": "ReceiptController_findAll",
+        "parameters": [
+          {
+            "name": "daily_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "daily001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ngay_thu",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "example": "2024-05-20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "nhan_vien_thu_tien",
+            "required": false,
+            "in": "query",
+            "description": "Nhân viên thu tiền",
+            "schema": {
+              "example": "nv001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Tìm phiếu thu",
+        "tags": [
+          "Receipt"
+        ]
+      }
+    },
+    "/receipts/{phieu_thu_id}": {
+      "get": {
+        "operationId": "ReceiptController_findOne",
+        "parameters": [
+          {
+            "name": "phieu_thu_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Tìm phiếu thu theo id phiếu thu",
+        "tags": [
+          "Receipt"
+        ]
+      }
+    },
+    "/report/debt": {
+      "get": {
+        "operationId": "ReportController_calcDebt",
+        "parameters": [
+          {
+            "name": "month",
+            "required": true,
+            "in": "query",
+            "description": "Tháng",
+            "schema": {
+              "example": 5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "description": "Năm",
+            "schema": {
+              "example": 2024,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Báo cáo công nợ",
+        "tags": [
+          "Report"
+        ]
+      }
+    },
+    "/revenue-reports": {
+      "get": {
+        "operationId": "ReportRevenueController_generateRevenueReport",
+        "parameters": [
+          {
+            "name": "tu_ngay",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "den_ngay",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The revenue report has been successfully generated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportRevenueResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Generate revenue report by agency",
+        "tags": [
+          "Revenue Reports"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Agency me example",
+    "description": "The Agency-me API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "agency-me",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "Bearer",
+        "bearerFormat": "Bearer",
+        "description": "[just text field] Please enter token in following format: Bearer <JWT>",
+        "name": "Authorization",
+        "type": "http",
+        "in": "Header"
+      }
+    },
+    "schemas": {
+      "AuthPayloadDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ProtectedResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthPayloadDto"
+          }
+        },
+        "required": [
+          "message",
+          "user"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password"
+          },
+          "ten": {
+            "type": "string",
+            "example": "Nguyễn Văn A"
+          },
+          "dienThoai": {
+            "type": "string",
+            "example": "0912345678"
+          },
+          "loaiNhanVienId": {
+            "type": "string",
+            "example": "admin"
+          },
+          "diaChi": {
+            "type": "string",
+            "example": "123 Đường ABC, Quận 1, TP.HCM"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "ten",
+          "dienThoai",
+          "loaiNhanVienId",
+          "diaChi"
+        ]
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Registered successfully",
+            "description": "Message indicating the result of the operation"
+          },
+          "account": {
+            "description": "The registered account.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "account"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AgencyDto": {
+        "type": "object",
+        "properties": {
+          "daily_id": {
+            "type": "string",
+            "example": "daily001"
+          },
+          "ten": {
+            "type": "string",
+            "example": "Công ty TNHH ABC"
+          },
+          "dien_thoai": {
+            "type": "string",
+            "example": "0987654321"
+          },
+          "email": {
+            "type": "string",
+            "example": "daily@gmail.com"
+          },
+          "tien_no": {
+            "type": "number",
+            "example": "0"
+          },
+          "dia_chi": {
+            "type": "string",
+            "example": "12 Nguyễn Trãi, Đống Đa, Hà Nội"
+          },
+          "quan": {
+            "type": "string",
+            "example": "Đống Đa"
+          },
+          "loai_daily": {
+            "type": "string",
+            "example": "loaị 01"
+          },
+          "ngay_tiep_nhan": {
+            "format": "date-time",
+            "type": "string",
+            "example": "12/12/2023"
+          }
+        },
+        "required": [
+          "daily_id",
+          "ten",
+          "dien_thoai",
+          "email",
+          "tien_no",
+          "dia_chi",
+          "quan",
+          "loai_daily",
+          "ngay_tiep_nhan"
+        ]
+      },
+      "PaginationDTO": {
+        "type": "object",
+        "properties": {
+          "curPage": {
+            "type": "number",
+            "description": "Page number",
+            "example": 1
+          },
+          "perPage": {
+            "type": "number",
+            "description": "Items per page",
+            "example": 10
+          },
+          "totalPage": {
+            "type": "number",
+            "description": "Total page",
+            "example": 10
+          },
+          "prevPage": {
+            "type": "object",
+            "description": "Previous page",
+            "example": 1
+          },
+          "nextPage": {
+            "type": "object",
+            "description": "Next page",
+            "example": 2
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total items",
+            "example": 100
+          }
+        },
+        "required": [
+          "curPage",
+          "perPage",
+          "totalPage",
+          "prevPage",
+          "nextPage",
+          "totalItems"
+        ]
+      },
+      "AgencyListResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "description": "List of agencies",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgencyDto"
+            }
+          },
+          "meta": {
+            "description": "Pagination information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "payload",
+          "meta"
+        ]
+      },
+      "AgencyInput": {
+        "type": "object",
+        "properties": {
+          "ten": {
+            "type": "string",
+            "example": "Công ty TNHH ABC"
+          },
+          "dien_thoai": {
+            "type": "string",
+            "example": "0987654321"
+          },
+          "email": {
+            "type": "string",
+            "example": "daily@gmail.com"
+          },
+          "tien_no": {
+            "type": "number",
+            "example": "0"
+          },
+          "dia_chi": {
+            "type": "string",
+            "example": "12 Nguyễn Trãi, Đống Đa, Hà Nội"
+          },
+          "quan": {
+            "type": "string",
+            "example": "Đống Đa"
+          },
+          "loai_daily": {
+            "type": "string",
+            "example": "loaị 01"
+          },
+          "ngay_tiep_nhan": {
+            "format": "date-time",
+            "type": "string",
+            "example": "12/12/2023"
+          },
+          "loai_daily_id": {
+            "type": "string",
+            "example": "loai001",
+            "description": "ID of the agency"
+          },
+          "quan_id": {
+            "type": "string",
+            "example": "dongda",
+            "description": "ID of the employee who received the agency"
+          }
+        },
+        "required": [
+          "ten",
+          "dien_thoai",
+          "email",
+          "tien_no",
+          "dia_chi",
+          "quan",
+          "loai_daily",
+          "ngay_tiep_nhan",
+          "loai_daily_id",
+          "quan_id"
+        ]
+      },
+      "AgencyCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Agency created successfully"
+          },
+          "agency": {
+            "$ref": "#/components/schemas/AgencyDto"
+          }
+        },
+        "required": [
+          "message",
+          "agency"
+        ]
+      },
+      "AgencyTypeDto": {
+        "type": "object",
+        "properties": {
+          "loai_daily_id": {
+            "type": "string",
+            "example": "loai001"
+          },
+          "ten_loai": {
+            "type": "string",
+            "example": "Loại 1"
+          },
+          "tien_no_toi_da": {
+            "type": "number",
+            "example": 20000
+          }
+        },
+        "required": [
+          "loai_daily_id",
+          "ten_loai",
+          "tien_no_toi_da"
+        ]
+      },
+      "AgencyTypeListResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "description": "List of agency types",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgencyTypeDto"
+            }
+          },
+          "meta": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "payload",
+          "meta"
+        ]
+      },
+      "AgencyTypeInput": {
+        "type": "object",
+        "properties": {
+          "ten_loai": {
+            "type": "string",
+            "example": "Loại 1"
+          },
+          "tien_no_toi_da": {
+            "type": "number",
+            "example": 20000
+          }
+        },
+        "required": [
+          "ten_loai",
+          "tien_no_toi_da"
+        ]
+      },
+      "CreateAgencyTypeResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Agency type created successfully",
+            "description": "Message indicating the result of the operation"
+          },
+          "agencyType": {
+            "description": "The created agency type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AgencyTypeDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "agencyType"
+        ]
+      },
+      "DeleteAgencyTypeResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Agency type deleted successfully",
+            "description": "Message indicating the result of the delete operation"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "mathang_id": {
+            "type": "string",
+            "description": "The ID of the item",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "ten": {
+            "type": "string",
+            "description": "The name of the item",
+            "example": "Item 1"
+          },
+          "don_gia": {
+            "type": "number",
+            "description": "The price of the item",
+            "example": 100
+          },
+          "don_vi_tinh": {
+            "type": "string",
+            "description": "The quantity of the item",
+            "example": "Cái"
+          }
+        },
+        "required": [
+          "mathang_id",
+          "ten",
+          "don_gia",
+          "don_vi_tinh"
+        ]
+      },
+      "ExportSheetInput": {
+        "type": "object",
+        "properties": {
+          "ngay_lap_phieu": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date of export sheet",
+            "example": "2021-01-01"
+          },
+          "daily_id": {
+            "type": "string",
+            "description": "Id dai ly",
+            "example": "1234567890"
+          },
+          "nhan_vien_lap_phieu": {
+            "type": "string",
+            "description": "Id nhan vien",
+            "example": "1234567890"
+          },
+          "items": {
+            "description": "Danh sach mat hang",
+            "example": [
+              {
+                "mathang_id": "1234567890",
+                "so_luong": 10
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ngay_lap_phieu",
+          "daily_id",
+          "items"
+        ]
+      },
+      "ExportSheetsDto": {
+        "type": "object",
+        "properties": {
+          "phieu_id": {
+            "type": "string",
+            "description": "The ID of the export sheet",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "daily_name": {
+            "type": "string",
+            "description": "The name of agency",
+            "example": "Công ty TNHH Đại Lý Hàng Hóa"
+          },
+          "ngay_lap_phieu": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date of export sheet",
+            "example": "2021-01-01"
+          },
+          "nhan_vien_lap_phieu": {
+            "type": "string",
+            "description": "Nhan vien lap phieu",
+            "example": "Nguyen Van A"
+          }
+        },
+        "required": [
+          "phieu_id",
+          "daily_name",
+          "ngay_lap_phieu",
+          "nhan_vien_lap_phieu"
+        ]
+      },
+      "ExportSheetListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "List of export sheets",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportSheetsDto"
+            }
+          },
+          "meta": {
+            "description": "Pagination information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "UpdateGeneralRegulationInput": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "so_luong_cac_loai_daily",
+            "description": "Regulation key"
+          },
+          "value": {
+            "type": "number",
+            "example": 10,
+            "description": "Giá trị mới của quy định"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      },
+      "UpdateMaxDebtInput": {
+        "type": "object",
+        "properties": {
+          "loai_daily_id": {
+            "type": "string",
+            "example": "loai001",
+            "description": "Loại đại lý id"
+          },
+          "value": {
+            "type": "number",
+            "example": 10,
+            "description": "Giá trị mới của quy định"
+          }
+        },
+        "required": [
+          "loai_daily_id",
+          "value"
+        ]
+      },
+      "CreateReceiptInput": {
+        "type": "object",
+        "properties": {
+          "daily_id": {
+            "type": "string",
+            "example": "daily001"
+          },
+          "ngay_thu": {
+            "type": "string",
+            "example": "2024-05-20"
+          },
+          "so_tien_thu": {
+            "type": "number",
+            "example": 1000000
+          }
+        },
+        "required": [
+          "daily_id",
+          "ngay_thu",
+          "so_tien_thu"
+        ]
+      },
+      "ReportRevenueTimeRangeDto": {
+        "type": "object",
+        "properties": {
+          "tu_ngay": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "den_ngay": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tu_ngay",
+          "den_ngay"
+        ]
+      },
+      "AgencyRevenueDto": {
+        "type": "object",
+        "properties": {
+          "daily_id": {
+            "type": "string",
+            "description": "Unique identifier for the agency"
+          },
+          "ten_daily": {
+            "type": "string",
+            "description": "Name of the agency"
+          },
+          "tong_doanh_so": {
+            "type": "number",
+            "description": "Total revenue for the agency"
+          },
+          "ty_le_phan_tram": {
+            "type": "number",
+            "description": "Percentage of total revenue"
+          },
+          "thoi_gian": {
+            "description": "Time range for the revenue report",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReportRevenueTimeRangeDto"
+              }
+            ]
+          },
+          "so_phieu_xuat_hang": {
+            "type": "number",
+            "description": "Number of export sheets for the agency",
+            "example": 5
+          }
+        },
+        "required": [
+          "daily_id",
+          "ten_daily",
+          "tong_doanh_so",
+          "ty_le_phan_tram",
+          "thoi_gian",
+          "so_phieu_xuat_hang"
+        ]
+      },
+      "ReportRevenueResponse": {
+        "type": "object",
+        "properties": {
+          "danh_sach_doanh_so": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgencyRevenueDto"
+            }
+          },
+          "tong_doanh_so_he_thong": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "danh_sach_doanh_so",
+          "tong_doanh_so_he_thong"
+        ]
+      }
+    }
+  }
+}
