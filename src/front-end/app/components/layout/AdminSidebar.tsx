@@ -25,7 +25,7 @@ export default function AdminSidebar() {
         </NavLink>
       </div>
       <div className="space-y-1">
-        <NavLink to="/agency/lookup-sheet" className={getSidebarNavLinkClass}>
+        <NavLink to="/admin/agency/export-slips-lookup" className={getSidebarNavLinkClass}>
           <Search className="w-5 h-5 mr-3 flex-shrink-0 text-slate-700" />
           <span className="truncate">Tra cứu phiếu xuất hàng</span>
         </NavLink>

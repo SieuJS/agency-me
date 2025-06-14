@@ -38,6 +38,14 @@ export default [
                 file: "routes/admin/agency/export-slips-create.tsx", // Đảm bảo file này tồn tại
             },
             {
+                path: "export-slips-lookup",
+                file: "routes/admin/agency/export-slips-lookup.tsx", // Đảm bảo file này tồn tại
+            },
+            {
+                path: "export-slips-detail/:exportsheetId",
+                file: "routes/admin/agency/export-slips-detail.tsx", // Đảm bảo file này tồn tại
+            },
+            {
                 path: 'type-create',
                 file: 'routes/admin/agency/agency-type-create.tsx', // Đảm bảo file này tồn tại
             },
