@@ -182,7 +182,7 @@ export const addAgency = async (payload: AddAgencyPayload): Promise<Agency> => {
 
 // --- Các service khác cho Loại đại lý, Quận ---
 // Đảm bảo tên trường trong interface khớp với API response
-export interface AgencyTypeFromAPI { loai_daily_id: string; ten_loai: string; /* các trường khác */ }
+export interface AgencyTypeFromAPI { loai_daily_id: string; ten_loai: string; tien_no_toi_da: number; /* các trường khác */ }
 export interface DistrictFromAPI { districtId: string; name: string; /* các trường khác */ }
 
 export const fetchAgencyTypesAPI = async (): Promise<AgencyTypeFromAPI[]> => {
