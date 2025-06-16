@@ -56,6 +56,7 @@ export class ReceiptService {
       where: {
         daily_id: params.daily_id,
         nhan_vien_thu_tien: params.nhan_vien_thu_tien,
+        ngay_thu: params.ngay_thu,
         // Thêm các điều kiện khác nếu cần
       },
       orderBy: { ngay_thu: 'desc' },
