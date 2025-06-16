@@ -1,9 +1,10 @@
 // src/front-end/app/services/authService.ts
 import axios from 'axios';
+import { Config } from './config';
 //import Agency from '../routes/agency/agency-lookup'; // Giả sử Agency được định nghĩa trong apiClient.ts
 
 // *** ĐẢM BẢO URL NÀY ĐÚNG VỚI BACKEND CỦA BẠN ***
-const API_BASE_URL = 'http://localhost:3000'; // Ví dụ: backend có /api prefix
+const API_BASE_URL = Config.API_BASE_URL; // Ví dụ: 'http://localhost:3000/api' nếu backend có /api prefix
 // Hoặc: const API_BASE_URL = 'http://localhost:3000'; // Nếu backend không có /api prefix
 
 const apiClient = axios.create({

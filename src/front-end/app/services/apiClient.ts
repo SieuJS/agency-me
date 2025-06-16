@@ -1,9 +1,8 @@
 // src/front-end/app/services/apiClient.ts
 import axios from 'axios';
-
+import { Config } from './config';
 // *** THAY ĐỔI URL NÀY CHO ĐÚNG VỚI BACKEND CỦA BẠN ***
-const API_BASE_URL = 'http://localhost:3000'; // Ví dụ: backend có /api prefix
-// Hoặc: const API_BASE_URL = 'http://localhost:3000'; // Nếu không có
+const API_BASE_URL = Config.API_BASE_URL;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
