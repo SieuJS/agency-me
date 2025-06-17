@@ -166,7 +166,11 @@ export class ExportSheetsService {
         nhanVien: true,
         chiTietPhieuXuat: {
           include: {
-            matHang: true,
+            matHang: {
+              include: {
+                donViTinh: true,
+              },
+            }
           },
         },
       },
