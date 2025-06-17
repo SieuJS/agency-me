@@ -52,13 +52,23 @@ export class ReceiptService {
     const page = params.page ? Number(params.page) : 1;
     const perPage = params.perPage ? Number(params.perPage) : 10;
 
+    let dailyIds: string[] | undefined = undefined;
+    if (params.ten_dai_ly) {
+      const daiLys = await this.prisma.daiLy.findMany({
+        where: { ten: { contains: params.ten_dai_ly, mode: 'insensitive' } },
+        select: { daily_id: true },
+      });
+      dailyIds = daiLys.map(d => d.daily_id);
+      if (dailyIds.length === 0) return [];
+    }
+
+    const where: any = {};
+    if (dailyIds) where.daily_id = { in: dailyIds };
+    if (params.nhan_vien_thu_tien) where.nhan_vien_thu_tien = params.nhan_vien_thu_tien;
+    if (params.ngay_thu) where.ngay_thu = params.ngay_thu;
+
     const receipts = await this.prisma.phieuThuTien.findMany({
-      where: {
-        daily_id: params.daily_id,
-        nhan_vien_thu_tien: params.nhan_vien_thu_tien,
-        ngay_thu: params.ngay_thu,
-        // Thêm các điều kiện khác nếu cần
-      },
+      where,
       orderBy: { ngay_thu: 'desc' },
       skip: (page - 1) * perPage,
       take: perPage,

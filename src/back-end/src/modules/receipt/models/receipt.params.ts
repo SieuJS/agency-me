@@ -2,8 +2,15 @@ import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { ReceiptDto } from './receipt.dto';
 
 export class ReceiptParams extends PartialType(
-  PickType(ReceiptDto, ['daily_id', 'ngay_thu'])
+  PickType(ReceiptDto, ['ngay_thu'])
 ) {
+  @ApiProperty({
+    example: "ABCD",
+    description: 'Tên đại lý',
+    required: false,
+  })
+  ten_dai_ly?: string;
+
   @ApiProperty({
     example: "nv001",
     description: 'Nhân viên thu tiền',
