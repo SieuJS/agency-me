@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Search } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { Link, type MetaFunction } from 'react-router';
@@ -178,9 +178,9 @@ export default function ReceiptSearchRefactored() {
       
       {/* Phần Filter */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
             {/* Ô “Tên đại lý” */}
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
+            <div >
                 <label
                     htmlFor="searchAgencyId"
                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -192,7 +192,7 @@ export default function ReceiptSearchRefactored() {
                     value={selectedAgencyId}
                     onChange={(e) => setSelectedAgencyId(e.target.value)}
                     disabled={isLoading}
-                    className="h-10 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="block w-full h-10 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50"
                 >
                     <option value="">-- Tất cả đại lý --</option>
                     {agencies.map((agency) => (
@@ -204,7 +204,7 @@ export default function ReceiptSearchRefactored() {
             </div>
 
             {/* Ô “Ngày thu tiền” */}
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
+            <div>
                 <label
                     htmlFor="receiptDate"
                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -225,7 +225,7 @@ export default function ReceiptSearchRefactored() {
             </div>
 
             {/* Ô “Số tiền thu (tối thiểu)” */}
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[240px]">
+            <div>
                 <label
                     htmlFor="amountSlider"
                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -248,7 +248,7 @@ export default function ReceiptSearchRefactored() {
                         }
                         className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
-                    <span className="w-32 text-right text-sm text-gray-700 tabular-nums">
+                    <span className="w-20 text-right text-sm text-gray-700 tabular-nums">
                         {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
@@ -259,14 +259,13 @@ export default function ReceiptSearchRefactored() {
                 </div>
             </div>
 
-            <div className="flex-auto" />
 
             {/* Hai nút “Tìm” và “Đặt lại” */}
-            <div className="flex-none flex space-x-3">
+            <div className="flex gap-2 justify-end">
                 <button
                     onClick={handleSearch}
                     disabled={isLoading}
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg px-5 py-2 shadow-md transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg px-5 py-2 shadow-sm transition-colors disabled:opacity-50"
                 >
                     <Search className="h-4 w-4" />
                     <span>Tìm</span>
@@ -276,6 +275,7 @@ export default function ReceiptSearchRefactored() {
                     disabled={isLoading}
                     className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg px-5 py-2 shadow-sm transition-colors disabled:opacity-50"
                 >
+                  <RotateCcw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
                     Đặt lại
                 </button>
             </div>

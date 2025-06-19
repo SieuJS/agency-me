@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { PlusCircle, Trash2, Calendar as CalendarIcon } from 'lucide-react';
-// 1. Import Toaster cùng với toast
 import { Toaster, toast } from 'react-hot-toast';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// --- Giả sử các hàm dịch vụ này đã được định nghĩa đúng ---
 import { getUserData } from '../../../services/authService';
 import { getAllAgencies, type Agency } from '../../../services/agencyService';
 import { createExportSheetAPI, type ExportSheetInputPayload } from '../../../services/exportSheetService';
 import { fetchItemsAPI, type Item } from '../../../services/itemService';
 
+// BƯỚC 1: Sửa interface
 interface ExportSlipItemUI {
   id: string;
   mathang_id: string;
   ten?: string;
-  don_vi_tinh: string;
+  ky_hieu: string; // Đổi từ don_vi_tinh
   so_luong: number;
   don_gia: number;
   thanh_tien: number;
@@ -54,13 +53,14 @@ export default function CreateExportSlipPage() {
     loadInitialData();
   }, []);
 
+  // BƯỚC 2: Sửa logic
   const handleAddItemRow = () => {
     setSlipItems([
       ...slipItems,
       {
         id: Date.now().toString(),
         mathang_id: '',
-        don_vi_tinh: '',
+        ky_hieu: '', // Đổi từ don_vi_tinh
         so_luong: 1,
         don_gia: 0,
         thanh_tien: 0,
@@ -81,10 +81,10 @@ export default function CreateExportSlipPage() {
             const selectedProduct = itemsList.find(p => p.mathang_id === value);
             if (selectedProduct) {
               updatedItem.ten = selectedProduct.ten;
-              updatedItem.don_vi_tinh = selectedProduct.don_vi_tinh;
+              updatedItem.ky_hieu = selectedProduct.ky_hieu; // Đổi từ don_vi_tinh
               updatedItem.don_gia = selectedProduct.don_gia;
             } else {
-              updatedItem.don_vi_tinh = '';
+              updatedItem.ky_hieu = ''; // Đổi từ don_vi_tinh
               updatedItem.don_gia = 0;
             }
           }
@@ -114,17 +114,15 @@ export default function CreateExportSlipPage() {
       toast.error('Vui lòng chọn ngày lập phiếu.');
       return;
     } else {
-    const today = new Date();
-    const inputDate = new Date(ngayLapPhieu);
-
-  // So sánh bỏ phần thời gian, chỉ so sánh ngày
-    today.setHours(0, 0, 0, 0);
-    inputDate.setHours(0, 0, 0, 0);
-
-  if (inputDate > today) {
-    toast.error('Ngày lập phiếu không được lớn hơn ngày hiện tại.');
-  }
-  }
+        const today = new Date();
+        const inputDate = new Date(ngayLapPhieu);
+        today.setHours(0, 0, 0, 0);
+        inputDate.setHours(0, 0, 0, 0);
+        if (inputDate > today) {
+            toast.error('Ngày lập phiếu không được lớn hơn ngày hiện tại.');
+            return; // Thêm return để dừng hàm
+        }
+    }
     if (slipItems.length === 0) {
       toast.error('Vui lòng thêm ít nhất một mặt hàng.');
       return;
@@ -151,7 +149,7 @@ export default function CreateExportSlipPage() {
     };
 
     try {
-      const result = await createExportSheetAPI(payload);
+      await createExportSheetAPI(payload);
       toast.success('Phiếu xuất hàng đã được tạo thành công!');
       setSelectedAgencyId('');
       setNgayLapPhieu(new Date());
@@ -173,14 +171,10 @@ export default function CreateExportSlipPage() {
   }
 
   return (
-    // Sử dụng React Fragment <>...</> để bọc Toaster và nội dung chính
     <>
-      {/* 2. Thêm component Toaster tại đây, nó sẽ "lắng nghe" các lệnh toast */}
       <Toaster position="top-right" />
-
       <div className="space-y-6">
         <form onSubmit={handleSubmit} className="p-6 md:p-8 bg-white rounded-lg shadow">
-          {/* ... Toàn bộ nội dung form của bạn giữ nguyên không đổi ... */}
           <h1 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-4">
             Lập Phiếu Xuất Hàng
           </h1>
@@ -211,7 +205,6 @@ export default function CreateExportSlipPage() {
                           dateFormat="dd/MM/yyyy"
                           className="inset-y-0 w-full pl-10 py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           placeholderText="Chọn ngày"
-                          //required
                       />
                   </div>
               </div>
@@ -230,7 +223,8 @@ export default function CreateExportSlipPage() {
                           <tr>
                               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">STT</th>
                               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">Mặt hàng</th>
-                              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn vị tính</th>
+                              {/* BƯỚC 3: Sửa giao diện */}
+                              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kí hiệu</th>
                               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
                               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn giá</th>
                               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thành tiền</th>
@@ -250,7 +244,8 @@ export default function CreateExportSlipPage() {
                                           {itemsList.map(prod => (<option key={prod.mathang_id} value={prod.mathang_id}>{prod.ten}</option>))}
                                       </select>
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><input type="text" value={item.don_vi_tinh} readOnly className="block w-full py-1.5 px-2 border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100 cursor-not-allowed" placeholder="Tự động"/></td>
+                                  {/* BƯỚC 3: Sửa giao diện */}
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><input type="text" value={item.ky_hieu || ''} readOnly className="block w-full py-1.5 px-2 border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100 cursor-not-allowed" placeholder="Tự động"/></td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><input type="number" min="1" value={item.so_luong} onChange={(e) => handleItemChange(item.id, 'so_luong', parseInt(e.target.value, 10) || 0)} className="block w-full py-1.5 px-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" /></td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><input type="number" value={item.don_gia} readOnly className="block w-full py-1.5 px-2 border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100 cursor-not-allowed" placeholder="Tự động"/></td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><input type="text" value={item.thanh_tien.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })} readOnly className="block w-full py-1.5 px-2 border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100 cursor-not-allowed"/></td>

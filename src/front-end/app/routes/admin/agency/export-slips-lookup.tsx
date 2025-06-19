@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { Link } from 'react-router-dom';
 
@@ -146,102 +146,91 @@ export default function ExportSheetSearchRefactored() {
       </h2>
       
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
-                <label
-                    htmlFor="selectAgency"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                    Đại lý
-                </label>
-                <select
-                  id="selectAgency"
-                  value={selectedAgencyId}
-                  onChange={(e) => setSelectedAgencyId(e.target.value)}
-                  disabled={isLoadingFilters || agencies.length === 0}
-                  className="block w-full h-10 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50"
-                >
-                  <option value="">-- Chọn đại lý --</option>
-                  {agencies.map((agency) => (
-                    <option key={agency.id} value={agency.id}>
-                      {agency.name}
-                    </option>
-                  ))}
-                </select>
-            </div>
-
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
-                <label
-                    htmlFor="receiptDate"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                    Ngày lập phiếu
-                </label>
-                <div className="relative">
-                    <DatePicker
-                        id="receiptDate"
-                        selected={selectedReceiptDate}
-                        onChange={(date) => setSelectedReceiptDate(date)}
-                        placeholderText="Chọn ngày"
-                        dateFormat="yyyy-MM-dd"
-                        disabled={isFilterSectionLoading}
-                        className="h-10 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    />
-                </div>
-            </div>
-
-            <div className="flex-none w-full sm:w-auto flex-1 min-w-[240px]">
-                <label
-                    htmlFor="amountSlider"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                    Tổng tiền (tối thiểu)
-                </label>
-                <div className="flex items-center gap-3">
-                    <input
-                        type="range"
-                        id="amountSlider"
-                        min={minAmountRange}
-                        max={maxAmountRange}
-                        value={currentAmountFilterValue}
-                        step={calculatedStep}
-                        onChange={(e) =>
-                            setCurrentAmountFilterValue(Number(e.target.value))
-                        }
-                        disabled={
-                            isFilterSectionLoading || minAmountRange >= maxAmountRange
-                        }
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                    <span className="w-32 text-right text-sm text-gray-700 tabular-nums">
-                        {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                        }).format(currentAmountFilterValue)}
-                    </span>
-                </div>
-            </div>
-
-            <div className="flex-auto" />
-
-            <div className="flex-none flex space-x-3">
-                <button
-                    onClick={handleSearch}
-                    disabled={isLoading}
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg px-5 py-2 shadow-md transition-colors disabled:opacity-50"
-                >
-                    <Search className="h-4 w-4" />
-                    <span>Tìm</span>
-                </button>
-                <button
-                    onClick={handleResetSearch}
-                    disabled={isLoading}
-                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg px-5 py-2 shadow-sm transition-colors disabled:opacity-50"
-                >
-                    Đặt lại
-                </button>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        {/* Đại lý */}
+        <div>
+          <label htmlFor="selectAgency" className="block text-sm font-medium text-gray-700 mb-1">
+            Đại lý
+          </label>
+          <select
+            id="selectAgency"
+            value={selectedAgencyId}
+            onChange={(e) => setSelectedAgencyId(e.target.value)}
+            disabled={isLoadingFilters || agencies.length === 0}
+            className="block w-full h-10 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50"
+          >
+            <option value="">-- Chọn đại lý --</option>
+            {agencies.map((agency) => (
+              <option key={agency.id} value={agency.id}>
+                {agency.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Ngày lập phiếu */}
+        <div>
+          <label htmlFor="receiptDate" className="block text-sm font-medium text-gray-700 mb-1">
+            Ngày lập phiếu
+          </label>
+          <DatePicker
+            id="receiptDate"
+            selected={selectedReceiptDate}
+            onChange={(date) => setSelectedReceiptDate(date)}
+            placeholderText="Chọn ngày"
+            dateFormat="yyyy-MM-dd"
+            disabled={isFilterSectionLoading}
+            className="h-10 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          />
+        </div>
+
+        {/* Tổng tiền */}
+        <div>
+          <label htmlFor="amountSlider" className="block text-sm font-medium text-gray-700 mb-1">
+            Tổng tiền (tối thiểu)
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              id="amountSlider"
+              min={minAmountRange}
+              max={maxAmountRange}
+              value={currentAmountFilterValue}
+              step={calculatedStep}
+              onChange={(e) => setCurrentAmountFilterValue(Number(e.target.value))}
+              disabled={isFilterSectionLoading || minAmountRange >= maxAmountRange}
+              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <span className="w-20 text-right text-sm text-gray-700 tabular-nums">
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(currentAmountFilterValue)}
+            </span>
+          </div>
+        </div>
+
+        {/* Nút tìm + đặt lại */}
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={handleSearch}
+            disabled={isLoading}
+            className="flex items-center justify-center gap-2 w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg px-5 py-2 shadow-sm transition-colors disabled:opacity-50"
+          >
+            <Search className="w-4 h-4" />
+            Tìm
+          </button>
+          <button
+            onClick={handleResetSearch}
+            disabled={isLoading}
+            className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg px-5 py-2 shadow-sm transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            Đặt lại
+          </button>
+        </div>
+      </div>
+
     </div>
 
 

@@ -134,7 +134,7 @@ export default function ExportSlipDetailPage() {
                                     <tr key={item.mathang_id}>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{item.ten}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.don_vi_tinh}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.ki_hieu}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">{item.so_luong}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
                                             {item.don_gia.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}

@@ -151,6 +151,7 @@ export interface ExportSlipItemDetail {
     don_vi_tinh: string;
     so_luong: number;
     thanh_tien: number;
+    ki_hieu: string; // Assuming this is a product code or symbol
 }
 
 export interface ExportSlipDetails {
