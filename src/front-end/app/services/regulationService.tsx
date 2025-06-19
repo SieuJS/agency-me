@@ -26,6 +26,18 @@ export interface UpdateRegulationMaxDebtOutput {
    
 }
 
+export interface UpdatePriceInput{
+  id: string;
+  don_gia: number;
+}
+
+export interface UpdatePriceOutput {
+  mathang_id: string;
+  ten: string;
+  don_gia: number;
+  don_vi_tinh: string;
+}
+
 export const getRegulation = async (): Promise<RegulationOutput> => {
     try {
         const response = await apiClient.get<RegulationOutput[]>("/regulation");
@@ -59,3 +71,20 @@ export const updateRegulationDebt = async (input: UpdateRegulationMaxDebtInput):
     throw err;
   }
 }
+
+export const updateItemPrice = async (
+  input: UpdatePriceInput
+): Promise<UpdatePriceOutput> => {
+  try {
+    const response = await apiClient.put<UpdatePriceOutput>(
+      `/item/${input.id}`,
+      { don_gia: input.don_gia }
+    );
+    console.log("Updated item price:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("Error updating item price:", err);
+    throw err;
+  }
+};
+

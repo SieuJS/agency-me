@@ -25,7 +25,12 @@ export default function AdminChangeRuleSidebar() {
           <span className="truncate">Về thông tin mặt hàng, tiền nợ</span>
         </NavLink>
       </div>
-
+            <div className="space-y-1">
+        <NavLink to="/admin/regulations/change-rule-price" className={getSidebarNavLinkClass}>
+          <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+          <span className="truncate">Về đơn giá bán của từng loại mặt hàng</span>
+        </NavLink>
+      </div>
 
       <div className="space-y-1">
         <NavLink to="/admin/regulations/change-rule-debt" className={getSidebarNavLinkClass}>

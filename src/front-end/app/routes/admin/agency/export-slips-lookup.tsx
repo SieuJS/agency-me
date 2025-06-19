@@ -1,90 +1,65 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router";
-import { Link, type MetaFunction } from 'react-router';
+import { Link } from 'react-router-dom';
 
-import { Input } from "../../../components/ui/Input";
-import { Button } from "../../../components/ui/Button";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { getExportSheets, type ExportSheet, type ExportSheetSearchParams } from "../../../services/exportSheetService";
-import { getAllAgencies } from "../../../services/agencyService";
-import { type Agency } from "../../../services/agencyService";
-
+import { getAllAgencies, type Agency } from "../../../services/agencyService";
 
 
 // --- Helper function để định dạng ngày an toàn ---
 const formatDateForAPI = (date: Date | null): string | undefined => {
   if (!date) return undefined;
-  // Lấy các thành phần ngày tháng dựa trên múi giờ của client
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  date.setHours(0, 0, 0, 0); 
+  return date.toISOString(); 
 };
 
 
 export default function ExportSheetSearchRefactored() {
-  // =================================================================
-  // BƯỚC 1: Khai báo tất cả state và hooks ở top-level
-  // =================================================================
   const [exportsheets, setExportSheets] = useState<ExportSheet[]>([]);
-  const [agenciesMap, setAgenciesMap] = useState<Map<string | number, string>>(
-    new Map()
-  );
-  const [searchName, setSearchName] = useState('');
   const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [agenciesMap, setAgenciesMap] = useState<Map<string, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
 
-  // States cho các ô filter
-  const [selectedAgencyId, setSelectedAgencyId] = useState<string>(""); // Giữ lại nếu cần, nếu không có thể xóa
+  const [selectedAgencyId, setSelectedAgencyId] = useState<string>(""); 
   const [selectedReceiptDate, setSelectedReceiptDate] = useState<Date | null>(null);
   const [currentAmountFilterValue, setCurrentAmountFilterValue] = useState<number>(0);
 
-  // States cho giá trị min/max của thanh trượt
   const [minAmountRange, setMinAmountRange] = useState(0);
   const [maxAmountRange, setMaxAmountRange] = useState(10_000_000);
 
-  // States cho pagination và search params
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [lastSearchParams, setLastSearchParams] = useState<ExportSheetSearchParams>({});
 
-  // Hook điều hướng
-  const navigate = useNavigate();
-
-  // =================================================================
-  // BƯỚC 2: Khai báo các hằng số và giá trị phụ
-  // =================================================================
   const perPage = 10;
 
-  // =================================================================
-  // BƯỚC 3: Khai báo các useEffect cho side-effects
-  // =================================================================
-
-  // useEffect để lấy danh sách đại lý (chạy 1 lần)
   useEffect(() => {
     const fetchAllAgenciesData = async () => {
       try {
-        // Giả định bạn có hàm getAllAgencies được import
         const allAgenciesData = await getAllAgencies(); 
         setAgencies(allAgenciesData);
-        const newMap = new Map<string | number, string>();
+
+        const newMap = new Map<string, string>();
         allAgenciesData.forEach((agency) => {
-          newMap.set(agency.id, agency.name);
+          // =================== SỬA LỖI TẠI ĐÂY ===================
+          // Chuyển đổi ID sang string để đảm bảo khớp với kiểu của Map
+          newMap.set(agency.id.toString(), agency.name);
+          // ========================================================
         });
         setAgenciesMap(newMap);
+
       } catch (error) {
         toast.error("Không thể tải danh sách đại lý.");
       }
     };
     fetchAllAgenciesData();
-  }, []); // Mảng rỗng -> chạy 1 lần
+  }, []);
 
-  // useEffect để khởi tạo giá trị bộ lọc (chạy 1 lần)
   useEffect(() => {
     const fetchFilterOptions = async () => {
       setIsLoadingFilters(true);
@@ -97,13 +72,12 @@ export default function ExportSheetSearchRefactored() {
       } catch (error) {
         toast.error("Lỗi tải tùy chọn bộ lọc số tiền.");
       } finally {
-        setIsLoadingFilters(false); // Quan trọng: Báo hiệu filter sẵn sàng
+        setIsLoadingFilters(false);
       }
     };
     fetchFilterOptions();
-  }, []); // Mảng rỗng -> chạy 1 lần
+  }, []);
 
-  // useEffect chính để tải dữ liệu danh sách
   useEffect(() => {
     const fetchDataNow = async () => {
       setIsLoading(true);
@@ -133,12 +107,11 @@ export default function ExportSheetSearchRefactored() {
     }
   }, [currentPage, lastSearchParams, isLoadingFilters, perPage]);
 
-  // =================================================================
-  // BƯỚC 4: Khai báo các hàm xử lý sự kiện (handlers)
-  // =================================================================
   const handleSearch = () => {
+    const agencyName = selectedAgencyId ? agenciesMap.get(selectedAgencyId) : undefined;
+
     const searchParams: ExportSheetSearchParams = {
-      daily_name: searchName || undefined,
+      daily_name: agencyName,
       ngay_lap_phieu: formatDateForAPI(selectedReceiptDate),
       tong_tien: currentAmountFilterValue > minAmountRange ? currentAmountFilterValue : undefined,
     };
@@ -147,14 +120,13 @@ export default function ExportSheetSearchRefactored() {
   };
 
   const handleResetSearch = () => {
-    setSearchName("");
+    setSelectedAgencyId("");
     setSelectedReceiptDate(null);
     setCurrentAmountFilterValue(minAmountRange);
     setLastSearchParams({});
     setCurrentPage(1);
   };
 
-  // Các giá trị tính toán cho UI
   const isFilterSectionLoading = isLoadingFilters;
   const calculatedStep = Math.max(
     1,
@@ -170,29 +142,37 @@ export default function ExportSheetSearchRefactored() {
         Danh sách phiếu xuất hàng
       </h2>
       
-      {/* Phần Filter */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-6">
         <div className="flex flex-wrap items-center gap-4">
-            {/* Ô “Tên đại lý” */}
             <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
                 <label
-                    htmlFor="searchAgencyName"
+                    htmlFor="selectAgency"
                     className="block text-sm font-medium text-gray-700 mb-1"
                 >
                     Đại lý
                 </label>
-                <input type="text" id="searchAgencyName" value={searchName} onChange={(e) => setSearchName(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Tìm theo tên đại lý..." />
+                <select
+                  id="selectAgency"
+                  value={selectedAgencyId}
+                  onChange={(e) => setSelectedAgencyId(e.target.value)}
+                  disabled={isLoadingFilters || agencies.length === 0}
+                  className="block w-full h-10 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50"
+                >
+                  <option value="">-- Chọn đại lý --</option>
+                  {agencies.map((agency) => (
+                    <option key={agency.id} value={agency.id}>
+                      {agency.name}
+                    </option>
+                  ))}
+                </select>
             </div>
 
-            {/* Ô “Ngày thu tiền” */}
             <div className="flex-none w-full sm:w-auto flex-1 min-w-[200px]">
                 <label
                     htmlFor="receiptDate"
                     className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                    Ngày thu tiền
+                    Ngày lập phiếu
                 </label>
                 <div className="relative">
                     <DatePicker
@@ -207,7 +187,6 @@ export default function ExportSheetSearchRefactored() {
                 </div>
             </div>
 
-            {/* Ô “Số tiền thu (tối thiểu)” */}
             <div className="flex-none w-full sm:w-auto flex-1 min-w-[240px]">
                 <label
                     htmlFor="amountSlider"
@@ -235,8 +214,6 @@ export default function ExportSheetSearchRefactored() {
                         {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
                         }).format(currentAmountFilterValue)}
                     </span>
                 </div>
@@ -244,7 +221,6 @@ export default function ExportSheetSearchRefactored() {
 
             <div className="flex-auto" />
 
-            {/* Hai nút “Tìm” và “Đặt lại” */}
             <div className="flex-none flex space-x-3">
                 <button
                     onClick={handleSearch}
@@ -266,7 +242,6 @@ export default function ExportSheetSearchRefactored() {
     </div>
 
 
-      {/* Phần Table và Pagination (giữ nguyên không đổi) */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-auto">
         {isLoading && exportsheets.length === 0 ? (
           <div className="p-10 text-center text-gray-500 text-sm">
@@ -279,7 +254,7 @@ export default function ExportSheetSearchRefactored() {
                 <th className="px-4 py-3 text-left font-medium text-gray-600 uppercase">STT</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600 uppercase">Đại lý</th>
                 <th className="px-4 py-3 text-right font-medium text-gray-600 uppercase">Ngày lập phiếu</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600 uppercase">Tổng tiền</th>
+                <th className="px-4 py-3 text-right font-medium text-gray-600 uppercase">Tổng tiền</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -300,7 +275,8 @@ export default function ExportSheetSearchRefactored() {
                       <Link
                           to={`/admin/agency/export-slips-detail/${exportsheet.phieu_id}`}
                           className="text-blue-600 hover:underline"
-                        >{agenciesMap.get(exportsheet.daily_name) || exportsheet.daily_name}
+                        >
+                          {exportsheet.daily_name}
                         </Link>                    
                     </td>
                     

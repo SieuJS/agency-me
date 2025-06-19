@@ -42,15 +42,6 @@ const handleError = (error: any, defaultMessage: string): Error => {
 };
 
 
-  // Mock data for now:
-  // console.warn("fetchItemsAPI is using mock data.");
-  // return [
-  //   { mathang_id: 'mh001', ten_mat_hang: 'Quần jeans', don_vi_tinh: 'Cái', don_gia: 400000 },
-  //   { mathang_id: 'mh002', ten_mat_hang: 'Áo thun', don_vi_tinh: 'Cái', don_gia: 200000 },
-  //   { mathang_id: 'mh003', ten_mat_hang: 'Nước ngọt Coca', don_vi_tinh: 'Thùng', don_gia: 180000 },
-  //   { mathang_id: 'mh004', ten_mat_hang: 'Bánh quy', don_vi_tinh: 'Hộp', don_gia: 50000 },
-  // ];
-//};
 
 /**
  * Creates a new export sheet.
@@ -61,7 +52,7 @@ export const createExportSheetAPI = async (
   data: ExportSheetInputPayload
 ): Promise<CreatedExportSheetResponse> => {
   try {
-    const response = await apiClient.post<CreatedExportSheetResponse>('/export-sheets', data); // <-- Sửa tại đây
+    const response = await apiClient.post<CreatedExportSheetResponse>('/export-sheets', data);
 
     if (!response.data) {
       throw new Error('Không có dữ liệu từ API.');
@@ -101,97 +92,57 @@ export interface ExportSheetSearchParams {
   ngay_lap_phieu?: string;       
   tong_tien?: number;    
   page?: number;
-  perPage?: number;    // Backend của bạn dùng 'perPage'
+  perPage?: number;    // Backend của bạn dùng 'limit', ta sẽ map 'perPage' vào đó
 }
 
-// export const getExportSheets = async (params?: ExportSheetSearchParams): Promise<GetExportSheetsResult> => {
-//   try {
-//     // Không cần map params nữa nếu AgencySearchParams đã dùng tên trường của backend
-//     const response = await apiClient.get<GetExportSheetsResult>('/export-sheets/list', { params });
+/**
+ * Lấy danh sách phiếu xuất hàng đã phân trang và lọc từ API.
+ * @param params - Các tham số tìm kiếm và phân trang.
+ * @returns Một promise trả về danh sách phiếu xuất và thông tin phân trang.
+ */
+export const getExportSheets = async (params: ExportSheetSearchParams): Promise<GetExportSheetsResult> => {
+  try {
+    // Ánh xạ tên tham số phía frontend với tên tham số thực tế của API
+    const apiParams = {
+      page: params.page,
+      limit: params.perPage,           // Frontend 'perPage' -> API 'limit'
+      search: params.daily_name,       // Frontend 'daily_name' -> API 'search'
+      ngay_tao: params.ngay_lap_phieu, // Frontend 'ngay_lap_phieu' -> API 'ngay_tao'
+      tong_tien: params.tong_tien,
+    };
 
-//     if (response.data && Array.isArray(response.data.items) && response.data.meta) {
-//       return response.data;
-//     } else {
-//       console.error("ExportSheetService: API response for export sheets is not in the expected format (missing payload or meta, or payload is not an array). Response:", response.data);
-//       // Trả về cấu trúc mặc định để component không bị lỗi khi truy cập meta
-//       return {
-//         items: [],
-//         meta: { curPage: 1, perPage: params?.perPage || 10, totalPage: 0, prevPage: null, nextPage: null, totalItems: 0 },
-//       };
-//     }
-//   } catch (error) {
-//     throw handleError(error, 'Không thể tải danh sách phiếu xuất hàng.');
-//   }
-// };
+    // Thực hiện gọi API
+    const response = await apiClient.get('/export-sheets/list', {
+      params: apiParams,
+    });
 
-export const mockExportSheets = [
-  {
-    phieu_id: "ph1",
-    daily_name: "Đại lý 3",
-    ngay_lap_phieu: "2025-06-01",
-    nhan_vien_lap_phieu: "nv1",
-    tong_tien: 10000000,
-  },
-  {
-    phieu_id: "ph2",
-    daily_name: "Đại lý 2",
-    ngay_lap_phieu: "2025-02-05",
-    nhan_vien_lap_phieu: "nv2",
-    tong_tien: 10000000,
-  },
-  {
-    phieu_id: "ph3",
-    daily_name: "Đại lý 1",
-    ngay_lap_phieu: "2025-03-11",
-    nhan_vien_lap_phieu: "nv1",
-    tong_tien: 10000000,
-  },
-  {
-    phieu_id: "ph4",
-    daily_name: "Đại lý 5",
-    ngay_lap_phieu: "2025-01-01",
-    nhan_vien_lap_phieu: "nv2",
-    tong_tien: 10000000,
-  },
-  {
-    phieu_id: "ph5",
-    daily_name: "Đại lý 6",
-    ngay_lap_phieu: "2025-06-01",
-    nhan_vien_lap_phieu: "nv1",
-    tong_tien: 10000000,
-  },
-];
+    // API trả về có 'payload' chứa dữ liệu và 'meta' chứa thông tin phân trang.
+    const { payload, meta: apiMeta } = response.data;
 
-export const getExportSheets = async (params: any) => {
-  const page = params.page || 1;
-  const perPage = params.perPage || 10;
+    if (!payload || !apiMeta) {
+      throw new Error('Dữ liệu trả về từ API không hợp lệ.');
+    }
 
-  let filtered = [...mockExportSheets];
+    // Chuyển đổi dữ liệu trả về từ API để khớp với interface GetExportSheetsResult
+    const result: GetExportSheetsResult = {
+      items: payload,
+      meta: {
+        curPage: apiMeta.curPage,
+        perPage: apiMeta.perPage,
+        prevPage: apiMeta.prevPage,
+        nextPage: apiMeta.nextPage,
+        totalItems: apiMeta.totalItems,
+        // Tính toán 'totalPage' vì API không trả về trường này
+        totalPage: apiMeta.totalItems > 0 ? Math.ceil(apiMeta.totalItems / apiMeta.perPage) : 1,
+      },
+    };
 
-  if (params.daily_name) {
-    filtered = filtered.filter((item) => item.daily_name === params.daily_name);
+    return result;
+  } catch (error) {
+    throw handleError(error, 'Không thể tải danh sách phiếu xuất hàng.');
   }
-
-  if (params.ngay_lap_phieu) {
-    filtered = filtered.filter((item) => item.ngay_lap_phieu === params.ngay_lap_phieu);
-  }
-
-  if (params.tong_tien) {
-    filtered = filtered.filter((item) => item.tong_tien >= Number(params.tong_tien));
-  }
-
-  const start = (page - 1) * perPage;
-  const end = start + perPage;
-
-  return {
-    items: filtered.slice(start, end),
-    meta: {
-      curPage: page,
-      perPage: perPage,
-      totalPage: Math.ceil(filtered.length / perPage),
-    },
-  };
 };
+
 
 export interface ExportSlipItemDetail {
     mathang_id: string;
@@ -222,43 +173,4 @@ export async function getExportSlipDetailsAPI(id: string): Promise<ExportSlipDet
     console.error('Error fetching export sheet detail by ID:', error);
     throw error;
   }
-    
-  // return new Promise((resolve) => {
-  //       setTimeout(() => {
-  //           resolve({
-  //               phieu_id: id,
-  //               daily_name: "Đại Lý Beta",
-  //               ngay_lap_phieu: "2025-06-11T09:14:41.966Z",
-  //               nhan_vien_lap_phieu: "Nguyễn Văn A",
-  //               tong_tien: 900000,
-  //               items: [
-  //                   {
-  //                       mathang_id: "mh016",
-  //                       ten: "Bột giặt OMO",
-  //                       don_gia: 30000,
-  //                       don_vi_tinh: "kg",
-  //                       so_luong: 3,
-  //                       thanh_tien: 90000,
-  //                   },
-  //                   {
-  //                       mathang_id: "mh021",
-  //                       ten: "Nước rửa chén Sunlight",
-  //                       don_gia: 25000,
-  //                       don_vi_tinh: "chai",
-  //                       so_luong: 10,
-  //                       thanh_tien: 250000,
-  //                   },
-  //                    {
-  //                       mathang_id: "mh005",
-  //                       ten: "Dầu ăn Tường An 1L",
-  //                       don_gia: 56000,
-  //                       don_vi_tinh: "chai",
-  //                       so_luong: 10,
-  //                       thanh_tien: 560000,
-  //                   }
-  //               ]
-  //           });
-  //       }, 1000); // Giả lập độ trễ mạng
-  //   });
 }
-
