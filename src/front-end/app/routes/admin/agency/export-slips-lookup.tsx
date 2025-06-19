@@ -13,8 +13,10 @@ import { getAllAgencies, type Agency } from "../../../services/agencyService";
 // --- Helper function để định dạng ngày an toàn ---
 const formatDateForAPI = (date: Date | null): string | undefined => {
   if (!date) return undefined;
-  date.setHours(0, 0, 0, 0); 
-  return date.toISOString(); 
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 
@@ -87,6 +89,7 @@ export default function ExportSheetSearchRefactored() {
           page: currentPage,
           perPage: perPage,
         };
+        console.log("Fetching export sheets with params:", finalParams);
         const { items: fetchedExportSheets, meta } = await getExportSheets(finalParams);
         const exportSheetsWithStt = fetchedExportSheets.map((sheet, index) => ({
           ...sheet,
