@@ -1,5 +1,6 @@
 // src/front-end/app/services/authService.ts
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { Config } from './config';
 //import Agency from '../routes/agency/agency-lookup'; // Giả sử Agency được định nghĩa trong apiClient.ts
 
@@ -39,19 +40,20 @@ export interface AuthResponse {
 }
 
 // --- Hàm xử lý lỗi chung cho Auth ---
-const handleAuthError = (error: any, defaultMessage: string): Error => {
-    console.error(`AuthService Error: ${defaultMessage}`, error);
-    if (axios.isAxiosError(error) && error.response) {
-        const backendError = error.response.data;
-        let errorMessage = defaultMessage;
-        if (backendError && backendError.message) {
-            errorMessage = Array.isArray(backendError.message) ? backendError.message.join(', ') : backendError.message;
-        } else if (typeof backendError === 'string') {
-            errorMessage = backendError;
-        }
-        return new Error(errorMessage);
-    }
-    return new Error(`Lỗi kết nối hoặc không xác định: ${defaultMessage.toLowerCase()}`);
+export const handleAuthError = (error: any, fallbackMessage = "Lỗi xác thực.") => {
+  let message = fallbackMessage;
+
+  const apiMessage = error?.response?.data?.message;
+
+  if (apiMessage === "User not found") {
+    message = "Tài khoản không tồn tại.";
+  } else if (apiMessage === "Incorrect password") {
+    message = "Mật khẩu không đúng.";
+  } else if (error?.response?.status === 401) {
+    message = "Email hoặc mật khẩu không đúng.";
+  }
+
+  return new Error(message);
 };
 
 
