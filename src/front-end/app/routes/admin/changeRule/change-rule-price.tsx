@@ -66,7 +66,7 @@ export default function DonGiaMatHang() {
     );
 
     handleClose();
-    toast.success("✅ Giá đã được lưu tạm. Nhấn 'Cập nhật' để áp dụng.");
+    toast.success("Giá đã được lưu tạm. Nhấn 'Cập nhật' để áp dụng.");
   };
 
   const handleBulkUpdate = async () => {
@@ -83,10 +83,10 @@ export default function DonGiaMatHang() {
           updateItemPrice({ id, don_gia })
         )
       );
-      toast.success("🎉 Tất cả giá bán đã được cập nhật thành công!");
+      toast.success("Tất cả giá bán đã được cập nhật thành công!");
       setPendingChanges({});
     } catch (err) {
-      toast.error("❌ Có lỗi xảy ra khi cập nhật hàng loạt.");
+      toast.error("Có lỗi xảy ra khi cập nhật hàng loạt.");
     } finally {
       setLoading(false);
     }

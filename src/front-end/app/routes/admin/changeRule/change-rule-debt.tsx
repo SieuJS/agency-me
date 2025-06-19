@@ -48,7 +48,7 @@ export default function RegulationDebtBatchPage() {
       list.map((item, i) => (i === editingIndex ? updatedRow : item))
     );
     setEditingIndex(null);
-    toast.success("✅ Đã lưu tạm thay đổi. Nhấn 'Cập nhật' để áp dụng.");
+    toast.success("Đã lưu tạm thay đổi. Nhấn 'Cập nhật' để áp dụng.");
   };
 
   const onBatchUpdate = async () => {
@@ -62,10 +62,10 @@ export default function RegulationDebtBatchPage() {
       await Promise.all(changed.map(t =>
         updateRegulationDebt({ loai_daily_id: t.loai_daily_id, value: t.tien_no_toi_da })
       ));
-      toast.success('🎉 Cập nhật thành công!');
+      toast.success('Cập nhật thành công!');
       setOriginal(types);
     } catch {
-      toast.error('❌ Đã xảy ra lỗi khi cập nhật.');
+      toast.error('Đã xảy ra lỗi khi cập nhật.');
     } finally {
       setSubmitting(false);
     }
