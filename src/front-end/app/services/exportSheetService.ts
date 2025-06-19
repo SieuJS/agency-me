@@ -136,7 +136,7 @@ export const getExportSheets = async (params: ExportSheetSearchParams): Promise<
         totalPage: apiMeta.totalItems > 0 ? Math.ceil(apiMeta.totalItems / apiMeta.perPage) : 1,
       },
     };
-
+    console.log('Export Sheets:', result);
     return result;
   } catch (error) {
     throw handleError(error, 'Không thể tải danh sách phiếu xuất hàng.');
