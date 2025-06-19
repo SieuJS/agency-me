@@ -36,15 +36,24 @@ export class ItemDto {
   @IsNotEmpty()
   don_vi_tinh: string;
 
+  @ApiProperty({
+    description: 'The symbol or code of the item',
+    example: '$',
+    required: false,
+  })
+  @IsString()
+  ky_hieu?: string;
+
   constructor(dbInstance: Prisma.MatHangGetPayload<ItemInclude>) {
     this.mathang_id = dbInstance.mathang_id;
     this.ten = dbInstance.ten;
     this.don_gia = dbInstance.don_gia;
     this.don_vi_tinh = dbInstance.donViTinh.ten_don_vi;
+    this.ky_hieu = dbInstance.donViTinh.ky_hieu;
   }
 }
 
-export class ItemSearchParams{
+export class ItemSearchParams {
   @ApiProperty({
     description: 'Search pattern for item name',
     example: 'Item',
@@ -65,7 +74,6 @@ export type ItemInclude = {
     donViTinh: true;
   };
 };
-
 
 export class ItemUpdateDto {
   @IsNumber()

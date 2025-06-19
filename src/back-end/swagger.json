@@ -1508,6 +1508,11 @@
             "type": "string",
             "description": "The quantity of the item",
             "example": "Cái"
+          },
+          "ky_hieu": {
+            "type": "string",
+            "description": "The symbol or code of the item",
+            "example": "$"
           }
         },
         "required": [
