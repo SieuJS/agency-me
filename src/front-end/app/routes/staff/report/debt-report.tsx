@@ -13,6 +13,8 @@ export default function ReceiptDebtReportPage() {
   const [monthYear, setMonthYear] = useState<Date | null>(new Date());
   const [reportData, setReportData] = useState<ReceiptDebtReportOutput[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  // BƯỚC 1: Thêm state mới để theo dõi trạng thái báo cáo
+  const [hasReportBeenGenerated, setHasReportBeenGenerated] = useState(false);
 
   const fetchReport = async () => {
     if (!monthYear) {
@@ -23,6 +25,9 @@ export default function ReceiptDebtReportPage() {
     const year = monthYear.getFullYear();
 
     setIsLoading(true);
+    // Đặt trạng thái đã tạo báo cáo để chuyển giao diện sang dạng bảng
+    setHasReportBeenGenerated(true); 
+    
     try {
       const result = await getReceiptDebtReport({ month, year });
       const filtered = result.filter(
@@ -32,10 +37,9 @@ export default function ReceiptDebtReportPage() {
           row.tien_thu !== 0 ||
           row.no_cuoi !== 0
       );
+      
+      // Đã xóa toast ở đây
       setReportData(filtered);
-      if (filtered.length === 0) {
-        toast("Không có dữ liệu công nợ cần hiển thị.");
-      }
     } catch (err: any) {
       toast.error(err?.message || "Lỗi khi lấy báo cáo công nợ.");
     } finally {
@@ -46,6 +50,8 @@ export default function ReceiptDebtReportPage() {
   const resetReport = () => {
     setReportData([]);
     setMonthYear(new Date());
+    // Reset lại trạng thái để quay về màn hình chọn
+    setHasReportBeenGenerated(false); 
   };
 
   const formatMonthYear = (date: Date) => {
@@ -61,7 +67,9 @@ export default function ReceiptDebtReportPage() {
         Báo cáo công nợ đại lý
       </h2>
 
-      {reportData.length === 0 ? (
+      {/* BƯỚC 5: Thay đổi điều kiện render chính */}
+      {!hasReportBeenGenerated ? (
+        // Giao diện khi chưa xuất báo cáo
         <div className="flex flex-col items-center space-y-4">
           <div className="text-center">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -84,6 +92,7 @@ export default function ReceiptDebtReportPage() {
           </button>
         </div>
       ) : (
+        // Giao diện sau khi đã xuất báo cáo (luôn hiển thị bảng)
         <>
           <div className="w-full mb-4 flex justify-end">
             <button
@@ -124,39 +133,54 @@ export default function ReceiptDebtReportPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {reportData.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-4 py-3">{idx + 1}</td>
-                    <td className="px-4 py-3">{row.ten}</td>
-                    <td className="px-4 py-3 text-right">
-                      {row.no_dau.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {row.phat_sinh.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {row.tien_thu.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold">
-                      {row.no_cuoi.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
+                {/* BƯỚC 6: Thêm logic hiển thị dòng "trống" nếu không có dữ liệu */}
+                {isLoading ? (
+                    <tr>
+                        <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                            Đang tải báo cáo...
+                        </td>
+                    </tr>
+                ) : reportData.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                      Không có dữ liệu công nợ trong tháng đã chọn.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  reportData.map((row, idx) => (
+                    <tr
+                      key={idx}
+                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <td className="px-4 py-3">{idx + 1}</td>
+                      <td className="px-4 py-3">{row.ten}</td>
+                      <td className="px-4 py-3 text-right">
+                        {row.no_dau.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {row.phat_sinh.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {row.tien_thu.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold">
+                        {row.no_cuoi.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

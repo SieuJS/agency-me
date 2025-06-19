@@ -13,6 +13,8 @@ export default function RevenueReportPage() {
   const [monthYear, setMonthYear] = useState<Date | null>(new Date());
   const [reportData, setReportData] = useState<RevenueReportOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // BƯỚC 1: Thêm state mới
+  const [hasReportBeenGenerated, setHasReportBeenGenerated] = useState(false);
 
   const fetchReport = async () => {
     if (!monthYear) {
@@ -20,20 +22,23 @@ export default function RevenueReportPage() {
       return;
     }
 
-    // Lấy đầu tháng và cuối tháng (giờ cuối cùng)
     const start = new Date(monthYear.getFullYear(), monthYear.getMonth(), 1);
     const end = new Date(monthYear.getFullYear(), monthYear.getMonth() + 1, 0, 23, 59, 59, 999);
 
     setIsLoading(true);
+    // BƯỚC 2: Đặt trạng thái để chuyển giao diện sang bảng
+    setHasReportBeenGenerated(true);
+
     try {
       const result = await getRevenueReport({
         tu_ngay: start.toISOString(),
         den_ngay: end.toISOString(),
       });
-
-      if (result.danh_sach_doanh_so.length === 0) {
-        toast("Không có dữ liệu doanh số cho tháng này.");
-      }
+      
+      // BƯỚC 3: Xóa toast không cần thiết
+      // if (result.danh_sach_doanh_so.length === 0) {
+      //   toast("Không có dữ liệu doanh số cho tháng này.");
+      // }
 
       setReportData(result);
     } catch (err: any) {
@@ -46,6 +51,8 @@ export default function RevenueReportPage() {
   const resetReport = () => {
     setReportData(null);
     setMonthYear(new Date());
+    // BƯỚC 4: Reset lại trạng thái để quay về màn hình chọn
+    setHasReportBeenGenerated(false);
   };
 
   const formatMonthYear = (date: Date) => {
@@ -61,7 +68,9 @@ export default function RevenueReportPage() {
         Báo cáo doanh số đại lý
       </h2>
 
-      {!reportData ? (
+      {/* BƯỚC 5: Thay đổi điều kiện render chính */}
+      {!hasReportBeenGenerated ? (
+        // Giao diện khi chưa xuất báo cáo
         <div className="flex flex-col items-center space-y-4">
           <div className="text-center">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -84,6 +93,7 @@ export default function RevenueReportPage() {
           </button>
         </div>
       ) : (
+        // Giao diện sau khi đã xuất báo cáo (luôn hiển thị bảng)
         <>
           <div className="w-full mb-4 flex justify-end">
             <button
@@ -121,25 +131,40 @@ export default function RevenueReportPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {reportData.danh_sach_doanh_so.map((row, idx) => (
-                  <tr
-                    key={row.daily_id}
-                    className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-4 py-3">{idx + 1}</td>
-                    <td className="px-4 py-3">{row.ten_daily}</td>
-                    <td className="px-4 py-3 text-right">{row.so_phieu_xuat_hang}</td>
-                    <td className="px-4 py-3 text-right">
-                      {row.tong_doanh_so.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {row.ty_le_phan_tram.toFixed(2)}%
+                {/* BƯỚC 6: Thêm logic hiển thị dòng "trống" nếu cần */}
+                {isLoading ? (
+                    <tr>
+                        <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
+                            Đang tải báo cáo...
+                        </td>
+                    </tr>
+                ) : !reportData || reportData.danh_sach_doanh_so.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
+                      Không có dữ liệu doanh số trong tháng đã chọn.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  reportData.danh_sach_doanh_so.map((row, idx) => (
+                    <tr
+                      key={row.daily_id}
+                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <td className="px-4 py-3">{idx + 1}</td>
+                      <td className="px-4 py-3">{row.ten_daily}</td>
+                      <td className="px-4 py-3 text-right">{row.so_phieu_xuat_hang}</td>
+                      <td className="px-4 py-3 text-right">
+                        {row.tong_doanh_so.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {row.ty_le_phan_tram.toFixed(2)}%
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
