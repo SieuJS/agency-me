@@ -160,27 +160,28 @@ export class ExportSheetsService {
   async getListExportSheets(params: ExportSheetParams) {
     const { page = 1, limit = 10, search, ngay_tao, tong_tien } = params;
 
-    const where = search
-      ? {
-          AND: [
-            {
-              OR: [
-                { phieu_id: { contains: search } },
-                { daiLy: { ten: { contains: search } } },
-                { nhanVien: { ten: { contains: search } } },
-              ],
-            },
-            { ngay_tao: ngay_tao ? { gte: ngay_tao } : undefined },
-            {
-              chiTietPhieuXuat: {
-                some: {
-                  thanh_tien: tong_tien ? { gte: tong_tien } : undefined,
+    const where =
+      search || ngay_tao || tong_tien
+        ? {
+            AND: [
+              {
+                OR: [
+                  { phieu_id: { contains: search } },
+                  { daiLy: { ten: { contains: search } } },
+                  { nhanVien: { ten: { contains: search } } },
+                ],
+              },
+              { ngay_lap_phieu: ngay_tao ? { gte: ngay_tao } : undefined },
+              {
+                chiTietPhieuXuat: {
+                  some: {
+                    thanh_tien: tong_tien ? { gte: tong_tien } : undefined,
+                  },
                 },
               },
-            },
-          ],
-        }
-      : {};
+            ],
+          }
+        : {};
 
     const rawResult = await this.prisma.phieuXuatHang.findMany({
       where,
@@ -193,7 +194,7 @@ export class ExportSheetsService {
               include: {
                 donViTinh: true,
               },
-            }
+            },
           },
         },
       },
