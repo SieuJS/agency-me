@@ -589,6 +589,46 @@
         ]
       }
     },
+    "/item/{id}": {
+      "put": {
+        "operationId": "ItemController_updateItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The item has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemUpdateDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Item"
+        ]
+      }
+    },
     "/export-sheets": {
       "post": {
         "operationId": "ExportSheetsController_createExportSheet",
@@ -662,6 +702,7 @@
             "in": "query",
             "description": "Created date",
             "schema": {
+              "format": "date-time",
               "example": "createdAt",
               "type": "string"
             }
@@ -1474,6 +1515,19 @@
           "ten",
           "don_gia",
           "don_vi_tinh"
+        ]
+      },
+      "ItemUpdateDto": {
+        "type": "object",
+        "properties": {
+          "don_gia": {
+            "type": "number",
+            "description": "The price of the item",
+            "example": 100
+          }
+        },
+        "required": [
+          "don_gia"
         ]
       },
       "ExportSheetInput": {

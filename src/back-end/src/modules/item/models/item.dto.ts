@@ -65,3 +65,14 @@ export type ItemInclude = {
     donViTinh: true;
   };
 };
+
+
+export class ItemUpdateDto {
+  @IsNumber()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'The price of the item',
+    example: 100,
+  })
+  don_gia: number;
+}

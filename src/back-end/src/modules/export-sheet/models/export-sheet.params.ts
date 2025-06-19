@@ -39,7 +39,7 @@ export class ExportSheetParams {
   })
   @IsOptional()
   @IsString()
-  ngay_tao?: string;
+  ngay_tao?: Date;
 
   @ApiProperty({
     description: 'Export sheet ID',
