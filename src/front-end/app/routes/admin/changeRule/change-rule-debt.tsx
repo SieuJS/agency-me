@@ -165,7 +165,7 @@ export default function RegulationDebtBatchPage() {
               </button>
               <button
                 onClick={onModalSave}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
                 disabled={submitting}
               >
                 Lưu
