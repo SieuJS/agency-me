@@ -87,28 +87,30 @@ export const logoutUser = (): void => {
 
 // --- Hàm kiểm tra Đăng nhập ---
 export const isAuthenticated = (): boolean => {
-    const token = localStorage.getItem('accessToken');
-    // Trong tương lai, bạn có thể thêm logic kiểm tra token hết hạn ở đây
-    // Ví dụ, giải mã token và kiểm tra trường 'exp'
-    return !!token; // Trả về true nếu có token
+  if (typeof window === 'undefined') return false;
+  return !!localStorage.getItem('accessToken');
 };
+
 
 // --- Các hàm tiện ích lấy thông tin ---
 export const getAuthToken = (): string | null => {
-    return localStorage.getItem('accessToken');
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('accessToken');
 };
 
-export const getUserData = (): AuthResponse['user'] | null => { // Sử dụng kiểu User từ AuthResponse
-    const userDataString = localStorage.getItem('userData');
-    try {
-        return userDataString ? JSON.parse(userDataString) : null;
-    } catch (e) {
-        console.error("AuthService: Error parsing user data from localStorage", e);
-        return null;
-    }
+
+export const getUserData = (): AuthResponse['user'] | null => {
+  if (typeof window === 'undefined') return null; 
+  const userDataString = localStorage.getItem('userData');
+  try {
+    return userDataString ? JSON.parse(userDataString) : null;
+  } catch (e) {
+    console.error("AuthService: Error parsing user data", e);
+    return null;
+  }
 };
 
-export const getUserRole = (): 'admin' | 'staff' | string | null => { 
-    const userData = getUserData();
-    return userData ? userData.loai_nhan_vien_id : null;
+export const getUserRole = (): 'admin' | 'staff' | string | null => {
+  const userData = getUserData();
+  return userData ? userData.loai_nhan_vien_id : null;
 };

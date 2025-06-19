@@ -50,7 +50,7 @@ export default function AdminHeader() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/admin/type-agency/create" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
+              <NavLink to="/admin/type-agency" className={getHeaderTabNavLinkClass}> {/* Ví dụ đường dẫn */}
                 Loại đại lý
               </NavLink>
             </li>

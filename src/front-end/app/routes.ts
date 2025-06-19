@@ -84,6 +84,10 @@ export default [
             {
                 path: "change-rule-debt",
                 file: "routes/admin/changeRule/change-rule-debt.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: "change-rule-price",
+                file: "routes/admin/changeRule/change-rule-price.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             }
         ]
     },

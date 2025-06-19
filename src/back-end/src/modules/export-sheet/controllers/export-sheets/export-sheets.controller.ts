@@ -61,7 +61,6 @@ export class ExportSheetsController {
   async getListExportSheets(
     @Query(new ExportSheetParamsPipe()) params: ExportSheetParams,
   ) {
-    console.log('ExportSheetParams:', params);
     return await this.exportSheetsService.getListExportSheets(params);
   }
 
