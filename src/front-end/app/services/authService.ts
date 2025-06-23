@@ -1,5 +1,6 @@
 // src/front-end/app/services/authService.ts
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { Config } from './config';
 //import Agency from '../routes/agency/agency-lookup'; // Giả sử Agency được định nghĩa trong apiClient.ts
 
@@ -39,19 +40,20 @@ export interface AuthResponse {
 }
 
 // --- Hàm xử lý lỗi chung cho Auth ---
-const handleAuthError = (error: any, defaultMessage: string): Error => {
-    console.error(`AuthService Error: ${defaultMessage}`, error);
-    if (axios.isAxiosError(error) && error.response) {
-        const backendError = error.response.data;
-        let errorMessage = defaultMessage;
-        if (backendError && backendError.message) {
-            errorMessage = Array.isArray(backendError.message) ? backendError.message.join(', ') : backendError.message;
-        } else if (typeof backendError === 'string') {
-            errorMessage = backendError;
-        }
-        return new Error(errorMessage);
-    }
-    return new Error(`Lỗi kết nối hoặc không xác định: ${defaultMessage.toLowerCase()}`);
+export const handleAuthError = (error: any, fallbackMessage = "Lỗi xác thực.") => {
+  let message = fallbackMessage;
+
+  const apiMessage = error?.response?.data?.message;
+
+  if (apiMessage === "User not found") {
+    message = "Tài khoản không tồn tại.";
+  } else if (apiMessage === "Incorrect password") {
+    message = "Mật khẩu không đúng.";
+  } else if (error?.response?.status === 401) {
+    message = "Email hoặc mật khẩu không đúng.";
+  }
+
+  return new Error(message);
 };
 
 
@@ -87,28 +89,30 @@ export const logoutUser = (): void => {
 
 // --- Hàm kiểm tra Đăng nhập ---
 export const isAuthenticated = (): boolean => {
-    const token = localStorage.getItem('accessToken');
-    // Trong tương lai, bạn có thể thêm logic kiểm tra token hết hạn ở đây
-    // Ví dụ, giải mã token và kiểm tra trường 'exp'
-    return !!token; // Trả về true nếu có token
+  if (typeof window === 'undefined') return false;
+  return !!localStorage.getItem('accessToken');
 };
+
 
 // --- Các hàm tiện ích lấy thông tin ---
 export const getAuthToken = (): string | null => {
-    return localStorage.getItem('accessToken');
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('accessToken');
 };
 
-export const getUserData = (): AuthResponse['user'] | null => { // Sử dụng kiểu User từ AuthResponse
-    const userDataString = localStorage.getItem('userData');
-    try {
-        return userDataString ? JSON.parse(userDataString) : null;
-    } catch (e) {
-        console.error("AuthService: Error parsing user data from localStorage", e);
-        return null;
-    }
+
+export const getUserData = (): AuthResponse['user'] | null => {
+  if (typeof window === 'undefined') return null; 
+  const userDataString = localStorage.getItem('userData');
+  try {
+    return userDataString ? JSON.parse(userDataString) : null;
+  } catch (e) {
+    console.error("AuthService: Error parsing user data", e);
+    return null;
+  }
 };
 
-export const getUserRole = (): 'admin' | 'staff' | string | null => { 
-    const userData = getUserData();
-    return userData ? userData.loai_nhan_vien_id : null;
+export const getUserRole = (): 'admin' | 'staff' | string | null => {
+  const userData = getUserData();
+  return userData ? userData.loai_nhan_vien_id : null;
 };

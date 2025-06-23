@@ -68,17 +68,29 @@ export default [
             }
             ,]
     },
-   /* {
-        path: 'admin/change-rule',
-        file: 'routes/admin/change-rule/_layout.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
+    {
+        path: '/admin/regulations',
+        file: 'routes/admin/changeRule/_layout.tsx', // <-- SỬA Ở ĐÂY: Thêm "routes/"
         children: [
             {
-                path: "change-rule-create",
+                path: "change-rule-agency",
                 // Đường dẫn file component con, tương đối với app/
-                file: "routes/admin/change-rule/change-rule-create.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+                file: "routes/admin/changeRule/change-rule-agency.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
             },
+            {
+                path: "change-rule-item",
+                file: "routes/admin/changeRule/change-rule-item.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: "change-rule-debt",
+                file: "routes/admin/changeRule/change-rule-debt.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            },
+            {
+                path: "change-rule-price",
+                file: "routes/admin/changeRule/change-rule-price.tsx", // <-- SỬA Ở ĐÂY: Thêm "routes/"
+            }
         ]
-    },*/
+    },
 
     // Route cho staff
     {

@@ -4,8 +4,9 @@ import axios from 'axios';
 export interface Item {
   mathang_id: string;
   ten: string;
-  don_vi_tinh: string;
   don_gia: number;
+  don_vi_tinh: string;
+  ky_hieu: string;
 }
 
 const handleError = (error: any, defaultMessage: string): Error => {
@@ -37,6 +38,7 @@ export const fetchItemsAPI = async (): Promise<Item[]> => {
 
   try {
   const response = await apiClient.get<Item[]>(`/item`);
+  console.log('Response from fetchItemsAPI:', response.data);
   return response.data || [];
 } catch (error) {
   throw handleError(error, 'Không thể hiển thị mặt hàng.');

@@ -80,12 +80,13 @@ export default function CreateAgencyTypePage() {
           />
         </div>
 
-        <div>
+        <div className="flex justify-center">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="bg-slate-600 text-white py-2 px-4 rounded hover:bg-slate-700 disabled:opacity-50"
           >
+            
             {isSubmitting ? 'Đang lưu...' : 'Tạo loại đại lý'}
           </button>
         </div>

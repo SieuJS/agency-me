@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, UsePipes } from '@nestjs/common';
 import { ItemService } from '../../services/item/item.service';
 import { ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { ItemDto, ItemSearchParams } from '../../models/item.dto';
+import { ItemDto, ItemSearchParams, ItemUpdateDto } from '../../models/item.dto';
+import { UpdateItemPipe } from '../../pipes/update-item.pipe';
 
 @Controller('item')
 export class ItemController {
@@ -26,5 +27,15 @@ export class ItemController {
   })
   async findWithPattern(@Query() query : ItemSearchParams): Promise<ItemDto[]> {
     return this.itemService.findWithPattern(query);
+  }
+
+  @Put(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The item has been successfully updated.',
+    type: ItemUpdateDto,
+  })
+  async updateItem(@Param('id') id: string, @Body(UpdateItemPipe) body: ItemUpdateDto): Promise<ItemDto> {
+    return this.itemService.updateItem(id, body);
   }
 }

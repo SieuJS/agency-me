@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { ExportSheetInput } from '../../models/export-sheet.input';
@@ -24,7 +28,7 @@ export class ExportSheetsService {
       },
       include: {
         loaiDaiLy: true, // Include loaiDaiLy to check tien_no_toi_da
-      }
+      },
     });
 
     if (!daily) {
@@ -52,12 +56,16 @@ export class ExportSheetsService {
         });
 
         if (!matHang) {
-          throw new NotFoundException(`Mat hang ${item.mathang_id} khong ton tai`);
+          throw new NotFoundException(
+            `Mat hang ${item.mathang_id} khong ton tai`,
+          );
         }
 
         const don_gia = matHang.don_gia || 0;
         if (don_gia <= 0) {
-          throw new BadRequestException(`Don gia cua mat hang ${item.mathang_id} khong hop le`);
+          throw new BadRequestException(
+            `Don gia cua mat hang ${item.mathang_id} khong hop le`,
+          );
         }
 
         return {
@@ -69,13 +77,18 @@ export class ExportSheetsService {
       }),
     );
 
-    const totalThanhTien = itemDetails.reduce((sum, item) => sum + item.thanh_tien, 0);
+    const totalThanhTien = itemDetails.reduce(
+      (sum, item) => sum + item.thanh_tien,
+      0,
+    );
 
     // Check if total debt (tien_no + thanh_tien) exceeds tien_no_toi_da
     const currentTienNo = daily.tien_no || 0;
     const maxTienNo = daily.loaiDaiLy.tien_no_toi_da || Infinity; // Default to Infinity if not set
     if (currentTienNo + totalThanhTien > maxTienNo) {
-      throw new BadRequestException(`Tong no (${currentTienNo + totalThanhTien}) vuot qua gioi han no toi da (${maxTienNo}) cua loai dai ly`);
+      throw new BadRequestException(
+        `Tong no (${currentTienNo + totalThanhTien}) vuot qua gioi han no toi da (${maxTienNo}) cua loai dai ly`,
+      );
     }
 
     return await this.prisma.$transaction(async (prisma) => {
@@ -147,17 +160,28 @@ export class ExportSheetsService {
   async getListExportSheets(params: ExportSheetParams) {
     const { page = 1, limit = 10, search, ngay_tao, tong_tien } = params;
 
-    const where = search
-      ? {
-          AND: [
-            { phieu_id: { contains: search } },
-            { daiLy: { ten: { contains: search } } },
-            { nhanVien: { ten: { contains: search } } },
-            { ngay_tao: ngay_tao ? { gte: ngay_tao } : undefined },
-            { chiTietPhieuXuat: { some: { thanh_tien: tong_tien ? { gte: tong_tien } : undefined } } },
-          ],
-        }
-      : {};
+    const where =
+      search || ngay_tao || tong_tien
+        ? {
+            AND: [
+              {
+                OR: [
+                  { phieu_id: { contains: search } },
+                  { daiLy: { ten: { contains: search } } },
+                  { nhanVien: { ten: { contains: search } } },
+                ],
+              },
+              { ngay_lap_phieu: ngay_tao ? { gte: ngay_tao } : undefined },
+              {
+                chiTietPhieuXuat: {
+                  some: {
+                    thanh_tien: tong_tien ? { gte: tong_tien } : undefined,
+                  },
+                },
+              },
+            ],
+          }
+        : {};
 
     const rawResult = await this.prisma.phieuXuatHang.findMany({
       where,
@@ -166,7 +190,11 @@ export class ExportSheetsService {
         nhanVien: true,
         chiTietPhieuXuat: {
           include: {
-            matHang: true,
+            matHang: {
+              include: {
+                donViTinh: true,
+              },
+            },
           },
         },
       },

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 export class ExportSheetsDto {
   @ApiProperty({
@@ -34,11 +34,18 @@ export class ExportSheetsDto {
   @IsNotEmpty()
   nhan_vien_lap_phieu: string;
 
+  @IsNumber()
+  tong_tien: number;
+
   constructor(dbIstance: Prisma.PhieuXuatHangGetPayload<ExportSheetsInclude>) {
     this.phieu_id = dbIstance.phieu_id;
     this.daily_name = dbIstance.daiLy.ten;
     this.ngay_lap_phieu = dbIstance.ngay_lap_phieu;
     this.nhan_vien_lap_phieu = dbIstance.nhanVien.ten;
+    this.tong_tien = dbIstance.chiTietPhieuXuat.reduce(
+      (total, item) => total + item.thanh_tien,
+      0
+    );
   }
 }
 
@@ -46,5 +53,14 @@ export type ExportSheetsInclude = {
   include: {
     daiLy: true;
     nhanVien: true;
+    chiTietPhieuXuat: {
+      include: {
+        matHang: {
+          include: {
+            donViTinh: true;
+          };
+        };
+      };
+    };
   };
 };

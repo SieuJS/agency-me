@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
-import { ItemDto, ItemSearchParams } from '../../models/item.dto';
+import { ItemDto, ItemSearchParams, ItemUpdateDto } from '../../models/item.dto';
 
 @Injectable()
 export class ItemService {
@@ -18,5 +18,18 @@ export class ItemService {
       },
     });
     return items.map((item) => new ItemDto(item));
+  }
+
+  async updateItem(id: string, query: ItemUpdateDto): Promise<ItemDto> {
+    const updatedItem = await this.prisma.matHang.update({
+      where: { mathang_id: id },
+      data: {
+        don_gia: query.don_gia,
+      },
+      include: {
+        donViTinh: true,
+      },
+    });
+    return new ItemDto(updatedItem);
   }
 }

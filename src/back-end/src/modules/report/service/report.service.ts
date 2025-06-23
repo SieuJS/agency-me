@@ -16,9 +16,9 @@ export class ReportService {
     // Tính toán cho từng đại lý
     const reports: ReportDebtDto[] = [];
     for (const daiLy of daiLys) {
-      const startDate = new Date(year, month - 1, 1, 0, 0, 0, 0);
-      const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-
+      const startDate = new Date(year, month,-1, 1); // Ngày đầu tháng
+      const endDate = new Date(year, month, 0);
+      console.log(`Calculating debt for agency: ${daiLy.ten} (${daiLy.daily_id}) from ${startDate.toDateString()} to ${endDate.toDateString()}`);
       // Tổng thu tiền trong tháng
       const thuTien = await this.prisma.phieuThuTien.aggregate({
         where: {
@@ -50,7 +50,7 @@ export class ReportService {
       const phieuXuatTruoc = await this.prisma.phieuXuatHang.findMany({
         where: {
           daily_id: daiLy.daily_id,
-          ngay_lap_phieu: { lt: startDate },
+          ngay_lap_phieu: { lt: startDate,  },
         },
         select: { phieu_id: true },
       });
