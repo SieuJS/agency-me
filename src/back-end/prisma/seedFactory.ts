@@ -46,9 +46,9 @@ function generateVietnamAddress() {
     ];
   
     const cityDistrictMap: Record<string, string[]> = {
-      'TP.HCM': ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 7', 'Bình Thạnh', 'Tân Bình'],
-      'Hà Nội': ['Đống Đa', 'Ba Đình', 'Hoàn Kiếm', 'Hà Đông', 'Long Biên', 'Nam Từ Liêm', 'Cầu Giấy', 'Thanh Xuân'],
-      'Hải Phòng': ['Lê Chân', 'Hải An', 'Ngô Quyền', 'Kiến An', 'Hồng Bàng'],
+      'TP.HCM': ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 10'],
+      'Hà Nội': ['Đống Đa', 'Ba Đình', 'Hoàn Kiếm', 'Long Biên', 'Cầu Giấy', 'Thanh Xuân', 'Hai Bà Trưng', 'Tây Hồ'],
+      'Hải Phòng': ['Lê Chân', 'Ngô Quyền', 'Hồng Bàng'],
     };
   
     const cities = Object.keys(cityDistrictMap);
@@ -84,22 +84,55 @@ export async function generateRandomNhanVien(count: number): Promise<NhanVien[]>
 export function generateRandomDaiLy(count: number): DaiLy[] {
     const daiLys: DaiLy[] = [];
 
-    const quanIds = ['01', '02', '03', '04', '05', 'dongda', 'hoankiem', 'badinh', 'caugiay', 'longbien', 'hongbang', 'ngoquyen', 'lechan'];
-    const nhanVienTiepNhanIds = ['nv002', 'nv003', 'nv004', 'nv005', 'nv006', 'nv007', 'nv008', 'nv009', 'nv010'];
+    const districtIds = [
+        '01', '02', '03', '04', '05', '06', '07', '08', '10',
+        'dongda', 'hoankiem', 'badinh', 'caugiay', 'longbien',
+        'hongbang', 'ngoquyen', 'lechan', 'tayho', 'haibatrung', 'thanhxuan'
+    ];
 
-    for (let i = 1; i <= count; i++) {
-        daiLys.push({
-            daily_id: `daily${i.toString().padStart(3, '0')}`,
-            ten: `Đại Lý ${faker.company.name()}`,
-            dien_thoai: generateVietnamPhoneNumber(),
-            dia_chi: generateVietnamAddress(),
-            email: faker.internet.email(),
-            quan_id: faker.helpers.arrayElement(quanIds),
-            loai_daily_id: faker.helpers.arrayElement(['loai001', 'loai002']),
-            tien_no: faker.number.int({ min: 0, max: 0 }),
-            ngay_tiep_nhan: new Date(),
-            nhan_vien_tiep_nhan: faker.helpers.arrayElement(nhanVienTiepNhanIds),
-        });
+    const staffIds = ['nv002', 'nv003', 'nv004', 'nv005', 'nv006', 'nv007', 'nv008', 'nv009', 'nv010'];
+
+    const maxPerDistrict = 4;
+    const maxTotal = districtIds.length * maxPerDistrict;
+    const actualCount = Math.min(count, maxTotal);
+
+    // Create a map to track the number of agencies per district
+    const districtCounts: Record<string, number> = {};
+    for (const district of districtIds) {
+        districtCounts[district] = 0;
     }
+
+    let created = 0;
+    let i = 1;
+    while (created < actualCount) {
+        const district = faker.helpers.arrayElement(districtIds);
+
+        if (districtCounts[district] < maxPerDistrict) {
+            daiLys.push({
+                daily_id: `daily${i.toString().padStart(3, '0')}`,
+                ten: `Agency ${faker.company.name()}`,
+                dien_thoai: generateVietnamPhoneNumber(),
+                dia_chi: generateVietnamAddress(),
+                email: faker.internet.email(),
+                quan_id: district,
+                loai_daily_id: faker.helpers.arrayElement(['loai001', 'loai002']),
+                tien_no: 0,
+                ngay_tiep_nhan: new Date(),
+                nhan_vien_tiep_nhan: faker.helpers.arrayElement(staffIds),
+            });
+            districtCounts[district]++;
+            created++;
+            i++;
+        }
+    }
+
+    if (count > actualCount) {
+        console.warn(
+            `Cannot seed ${count} agencies: only ${maxPerDistrict} allowed per district.` +
+            `\nCreated ${actualCount} agencies successfully.` +
+            `\n${count - actualCount} agencies could not be created due to the limit.`
+        );
+    }
+
     return daiLys;
 }
