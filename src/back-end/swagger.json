@@ -890,15 +890,6 @@
         "operationId": "ReceiptController_findAll",
         "parameters": [
           {
-            "name": "daily_id",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": "daily001",
-              "type": "string"
-            }
-          },
-          {
             "name": "ngay_thu",
             "required": false,
             "in": "query",
@@ -909,12 +900,22 @@
             }
           },
           {
+            "name": "ten_dai_ly",
+            "required": false,
+            "in": "query",
+            "description": "Tên đại lý",
+            "schema": {
+              "example": "ABCD",
+              "type": "string"
+            }
+          },
+          {
             "name": "nhan_vien_thu_tien",
             "required": false,
             "in": "query",
             "description": "Nhân viên thu tiền",
             "schema": {
-              "example": "nv001",
+              "example": "ABCD",
               "type": "string"
             }
           },
