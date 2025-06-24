@@ -272,7 +272,7 @@ export default function ExportSheetSearchRefactored() {
                         </Link>                    
                     </td>
                     
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-gray-700 text-right">
                       {new Date(exportsheet.ngay_lap_phieu).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="px-4 py-3 text-gray-700 text-right">
