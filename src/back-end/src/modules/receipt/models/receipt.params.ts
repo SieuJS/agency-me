@@ -12,7 +12,7 @@ export class ReceiptParams extends PartialType(
   ten_dai_ly?: string;
 
   @ApiProperty({
-    example: "nv001",
+    example: "ABCD",
     description: 'Nhân viên thu tiền',
     required: false,
   })

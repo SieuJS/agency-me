@@ -64,9 +64,22 @@ export class ReceiptService {
 
     const where: any = {};
     if (dailyIds) where.daily_id = { in: dailyIds };
-    if (params.nhan_vien_thu_tien) where.nhan_vien_thu_tien = params.nhan_vien_thu_tien;
-    if (params.ngay_thu) where.ngay_thu = params.ngay_thu;
-
+    if (params.nhan_vien_thu_tien) {
+      // Tìm các nhân viên có tên giống tên tìm kiếm
+      const nhanViens = await this.prisma.nhanVien.findMany({
+        where: { ten: { contains: params.nhan_vien_thu_tien, mode: 'insensitive' } },
+        select: { nhan_vien_id: true },
+      });
+      const nhanVienIds = nhanViens.map(nv => nv.nhan_vien_id);
+      if (nhanVienIds.length === 0) return [];
+      where.nhan_vien_thu_tien = { in: nhanVienIds };
+    }
+    if (params.ngay_thu) {
+      const date = new Date(params.ngay_thu);
+      const start = new Date(date.setHours(0, 0, 0, 0));
+      const end = new Date(date.setHours(23, 59, 59, 999));
+      where.ngay_thu = { gte: start, lte: end };
+    }
     const receipts = await this.prisma.phieuThuTien.findMany({
       where,
       orderBy: { ngay_thu: 'desc' },

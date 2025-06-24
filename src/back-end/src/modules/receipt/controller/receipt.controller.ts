@@ -5,6 +5,7 @@ import { CreateReceiptInput } from '../models/receipt.input';
 import { AuthGuard } from '@nestjs/passport';
 import { ReceiptParams } from '../models/receipt.params';
 import { ReceiptDto } from '../models/receipt.dto';
+import { ReceiptParamsPipe } from '../pipes/receipt-params.pipe';
 
 @Controller('receipts')
 @UseGuards(AuthGuard('jwt'))
@@ -21,8 +22,8 @@ export class ReceiptController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Tìm phiếu thu"})
-  async findAll(@Query() params: ReceiptParams): Promise<ReceiptDto[]> {
+  @ApiOperation({ summary: "Tìm phiếu thu" })
+  async findAll(@Query(new ReceiptParamsPipe()) params: ReceiptParams): Promise<ReceiptDto[]> {
     return this.receiptService.findAll(params);
   }
 
