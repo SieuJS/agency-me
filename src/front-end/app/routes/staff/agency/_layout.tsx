@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'; // Thêm useState
 import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router';
 import { Search, FileText, Trash2, LogOut } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import { isAuthenticated, logoutUser, getUserData } from '../../../services/authService';
+import { isAuthenticated, logoutUser, getUserData,  getUserRole, getProtectedData } from '../../../services/authService';
 import StaffHeader from '../../../components/layout/staffHeader';
 import StaffReportSidebar from '../../../components/layout/staffAgencySidebar';
 export default function StaffSectionLayout() {
@@ -12,23 +12,33 @@ export default function StaffSectionLayout() {
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      console.log('AdminLayout: User not authenticated, showing toast and redirecting to /login from:', location.pathname);
-      // Hiển thị toast trước khi chuyển hướng
-      toast.error('Bạn cần đăng nhập để truy cập trang này!', {
-        id: 'auth-required-toast', // ID để tránh toast bị lặp lại nếu useEffect chạy nhanh
-        duration: 4000,
-      });
-      // Sau một khoảng thời gian ngắn, thực hiện chuyển hướng
-      const timer = setTimeout(() => {
-        navigate('/', { state: { from: location }, replace: true });
-      },0); // Chờ 1.5 giây để người dùng đọc toast
-      setIsAuthChecked(true); // Đánh dấu đã kiểm tra để không render layout
-      return () => clearTimeout(timer); // Cleanup timer nếu component unmount
-    } else {
-      setIsAuthChecked(true); // Người dùng đã xác thực, cho phép render layout
-    }
-  }, [navigate, location]); // Chỉ cần location vì navigate ổn định
+      const checkAuth = async () => {
+    
+        if (!isAuthenticated()) {
+          toast.error('Bạn cần đăng nhập để truy cập trang này!');
+          navigate('/', { state: { from: location }, replace: true });
+          return;
+        }
+    
+        const role = getUserRole();
+        if (role !== 'staff') {
+          toast.error('Bạn không có quyền truy cập trang này!');
+          navigate('/admin/agency/lookup', { replace: true });
+          return;
+        }
+    
+        try {
+          const result = await getProtectedData();
+          setIsAuthChecked(true);
+        } catch (error) {
+          logoutUser();
+          toast.error('Phiên đăng nhập đã hết hạn!');
+          navigate('', { replace: true }); // CHỖ NÀY CẦN ĐỔI navigate('', ...) → navigate('/')
+        }
+      };
+    
+      checkAuth();
+    }, [navigate, location]);
 
   // Nếu chưa hoàn tất kiểm tra xác thực, không render gì cả
   if (!isAuthChecked) {

@@ -116,3 +116,24 @@ export const getUserRole = (): 'admin' | 'staff' | string | null => {
   const userData = getUserData();
   return userData ? userData.loai_nhan_vien_id : null;
 };
+
+export const getProtectedData = async () => {
+  const token = localStorage.getItem('accessToken');
+
+  if (!token) {
+    throw new Error("Token không tồn tại");
+  }
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/protected`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

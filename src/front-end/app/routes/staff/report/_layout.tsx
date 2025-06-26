@@ -4,7 +4,7 @@ import { Toaster, toast } from 'react-hot-toast';
 
 import StaffHeader from '../../../components/layout/staffHeader';
 import StaffReportSidebar from '../../../components/layout/staffReportSideBar';
-import { isAuthenticated } from '../../../services/authService';
+import { isAuthenticated, getUserRole, getProtectedData, logoutUser } from '../../../services/authService';
 
 export default function StaffReportSectionLayout() {
   const navigate = useNavigate();
@@ -12,17 +12,33 @@ export default function StaffReportSectionLayout() {
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      toast.error("Bạn cần đăng nhập để truy cập trang này!");
-      const timer = setTimeout(() => {
-        navigate("/", { state: { from: location }, replace: true });
-      }, 0);
-      setIsAuthChecked(true);
-      return () => clearTimeout(timer);
-    } else {
-      setIsAuthChecked(true);
-    }
-  }, [navigate, location]);
+        const checkAuth = async () => {
+      
+          if (!isAuthenticated()) {
+            toast.error('Bạn cần đăng nhập để truy cập trang này!');
+            navigate('/', { state: { from: location }, replace: true });
+            return;
+          }
+      
+          const role = getUserRole();
+          if (role !== 'staff') {
+            toast.error('Bạn không có quyền truy cập trang này!');
+            navigate('/admin/agency/lookup', { replace: true });
+            return;
+          }
+      
+          try {
+            const result = await getProtectedData();
+            setIsAuthChecked(true);
+          } catch (error) {
+            logoutUser();
+            toast.error('Phiên đăng nhập đã hết hạn!');
+            navigate('', { replace: true }); // CHỖ NÀY CẦN ĐỔI navigate('', ...) → navigate('/')
+          }
+        };
+      
+        checkAuth();
+      }, [navigate, location]);
 
   if (!isAuthChecked) {
     return (
