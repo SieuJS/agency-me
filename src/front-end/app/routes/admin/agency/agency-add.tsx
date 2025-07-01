@@ -90,32 +90,34 @@ export default function AgencyReceptionPage() {
   // --- Hàm Validation ---
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!agencyName) newErrors.agencyName = 'Tên đại lý không được để trống.';
+    if (!agencyName.trim()) {
+      newErrors.agencyName = 'Tên đại lý không được để trống hoặc chỉ chứa khoảng trắng.';
+    }
     if (!agencyType) newErrors.agencyType = 'Loại đại lý không được để trống.';
     if (!district) newErrors.district = 'Quận không được để trống.';
-    if (!address) newErrors.address = 'Địa chỉ không được để trống.';
+    if (!address.trim()) newErrors.address = 'Địa chỉ không được để trống hoặc chỉ chứa khoảng trắng.';
     if (!phone) {
-    newErrors.phone = 'Điện thoại không được để trống.';
-  } else if (!/^0\d{9}$/.test(phone)) {
-    newErrors.phone = 'Số điện thoại không hợp lệ. Phải có 10 chữ số và bắt đầu bằng 0.';
-  }
-    if (!email) newErrors.email = 'Email không được để trống.';
+      newErrors.phone = 'Điện thoại không được để trống.';
+    } else if (!/^0\d{9}$/.test(phone)) {
+      newErrors.phone = 'Số điện thoại không hợp lệ. Phải có 10 chữ số và bắt đầu bằng 0.';
+    }
+        if (!email) newErrors.email = 'Email không được để trống.';
     if (email && !/\S+@\S+\.\S+/.test(email))
       newErrors.email = 'Email không hợp lệ.';
     if (!filingDate) {
-  newErrors.filingDate = 'Ngày lập phiếu không được để trống.';
-} else {
-  const today = new Date();
-  const inputDate = new Date(filingDate);
+      newErrors.filingDate = 'Ngày lập phiếu không được để trống.';
+    } else {
+      const today = new Date();
+      const inputDate = new Date(filingDate);
 
-  // So sánh bỏ phần thời gian, chỉ so sánh ngày
-  today.setHours(0, 0, 0, 0);
-  inputDate.setHours(0, 0, 0, 0);
+      // So sánh bỏ phần thời gian, chỉ so sánh ngày
+      today.setHours(0, 0, 0, 0);
+      inputDate.setHours(0, 0, 0, 0);
 
-  if (inputDate > today) {
-    newErrors.filingDate = 'Ngày lập phiếu không được lớn hơn ngày hiện tại.';
-  }
-}
+      if (inputDate > today) {
+        newErrors.filingDate = 'Ngày lập phiếu không được lớn hơn ngày hiện tại.';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -327,7 +329,7 @@ export default function AgencyReceptionPage() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              error={errors.phone}
+              error={errors.phone} 
               disabled={isLoading}
               required
             />
