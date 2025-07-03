@@ -32,7 +32,7 @@ export class ExportSheetsService {
     });
 
     if (!daily) {
-      throw new NotFoundException('Dai ly khong ton tai');
+      throw new NotFoundException('Đại lý không tồn tại');
     }
 
     // Validate nhanVien exists
@@ -43,7 +43,7 @@ export class ExportSheetsService {
     });
 
     if (!nhanVien) {
-      throw new NotFoundException('Nhan vien khong ton tai');
+      throw new NotFoundException('Nhân viên không tồn tại');
     }
 
     // Calculate totalThanhTien by fetching don_gia from matHang
@@ -57,14 +57,14 @@ export class ExportSheetsService {
 
         if (!matHang) {
           throw new NotFoundException(
-            `Mat hang ${item.mathang_id} khong ton tai`,
+            `Mặt hàng ${item.mathang_id} không tồn tại`,
           );
         }
 
         const don_gia = matHang.don_gia || 0;
         if (don_gia <= 0) {
           throw new BadRequestException(
-            `Don gia cua mat hang ${item.mathang_id} khong hop le`,
+            `Đơn giá của mặt hàng ${item.mathang_id} không hợp lệ: ${don_gia}`,
           );
         }
 
@@ -87,7 +87,7 @@ export class ExportSheetsService {
     const maxTienNo = daily.loaiDaiLy.tien_no_toi_da || Infinity; // Default to Infinity if not set
     if (currentTienNo + totalThanhTien > maxTienNo) {
       throw new BadRequestException(
-        `Tong no (${currentTienNo + totalThanhTien}) vuot qua gioi han no toi da (${maxTienNo}) cua loai dai ly`,
+        `Tổng nợ (${currentTienNo + totalThanhTien}) vượt qua giới hạn tối đa (${maxTienNo}) của loại đại lý`,
       );
     }
 
@@ -151,7 +151,7 @@ export class ExportSheetsService {
     });
 
     if (!phieuXuat) {
-      throw new NotFoundException('Phieu xuat khong ton tai');
+      throw new NotFoundException('Phiếu xuất hàng không tồn tại');
     }
 
     return new DetailExportSheetsResponse(phieuXuat);
