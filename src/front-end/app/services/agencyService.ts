@@ -210,6 +210,7 @@ export const fetchDistrictsAPI = async (): Promise<DistrictFromAPI[]> => {
 export const fetchAgencyByIdAPI = async (agencyId: string | number): Promise<Agency> => {
   try {
     const response = await apiClient.get<AgencyFromApi>(`/agency/detail/${agencyId}`); // Endpoint của bạn
+    console.log('AgencyService: Fetched agency detail:', response.data);
     if (!response.data) {
         throw new Error('Không tìm thấy dữ liệu chi tiết cho đại lý.');
     }

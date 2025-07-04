@@ -42,7 +42,8 @@ export default function RegulationDebtBatchPage() {
   };
 
   const onModalSave = () => {
-    if (editingIndex === null) return;
+    if (editingIndex === null || isNaN(newDebt) || newDebt < 0) return;
+
     const updatedRow = { ...types[editingIndex], tien_no_toi_da: newDebt };
     setTypes(list =>
       list.map((item, i) => (i === editingIndex ? updatedRow : item))
@@ -52,9 +53,9 @@ export default function RegulationDebtBatchPage() {
   };
 
   const onBatchUpdate = async () => {
-    const changed = types.filter((t, i) => t.tien_no_toi_da !== original[i].tien_no_toi_da);
+    const changed = types.filter((t, i) => original[i] && t.tien_no_toi_da !== original[i].tien_no_toi_da);
     if (changed.length === 0) {
-      toast('Không có thay đổi nào.', { icon: 'ℹ️' });
+      toast('Không có thay đổi nào để cập nhật.', { icon: 'ℹ️' });
       return;
     }
     setSubmitting(true);
@@ -63,6 +64,7 @@ export default function RegulationDebtBatchPage() {
         updateRegulationDebt({ loai_daily_id: t.loai_daily_id, value: t.tien_no_toi_da })
       ));
       toast.success('Cập nhật thành công!');
+      // Cập nhật lại trạng thái gốc sau khi đã lưu thành công
       setOriginal(types);
     } catch {
       toast.error('Đã xảy ra lỗi khi cập nhật.');
@@ -70,6 +72,11 @@ export default function RegulationDebtBatchPage() {
       setSubmitting(false);
     }
   };
+  
+  // 1. TÍNH TOÁN XEM CÓ THAY ĐỔI KHÔNG
+  const hasChanges = types.some((t, i) => 
+    original[i] && t.tien_no_toi_da !== original[i].tien_no_toi_da
+  );
 
   if (loading) {
     return (
@@ -91,6 +98,7 @@ export default function RegulationDebtBatchPage() {
       </h2>
 
       <div className="w-full max-w-4xl border rounded-md overflow-hidden">
+        {/* ... table jsx ... */}
         <table className="w-full table-fixed text-sm text-center border-collapse">
           <thead className="bg-gray-100 font-medium">
             <tr>
@@ -101,7 +109,7 @@ export default function RegulationDebtBatchPage() {
           </thead>
           <tbody>
             {types.map((t, idx) => {
-              const isChanged = t.tien_no_toi_da !== original[idx].tien_no_toi_da;
+              const isChanged = original[idx] && t.tien_no_toi_da !== original[idx].tien_no_toi_da;
               return (
                 <tr key={t.loai_daily_id} className={isChanged ? "bg-yellow-50" : ""}>
                   <td className="px-4 py-2 text-left border">{t.ten_loai}</td>
@@ -121,19 +129,21 @@ export default function RegulationDebtBatchPage() {
         </table>
       </div>
 
+      {/* 2. CẬP NHẬT NÚT CẬP NHẬT */}
       <button
         onClick={onBatchUpdate}
-        disabled={submitting}
-        className="mt-6 px-6 py-2 bg-[#2E3A59] text-white rounded hover:bg-[#1f2a43] disabled:opacity-50"
+        disabled={submitting || !hasChanges}
+        className="mt-6 px-6 py-2 bg-[#2E3A59] text-white rounded hover:bg-[#1f2a43] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {submitting ? 'Đang cập nhật...' : 'Cập nhật'}
       </button>
 
+      {/* ... modal jsx ... */}
       {editingIndex !== null && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4 text-center">Chỉnh sửa tiền nợ tối đa</h3>
-
+            
             <div className="mb-3">
               <label className="text-sm font-medium">Tên loại đại lý</label>
               <input
@@ -148,10 +158,11 @@ export default function RegulationDebtBatchPage() {
               <label className="text-sm font-medium">Tiền nợ tối đa</label>
               <input
                 type="number"
-                value={newDebt}
+                value={isNaN(newDebt) ? '' : newDebt}
                 onChange={onDebtChange}
                 disabled={submitting}
                 className="w-full mt-1 px-3 py-2 border rounded border-gray-300"
+                min="0"
               />
             </div>
 
@@ -165,8 +176,8 @@ export default function RegulationDebtBatchPage() {
               </button>
               <button
                 onClick={onModalSave}
-                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-                disabled={submitting}
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={submitting || isNaN(newDebt) || newDebt < 0}
               >
                 Lưu
               </button>

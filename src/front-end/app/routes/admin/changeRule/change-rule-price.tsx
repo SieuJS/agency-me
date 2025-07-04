@@ -44,11 +44,29 @@ export default function DonGiaMatHang() {
     setGiaBanMoi("");
     setLoading(false);
   };
+  
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const numberString = rawValue.replace(/\D/g, "");
+
+    if (numberString === "") {
+      setGiaBanMoi("");
+    } else {
+      const numberValue = parseInt(numberString, 10);
+      setGiaBanMoi(numberValue.toLocaleString("vi-VN"));
+    }
+  };
 
   const handleSave = () => {
     const newPrice = parseInt(giaBanMoi.replace(/\D/g, ""), 10);
+
     if (isNaN(newPrice)) {
       toast.error("Vui lòng nhập giá hợp lệ.");
+      return;
+    }
+
+    if (newPrice < 0) {
+      toast.error("Giá bán không được nhỏ hơn 0.");
       return;
     }
 
@@ -87,6 +105,7 @@ export default function DonGiaMatHang() {
       setPendingChanges({});
     } catch (err) {
       toast.error("Có lỗi xảy ra khi cập nhật hàng loạt.");
+      console.error("Bulk update failed:", err);
     } finally {
       setLoading(false);
     }
@@ -100,6 +119,7 @@ export default function DonGiaMatHang() {
       </h2>
 
       <div className="w-full max-w-4xl border rounded-md overflow-hidden">
+        {/* ... table and pagination code remains the same ... */}
         <table className="w-full border-collapse text-sm text-center">
           <thead className="bg-gray-100 font-medium">
             <tr>
@@ -134,7 +154,6 @@ export default function DonGiaMatHang() {
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center p-4 bg-gray-50 border-t">
           <button
             disabled={page === 1}
@@ -176,9 +195,11 @@ export default function DonGiaMatHang() {
             <label className="text-sm font-medium">Giá bán</label>
             <input
               value={giaBanMoi}
-              onChange={(e) => setGiaBanMoi(e.target.value)}
+              onChange={handlePriceChange}
               className="w-full mt-1 border px-3 py-2 rounded"
               placeholder="Nhập giá mới"
+              type="text"
+              inputMode="numeric"
             />
           </div>
 
@@ -192,8 +213,8 @@ export default function DonGiaMatHang() {
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-              disabled={loading}
+              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading || giaBanMoi === ""}
             >
               Lưu
             </button>
@@ -204,10 +225,10 @@ export default function DonGiaMatHang() {
       {/* Nút Cập nhật toàn bộ */}
       <button
         onClick={handleBulkUpdate}
-        className="mt-6 px-6 py-2 bg-[#2E3A59] text-white rounded hover:bg-[#1f2a43]"
+        className="mt-6 px-6 py-2 bg-[#2E3A59] text-white rounded hover:bg-[#1f2a43] disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={loading || Object.keys(pendingChanges).length === 0}
       >
-        Cập nhật
+        {loading ? "Đang cập nhật..." : "Cập nhật"}
       </button>
     </div>
   );

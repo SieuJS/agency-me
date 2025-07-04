@@ -10,7 +10,7 @@ import { getExportSheets, type ExportSheet, type ExportSheetSearchParams } from 
 import { getAllAgencies, type Agency } from "../../../services/agencyService";
 
 
-// --- Helper function để định dạng ngày an toàn ---
+// --- Helper function để định dạng ngày cho API (Giữ nguyên yyyy-MM-dd) ---
 const formatDateForAPI = (date: Date | null): string | undefined => {
   if (!date) return undefined;
   const year = date.getFullYear();
@@ -48,10 +48,7 @@ export default function ExportSheetSearchRefactored() {
 
         const newMap = new Map<string, string>();
         allAgenciesData.forEach((agency) => {
-          // =================== SỬA LỖI TẠI ĐÂY ===================
-          // Chuyển đổi ID sang string để đảm bảo khớp với kiểu của Map
           newMap.set(agency.id.toString(), agency.name);
-          // ========================================================
         });
         setAgenciesMap(newMap);
 
@@ -67,7 +64,7 @@ export default function ExportSheetSearchRefactored() {
       setIsLoadingFilters(true);
       try {
         const newMinAmount = 0;
-        const newMaxAmount = 50_000_000;
+        const newMaxAmount = 500_000;
         setMinAmountRange(newMinAmount);
         setMaxAmountRange(newMaxAmount);
         setCurrentAmountFilterValue(newMinAmount);
@@ -89,7 +86,6 @@ export default function ExportSheetSearchRefactored() {
           page: currentPage,
           perPage: perPage,
         };
-        console.log("Fetching export sheets with params:", finalParams);
         const { items: fetchedExportSheets, meta } = await getExportSheets(finalParams);
         const exportSheetsWithStt = fetchedExportSheets.map((sheet, index) => ({
           ...sheet,
@@ -112,7 +108,6 @@ export default function ExportSheetSearchRefactored() {
 
   const handleSearch = () => {
     const agencyName = selectedAgencyId ? agenciesMap.get(selectedAgencyId) : undefined;
-
     const searchParams: ExportSheetSearchParams = {
       daily_name: agencyName,
       ngay_lap_phieu: formatDateForAPI(selectedReceiptDate),
@@ -131,10 +126,7 @@ export default function ExportSheetSearchRefactored() {
   };
 
   const isFilterSectionLoading = isLoadingFilters;
-  const calculatedStep = Math.max(
-    1,
-    Math.floor((maxAmountRange - minAmountRange) / 100) || 50_000
-  );
+  const calculatedStep = Math.max(1, Math.floor((maxAmountRange - minAmountRange) / 100) || 50_000);
 
 
   return (
@@ -161,7 +153,7 @@ export default function ExportSheetSearchRefactored() {
           >
             <option value="">-- Chọn đại lý --</option>
             {agencies.map((agency) => (
-              <option key={agency.id} value={agency.id}>
+              <option key={agency.id.toString()} value={agency.id.toString()}>
                 {agency.name}
               </option>
             ))}
@@ -173,12 +165,13 @@ export default function ExportSheetSearchRefactored() {
           <label htmlFor="receiptDate" className="block text-sm font-medium text-gray-700 mb-1">
             Ngày lập phiếu
           </label>
+          {/* --- THAY ĐỔI 1: CẬP NHẬT dateFormat --- */}
           <DatePicker
             id="receiptDate"
             selected={selectedReceiptDate}
             onChange={(date) => setSelectedReceiptDate(date)}
             placeholderText="Chọn ngày"
-            dateFormat="yyyy-MM-dd"
+            dateFormat="dd/MM/yyyy" 
             disabled={isFilterSectionLoading}
             className="h-10 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
           />
@@ -202,10 +195,7 @@ export default function ExportSheetSearchRefactored() {
               className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <span className="w-20 text-right text-sm text-gray-700 tabular-nums">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(currentAmountFilterValue)}
+              {new Intl.NumberFormat("vi-VN").format(currentAmountFilterValue)} đ
             </span>
           </div>
         </div>
@@ -273,7 +263,12 @@ export default function ExportSheetSearchRefactored() {
                     </td>
                     
                     <td className="px-4 py-3 text-gray-700 text-right">
-                      {new Date(exportsheet.ngay_lap_phieu).toLocaleDateString("vi-VN")}
+                      {/* --- THAY ĐỔI 2: ĐỊNH DẠNG NGÀY TRONG BẢNG --- */}
+                      {new Date(exportsheet.ngay_lap_phieu).toLocaleDateString("vi-VN", {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
                     </td>
                     <td className="px-4 py-3 text-gray-700 text-right">
                       {exportsheet.tong_tien.toLocaleString("vi-VN", {

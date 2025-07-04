@@ -3,10 +3,8 @@ import React, { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { Dialog } from '../components/ui/Dialog';
-import { loginUser, type LoginPayload, isAuthenticated, getUserRole, logoutUser} from '../services/authService'; // Import isAuthenticated
+import { loginUser, type LoginPayload, isAuthenticated, getUserRole, logoutUser } from '../services/authService';
 import toast, { Toaster } from 'react-hot-toast';
-
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,30 +12,24 @@ export default function LoginPage() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // Có thể bỏ Dialog nếu bạn chỉ muốn dùng toast cho tất cả thông báo
-  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
-  const [apiErrorMessage, setApiErrorMessage] = useState('');
   const navigate = useNavigate();
 
   // --- KIỂM TRA NẾU ĐÃ ĐĂNG NHẬP ---
- useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated()) {
-      const role = getUserRole(); // role bây giờ là 'admin', 'staff', hoặc null/string khác
-      console.log(`LoginPage: User already authenticated with role: ${role}, redirecting.`);
-
+      const role = getUserRole();
       if (role === 'admin') {
         navigate('/admin/agency/lookup', { replace: true });
       } else if (role === 'staff') {
         navigate('/staff/agency/lookup', { replace: true });
       } else {
-        console.warn('User authenticated but role is unknown or invalid. Logging out.');
         logoutUser();
         navigate('/login', { replace: true });
       }
     }
   }, [navigate]);
 
-  // --- Validation ---
+  // --- CÁC HÀM VALIDATION (Không đổi) ---
   const validateEmail = (emailValue: string): string => {
     if (!emailValue.trim()) return 'Email không được để trống.';
     if (!/\S+@\S+\.\S+/.test(emailValue)) return 'Định dạng email không hợp lệ.';
@@ -45,72 +37,63 @@ export default function LoginPage() {
   };
 
   const validatePasswordLength = (pwd: string): string => {
-      if (!pwd) return 'Mật khẩu không được để trống.';
-      if (pwd.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự.';
-      return '';
+    if (!pwd) return 'Mật khẩu không được để trống.';
+    if (pwd.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự.';
+    return '';
   };
 
+  // --- VALIDATE EMAIL KHI THAY ĐỔI ---
   useEffect(() => {
-    // Chỉ validate khi người dùng đã tương tác (gõ rồi xóa, hoặc blur)
-    // Hoặc validate khi submit. Tạm thời để validate ngay khi thay đổi.
-    if (email || emailError) { // Validate nếu email có giá trị hoặc đã có lỗi trước đó
-        setEmailError(validateEmail(email));
+    if (email) {
+      setEmailError(validateEmail(email));
+    } else {
+      setEmailError('');
     }
   }, [email]);
 
+  // --- LOGIC MỚI: VALIDATE MẬT KHẨU NGAY LẬP TỨC KHI GÕ ---
   useEffect(() => {
-    if (password || passwordError) { // Validate nếu password có giá trị hoặc đã có lỗi trước đó
-        if (!email.trim() && password.length > 0) {
-            setPasswordError('Vui lòng nhập email trước.');
-        } else if (email.trim() && !validateEmail(email)) {
-            // Email không hợp lệ, không nên validate password vội
-            setPasswordError(''); // Xóa lỗi password
-        } else if (email.trim()) {
-            setPasswordError(validatePasswordLength(password));
-        } else {
-            setPasswordError(''); // Email rỗng, password cũng nên xóa lỗi (trừ khi password có giá trị)
-        }
-    } else if (!password && !emailError) { // Nếu xóa password và email hợp lệ
+    // Nếu người dùng đã bắt đầu gõ vào ô mật khẩu (password không rỗng)
+    if (password) {
+      // Kiểm tra ngay lập tức xem có đủ 6 ký tự không
+      if (password.length < 6) {
+        setPasswordError('Mật khẩu phải có ít nhất 6 ký tự.');
+      } else {
+        // Nếu đã đủ 6 ký tự trở lên, xóa lỗi ngay lập tức
         setPasswordError('');
+      }
+    } else {
+      // Nếu người dùng xóa hết ký tự, cũng xóa thông báo lỗi
+      setPasswordError('');
     }
-  }, [email, password, emailError]); // Thêm emailError vào dependencies
+  }, [password]); // Chỉ cần theo dõi sự thay đổi của `password`
 
-
-  
 
   const isButtonDisabled = isLoading || !!emailError || !!passwordError || !email.trim() || !password;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-       event.preventDefault();
+    event.preventDefault();
 
-       const currentEmailError = validateEmail(email);
-       setEmailError(currentEmailError);
+    // Vẫn cần kiểm tra lần cuối trước khi submit để đảm bảo các trường không bị bỏ trống
+    const currentEmailError = validateEmail(email);
+    const currentPasswordError = validatePasswordLength(password);
+    
+    setEmailError(currentEmailError);
+    setPasswordError(currentPasswordError);
 
-       let currentPasswordError = '';
-       if (!email.trim() && password.length > 0) {
-           currentPasswordError = 'Vui lòng nhập email trước.';
-       } else if (email.trim() && !currentEmailError) {
-           currentPasswordError = validatePasswordLength(password);
-       }
-       setPasswordError(currentPasswordError);
+    if (currentEmailError || currentPasswordError) {
+      if (currentEmailError) toast.error(currentEmailError);
+      if (currentPasswordError) toast.error(currentPasswordError);
+      return;
+    }
 
-       if (currentEmailError || currentPasswordError || !email.trim() || !password) {
-           if (currentEmailError || !email.trim()) toast.error(currentEmailError || 'Email không được để trống.');
-           if (currentPasswordError || !password) toast.error(currentPasswordError || 'Mật khẩu không được để trống.');
-           return;
-       }
+    setIsLoading(true);
+    const payload: LoginPayload = { email: email.trim(), password };
 
-       setIsLoading(true);
-       // setIsErrorDialogOpen(false); // Không cần nếu dùng toast
-       // setApiErrorMessage('');
-
-       const payload: LoginPayload = { email: email.trim(), password };
-
-      try {
+    try {
       const authData = await loginUser(payload);
       toast.success('Đăng nhập thành công!');
 
-      // authData.user.loai_nhan_vien_id giờ đây là 'admin' hoặc 'staff'
       const userRole = authData.user?.loai_nhan_vien_id;
 
       setTimeout(() => {
@@ -119,7 +102,6 @@ export default function LoginPage() {
         } else if (userRole === 'staff') {
           navigate('/staff/agency/lookup');
         } else {
-          console.warn("Đăng nhập thành công nhưng role không xác định:", userRole);
           toast.error("Không thể xác định vai trò người dùng. Vui lòng liên hệ quản trị viên.");
           logoutUser();
           navigate('/login');
@@ -133,9 +115,10 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-600 p-4">
-      <Toaster position="top-right" toastOptions={{ duration: 3000 }} /> {/* Cấu hình Toaster */}
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <div className="bg-slate-300 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">ĐĂNG NHẬP</h1>
         <form onSubmit={handleSubmit} noValidate>
@@ -146,7 +129,9 @@ export default function LoginPage() {
           />
           <Input
             label="Mật khẩu" id="password" name="password" type="password" value={password}
-            onChange={(e) => setPassword(e.target.value)} error={passwordError}
+            onChange={(e) => setPassword(e.target.value)}
+            // Không cần onBlur nữa
+            error={passwordError}
             disabled={isLoading} required autoComplete="current-password"
           />
           <div className="mt-8">
@@ -156,10 +141,6 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
-      {/* Bạn có thể giữ Dialog nếu muốn dùng cho một số lỗi cụ thể, hoặc xóa đi nếu dùng toast cho tất cả */}
-      {/* <Dialog isOpen={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}
-        title="Đăng nhập thất bại" message={apiErrorMessage}
-      /> */}
     </div>
   );
 }
