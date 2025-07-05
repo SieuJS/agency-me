@@ -84,7 +84,7 @@ export class AgencyService {
       },
     });
     if (existingAgency) {
-      throw new Error('Agency with this phone number or email already exists');
+      throw new Error('Đại lý với số điện thoại hoặc email này đã tồn tại');
     }
 
     const existingNhanVien = await this.prisma.nhanVien.findUnique({
@@ -94,7 +94,7 @@ export class AgencyService {
     });
 
     if (!existingNhanVien) {
-      throw new Error('Employee not found');
+      throw new Error('Không tìm thấy nhân viên tiếp nhận');
     }
 
     const existingLoaiDaiLy = await this.prisma.loaiDaiLy.findUnique({
@@ -103,7 +103,7 @@ export class AgencyService {
       },
     });
     if (!existingLoaiDaiLy) {
-      throw new Error('Agency type not found');
+      throw new Error('Không tìm thấy loại đại lý');
     }
     const existingQuan = await this.prisma.quan.findUnique({
       where: {
@@ -111,7 +111,7 @@ export class AgencyService {
       },
     });
     if (!existingQuan) {
-      throw new Error('District not found');
+      throw new Error('Không tìm thấy quận');
     }
     
     // Kiểm tra số lượng đại lý trong quận (không tính da_xoa: true) so với gioi_han_so_daily
@@ -122,7 +122,7 @@ export class AgencyService {
       },
     });
     if (agencyCountInQuan >= existingQuan.gioi_han_so_daily) {
-      throw new Error(`Maximum number of agencies (${existingQuan.gioi_han_so_daily}) in this district has been reached`);
+      throw new Error(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
     }
     
     // Tạo mã đại lý (daily_id) tự động
@@ -180,6 +180,26 @@ export class AgencyService {
 
     // Only add fields that are not null or undefined
     if (input.quan_id !== undefined && input.quan_id !== null) {
+      const existingQuan = await this.prisma.quan.findUnique({
+        where: {
+          quan_id: input.quan_id,
+        },
+      });
+      if (!existingQuan) {
+        throw new Error('Không tìm thấy quận');
+      }
+      
+      // Kiểm tra số lượng đại lý trong quận (không tính da_xoa: true) so với gioi_han_so_daily
+      const agencyCountInQuan = await this.prisma.daiLy.count({
+        where: {
+          quan_id: input.quan_id,
+          da_xoa: false,
+        },
+      });
+      if (agencyCountInQuan >= existingQuan.gioi_han_so_daily) {
+        throw new Error(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
+      }
+
       updateData.quan_id = input.quan_id;
     }
 
@@ -218,7 +238,7 @@ export class AgencyService {
       where: { daily_id: id, da_xoa: false },
     });
     if (!existingAgency) {
-      throw new NotFoundException('Agency not found');
+      throw new NotFoundException('Không tìm thấy đại lý');
     }
 
     const agency = await this.prisma.daiLy.update({
@@ -239,7 +259,7 @@ export class AgencyService {
       where: { daily_id: id, da_xoa: false },
     });
     if (!existingAgency) {
-      throw new NotFoundException('Agency not found');
+      throw new NotFoundException('Không tìm thấy đại lý');
     }
 
     const agency = await this.prisma.daiLy.update({
@@ -252,7 +272,7 @@ export class AgencyService {
       },
     });
     if (!agency) {
-      throw new NotFoundException('Agency not found');
+      throw new NotFoundException('Không tìm thấy đại lý');
     }
     return new AgencyDto(agency);
   }
