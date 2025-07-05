@@ -113,6 +113,14 @@ export default function AgencyEditPage() {
       }
     }
 
+    if (!agency.name.trim()) {
+      // Chỉ hiện toast này nếu chưa có lỗi 'bắt buộc' cho địa chỉ
+      if (!newErrors.name) {
+        toast.error('Tên đại lý không được để trống.');
+      }
+      newErrors.name = true;
+    }
+
     // 2. Kiểm tra định dạng email (chỉ khi trường email không trống)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (agency.email && !emailRegex.test(agency.email)) {
@@ -132,16 +140,22 @@ export default function AgencyEditPage() {
       }
       newErrors.phone = true;
     }
-
-    const diaChiRegex = /^[\w\s,.]+$/; // Regex đơn giản cho địa chỉ
-    const consecutiveSpacesRegex = /\s{2,}/; // Kiểm tra khoảng trắng liên tiếp
     
-    if (agency.address && (!diaChiRegex.test(agency.address) || consecutiveSpacesRegex.test(agency.address))) {
+    if (!agency.address.trim()) {
       // Chỉ hiện toast này nếu chưa có lỗi 'bắt buộc' cho địa chỉ
       if (!newErrors.address) {
-        toast.error('Địa chỉ không hợp lệ. Chỉ cho phép chữ cái, số, khoảng trắng đơn, dấu phẩy và dấu chấm.');
+        toast.error('Địa chỉ không được để trống.');
       }
       newErrors.address = true;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inputDate = new Date(agency.createdDate);
+    inputDate.setHours(0, 0, 0, 0);
+    if (inputDate > today) {
+      newErrors.createdDate = true;
+      toast.error('Ngày tiếp nhận không được lớn hơn ngày hiện tại.');
     }
 
     // --- Kết thúc khu vực kiểm tra lỗi ---
