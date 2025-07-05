@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/common';
 import { AgencyParams } from '../models/agency.params';
 import { AgencyDto } from '../models/agency.dto';
 import { AgencyInput } from '../models/agency.input';
 import { PaginationService } from 'src/modules/common/services/pagination.service';
 import { AgencyListResponse } from '../models/agency-list.response';
+import parser from 'any-date-parser';
 
 @Injectable()
 export class AgencyService {
@@ -122,7 +123,7 @@ export class AgencyService {
       },
     });
     if (agencyCountInQuan >= existingQuan.gioi_han_so_daily) {
-      throw new Error(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
+      throw new BadRequestException(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
     }
     
     // Tạo mã đại lý (daily_id) tự động
@@ -178,6 +179,7 @@ export class AgencyService {
     // Create data object with only defined fields
     const updateData: Record<string, any> = {};
 
+
     // Only add fields that are not null or undefined
     if (input.quan_id !== undefined && input.quan_id !== null) {
       const existingQuan = await this.prisma.quan.findUnique({
@@ -197,7 +199,7 @@ export class AgencyService {
         },
       });
       if (agencyCountInQuan >= existingQuan.gioi_han_so_daily) {
-        throw new Error(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
+        throw new BadRequestException(`Số lượng tối đa đại lý (${existingQuan.gioi_han_so_daily}) trong quận này đã đạt giới hạn.`);
       }
 
       updateData.quan_id = input.quan_id;
@@ -232,6 +234,10 @@ export class AgencyService {
 
     if (input.tien_no !== undefined && input.tien_no !== null) {
       updateData.tien_no = input.tien_no;
+    }
+
+    if( input.ngay_tiep_nhan !== undefined && input.ngay_tiep_nhan !== null) {
+      updateData.ngay_tiep_nhan = parser.fromAny(input.ngay_tiep_nhan);
     }
 
     const existingAgency = await this.prisma.daiLy.findUnique({

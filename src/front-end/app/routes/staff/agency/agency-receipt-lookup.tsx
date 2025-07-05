@@ -46,7 +46,7 @@ export default function ReceiptSearchRefactored() {
 
   // States cho giá trị min/max của thanh trượt
   const [minAmountRange, setMinAmountRange] = useState(0);
-  const [maxAmountRange, setMaxAmountRange] = useState(10_000_000);
+  const [maxAmountRange, setMaxAmountRange] = useState(500_000);
 
   // States cho pagination và search params
   const [currentPage, setCurrentPage] = useState(1);

@@ -5,6 +5,8 @@ import DatePicker from 'react-datepicker';
 import { Button } from '../../../components/ui/Button';
 import { FileText, Edit3, Trash2, ArrowLeft, UserCircle, DollarSign, MapPin, Building, Phone, Mail, CalendarDays } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import 'react-datepicker/dist/react-datepicker.css';
+
 import {
   fetchAgencyByIdAPI,
   type Agency,
@@ -131,6 +133,17 @@ export default function AgencyEditPage() {
       newErrors.phone = true;
     }
 
+    const diaChiRegex = /^[\w\s,.]+$/; // Regex đơn giản cho địa chỉ
+    const consecutiveSpacesRegex = /\s{2,}/; // Kiểm tra khoảng trắng liên tiếp
+    
+    if (agency.address && (!diaChiRegex.test(agency.address) || consecutiveSpacesRegex.test(agency.address))) {
+      // Chỉ hiện toast này nếu chưa có lỗi 'bắt buộc' cho địa chỉ
+      if (!newErrors.address) {
+        toast.error('Địa chỉ không hợp lệ. Chỉ cho phép chữ cái, số, khoảng trắng đơn, dấu phẩy và dấu chấm.');
+      }
+      newErrors.address = true;
+    }
+
     // --- Kết thúc khu vực kiểm tra lỗi ---
 
     // Cập nhật state errors để tô đỏ các khung bị lỗi trên UI
@@ -178,8 +191,8 @@ export default function AgencyEditPage() {
       await updateAgencyByIdAPI(id, payload);
       toast.success('Cập nhật đại lý thành công.');
       navigate('/admin/agency/detail/' + id);
-    } catch (error) {
-      toast.error('Cập nhật thất bại.');
+    } catch (error : any) {
+      toast.error(error.message || 'Lỗi khi cập nhật đại lý.');
     }
   };
 

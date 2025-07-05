@@ -18,21 +18,21 @@ services:
       - POSTGRESQL_DATABASE=angency-me
       - POSTGRESQL_USERNAME=agency-admin
       - POSTGRESQL_PASSWORD=password
-  # server:
-  #   build: 
-  #     context: .  
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - '3000:3000'
-  #   stdin_open: true
-  #   tty: true  # Keeps the container running for debugging
-  #   depends_on:
-  #     - postgresql
-  #   env_file:
-  #     - .env.product
-  #   networks:
-  #     - prisma-network
-  #   restart: unless-stopped
+  server:
+    build: 
+      context: .  
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    tty: true  # Keeps the container running for debugging
+    depends_on:
+      - postgresql
+    env_file:
+      - .env.product
+    networks:
+      - prisma-network
+    restart: unless-stopped
 networks:
   prisma-network:
     name: prisma-network
