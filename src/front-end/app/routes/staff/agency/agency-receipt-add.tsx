@@ -16,6 +16,9 @@ export default function ReceiptFormPage() {
   const [email, setEmail] = useState<string>('');
   const [receiptDate, setReceiptDate] = useState<string>(''); // ISO string yyyy-MM-dd
   const [amount, setAmount] = useState<number | ''>('');
+  
+  // 1. THÊM STATE CHO SỐ TIỀN NỢ
+  const [debt, setDebt] = useState<number | ''>('');
 
   const [isLoadingAgencies, setIsLoadingAgencies] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -37,26 +40,32 @@ export default function ReceiptFormPage() {
     fetchAgencies();
   }, []);
 
-  // Khi chọn đại lý, tự động điền địa chỉ, điện thoại, email
+  // Khi chọn đại lý, tự động điền địa chỉ, điện thoại, email, và số nợ
   useEffect(() => {
+    // 2. CẬP NHẬT LOGIC
     if (!selectedAgencyId) {
       setAddress('');
       setPhone('');
       setEmail('');
+      setDebt(''); // Reset nợ khi không chọn đại lý
       return;
     }
     const fetchAgencyDetail = async () => {
       try {
         const agency = await fetchAgencyByIdAPI(selectedAgencyId);
+        console.log('Fetched agency detail:', agency);
         setAddress(agency.address || '');
         setPhone(agency.phone || '');
         setEmail(agency.email || '');
+        setDebt(agency.debt ?? ''); // Lấy số nợ
       } catch (err) {
         console.error('Error fetching agency detail:', err);
         toast.error('Không thể lấy thông tin đại lý.');
       }
     };
     fetchAgencyDetail();
+    console.log('Selected agency ID:', selectedAgencyId);
+    console.log('Selected agency debt:', debt);
   }, [selectedAgencyId]);
 
   // Mặc định để ngày hiện tại
@@ -70,9 +79,9 @@ export default function ReceiptFormPage() {
     setAddress('');
     setPhone('');
     setEmail('');
+    setDebt(''); // Reset nợ
     setReceiptDate(new Date().toISOString().split('T')[0]);
     setAmount('');
-    
   };
 
   // Xử lý lưu phiếu thu
@@ -85,17 +94,16 @@ export default function ReceiptFormPage() {
     if (!receiptDate) {
       toast.error('Vui lòng chọn ngày thu tiền.');
       return;
-    } else {
+    }
     const today = new Date();
     const inputDate = new Date(receiptDate);
 
-  // So sánh bỏ phần thời gian, chỉ so sánh ngày
     today.setHours(0, 0, 0, 0);
     inputDate.setHours(0, 0, 0, 0);
 
-  if (inputDate > today) {
-    toast.error('Ngày lập phiếu không được lớn hơn ngày hiện tại.');
-  }
+    if (inputDate > today) {
+      toast.error('Ngày lập phiếu không được lớn hơn ngày hiện tại.');
+      return; // Thêm return để dừng lại
     }
 
     if (amount === '' || amount <= 0) {
@@ -111,14 +119,17 @@ export default function ReceiptFormPage() {
 
     setIsSubmitting(true);
     try {
-      // Gọi API thật
       const message = await addReceipt(payload);
       toast.success(message);
-      handleReset();
+      // Sau khi lưu thành công, cập nhật lại số nợ của đại lý đang chọn
+      if (selectedAgencyId) {
+          const updatedAgency = await fetchAgencyByIdAPI(selectedAgencyId);
+          setDebt(updatedAgency.debt || '');
+      }
+      handleReset(); // Reset form sau khi thành công
     } catch (err: any) {
       console.error('Error creating receipt:', err);
-      const errorMsg =
-        err?.response?.data?.message || 'Lỗi khi lưu phiếu thu.';
+      const errorMsg = err?.response?.data?.message || 'Lỗi khi lưu phiếu thu.';
       toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
@@ -136,14 +147,12 @@ export default function ReceiptFormPage() {
         <button
           type="button"
           onClick={handleReset}
-          
-          className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-yellow hover:bg-gray-50"
+          className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
           disabled={isSubmitting}
         >
           <RefreshCw size={16} />
-          <span className="text-sm text-black-700">Đặt lại</span>
+          <span className="text-sm text-gray-700">Đặt lại</span>
         </button>
-        
       </div>
 
       <form
@@ -153,12 +162,10 @@ export default function ReceiptFormPage() {
         }}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+          {/* ... Các trường Tên đại lý, Địa chỉ, Điện thoại ... */}
           {/* Tên đại lý */}
           <div className="col-span-1">
-            <label
-              htmlFor="agencySelect"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="agencySelect" className="block text-sm font-medium text-gray-700 mb-1">
               Tên đại lý
             </label>
             <select
@@ -176,18 +183,13 @@ export default function ReceiptFormPage() {
               ))}
             </select>
             {isLoadingAgencies && (
-              <p className="text-xs text-gray-500 mt-1">
-                Đang tải danh sách đại lý...
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Đang tải danh sách đại lý...</p>
             )}
           </div>
 
           {/* Địa chỉ */}
           <div className="col-span-1">
-            <label
-              htmlFor="address"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
               Địa chỉ
             </label>
             <input
@@ -196,16 +198,13 @@ export default function ReceiptFormPage() {
               value={address}
               readOnly
               placeholder="(Autofill theo đại lý)"
-              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm sm:text-sm"
             />
           </div>
 
           {/* Điện thoại */}
           <div className="col-span-1">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
               Điện thoại
             </label>
             <input
@@ -214,16 +213,13 @@ export default function ReceiptFormPage() {
               value={phone}
               readOnly
               placeholder="(Autofill theo đại lý)"
-              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm sm:text-sm"
             />
           </div>
 
           {/* Email */}
           <div className="col-span-1">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
@@ -232,16 +228,28 @@ export default function ReceiptFormPage() {
               value={email}
               readOnly
               placeholder="(Autofill theo đại lý)"
-              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm sm:text-sm"
+            />
+          </div>
+
+          {/* 3. THÊM TRƯỜNG "SỐ TIỀN NỢ" VÀO JSX */}
+          <div className="col-span-1">
+            <label htmlFor="debt" className="block text-sm font-medium text-gray-700 mb-1">
+              Tiền nợ hiện tại
+            </label>
+            <input
+              type="text" // Dùng text để hiển thị chuỗi đã định dạng
+              id="debt"
+              value={debt === '' ? '' : `${Number(debt).toLocaleString('vi-VN')} VND`}
+              readOnly
+              placeholder="(Autofill theo đại lý)"
+              className="block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm sm:text-sm font-medium text-red-600"
             />
           </div>
 
           {/* Ngày thu tiền */}
           <div className="col-span-1">
-            <label
-              htmlFor="receiptDate"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="receiptDate" className="block text-sm font-medium text-gray-700 mb-1">
               Ngày thu tiền
             </label>
             <input
@@ -255,11 +263,8 @@ export default function ReceiptFormPage() {
           </div>
 
           {/* Số tiền thu */}
-          <div className="col-span-1">
-            <label
-              htmlFor="amount"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+          <div className="col-span-2"> {/* Cho chiếm cả hàng để nổi bật hơn */}
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
               Số tiền thu
             </label>
             <input
@@ -270,7 +275,7 @@ export default function ReceiptFormPage() {
                 const val = e.target.value;
                 setAmount(val === '' ? '' : Number(val));
               }}
-              placeholder="Số tiền thu"
+              placeholder="Nhập số tiền thu"
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               disabled={isSubmitting}
               min="0"
@@ -278,13 +283,13 @@ export default function ReceiptFormPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-8 flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 disabled:opacity-50"
+            className="w-full sm:w-auto px-8 py-3 bg-gray-800 text-white text-base font-medium rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 disabled:opacity-50"
             disabled={isSubmitting || isLoadingAgencies}
           >
-            {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+            {isSubmitting ? 'Đang lưu...' : 'Lập phiếu thu'}
           </button>
         </div>
       </form>

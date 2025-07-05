@@ -1,29 +1,37 @@
-import React from 'react';
+// src/front-end/app/components/ui/Dialog.tsx (PHIÊN BẢN ĐÃ SỬA)
 
+// Bước 1: Thêm import 'ReactNode'
+import type { ReactNode } from 'react';
+
+// Bước 2: Thêm 'children' vào interface DialogProps
 interface DialogProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  message: string;
+  children: ReactNode; // <--- THÊM DÒNG NÀY
 }
 
-export function Dialog({ isOpen, onClose, title, message }: DialogProps) {
+export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
   if (!isOpen) return null;
 
   return (
     // Backdrop overlay
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
       {/* Dialog Box */}
-      <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 transform transition-all duration-300 ease-in-out scale-100 opacity-100">
-        <h2 className="text-xl font-semibold text-gray-800 mb-3">{title}</h2>
-        <p className="text-sm text-gray-600 mb-5">{message}</p>
-        <div className="text-right">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> {/* Thêm width để giới hạn kích thước */}
+        <div className="flex justify-between items-center border-b pb-3">
+          <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close dialog"
           >
-            Đóng
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
+        </div>
+        <div className="mt-4">
+          {/* Bước 3: Render prop 'children' ở đây */}
+          {children}
         </div>
       </div>
     </div>
